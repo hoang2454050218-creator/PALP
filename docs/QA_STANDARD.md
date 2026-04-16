@@ -831,18 +831,53 @@ Moi endpoint trong API.md phai co **toi thieu** cac test case sau:
 
 **Bat ky SK nao con ton tai -> NO-GO tuyet doi, khong ngoai le.**
 
-### 7.2. Privacy Checks (8 hang muc, tat ca phai PASS)
+### 7.2. Privacy Standard (Upgraded)
 
-| # | Hang muc | Chi tiet kiem tra |
-|---|---------|-------------------|
-| PRI-01 | Consent gate | User chua consent -> he thong KHONG thu thap du lieu hoc tap |
-| PRI-02 | Consent timestamp | consent_given_at luu dung thoi diem consent |
-| PRI-03 | Minimum data collection | Chi thu thap du lieu can thiet cho chuc nang (khong thu thua) |
-| PRI-04 | Pseudonymization | Analytics queries su dung pseudonymized data, khong leak ten/MSSV |
-| PRI-05 | Lecturer data isolation | GV chi thay SV trong class duoc assign, khong thay class khac |
-| PRI-06 | Data retention | Event logs chi giu 6 thang, sau do aggregate |
-| PRI-07 | Export/delete request | Co mechanism de SV yeu cau xoa du lieu ca nhan |
-| PRI-08 | Privacy policy | Consent wording da duoc phe duyet truoc khi collect |
+> PRD: ma hoa PII, pseudonymization, quyen SV xem/export/xoa, phan biet 3 tier du lieu, xu ly su co 48h.
+> **Tieu chuan nay co the hoa tung yeu cau va them cac dieu kien fail nghiem trong.**
+
+#### 7.2.1. Privacy Principles
+
+| # | Nguyen tac | Chuan bat buoc | Test ref |
+|---|----------|---------------|----------|
+| PP-01 | Consent ro rang | Khong gop chung mo ho; phan biet tung purpose (academic / behavioral / inference); revoke duoc tung loai | `privacy/tests.py::TestConsentFlow` |
+| PP-02 | Phan biet 3 tier du lieu | Tier 1: hoc vu lich su (academic); Tier 2: hanh vi hoc tap (behavioral); Tier 3: suy luan (mastery, risk flag, inference) | Export tra ve 3 tiers rieng biet |
+| PP-03 | Quyen xoa co policy | Behavioral: hard delete; Inference (mastery, alerts): hard delete; PII: anonymize (not delete -- giu aggregate); Academic: giu theo quy dinh truong | `privacy/tests.py::TestDeleteAnonymizeFlow` |
+| PP-04 | Export de doc | JSON voi timestamp, format_version, glossary giai thich tung field, phan chia theo tier | `privacy/tests.py::TestExportFlow` |
+| PP-05 | GV chi xem du lieu can thiet | GV xem mastery (p_mastery) nhung KHONG xem BKT internals (p_guess, p_slip, p_transit); GV xem assessment events nhung KHONG xem page_view hoac wellbeing | `privacy/tests.py::TestRBAC::test_lecturer_sees_filtered_*` |
+| PP-06 | Khong suy dien vuot muc | Event tracking chi phuc vu muc tieu su pham da cong bo (KPI pilot); khong dung de xep hang SV hoac suy dien nang luc ngoai scope | Policy check; no ranking endpoint; no leaderboard |
+
+#### 7.2.2. Privacy Checks chi tiet (12 hang muc)
+
+| # | Hang muc | Chi tiet kiem tra | Test ref |
+|---|---------|-------------------|----------|
+| PRI-01 | Consent gate | User chua consent -> he thong KHONG thu thap du lieu hoc tap | `TestRBAC::test_consent_gate_blocks_without_consent` |
+| PRI-02 | Consent timestamp | consent_given_at luu dung thoi diem, ConsentRecord co version | `TestConsentFlow::test_consent_sync_to_user_flag` |
+| PRI-03 | Minimum data collection | Chi thu thap du lieu can thiet cho chuc nang (khong thu thua) | Code review + PP-06 |
+| PRI-04 | Pseudonymization | Analytics queries dung pseudonymized data, khong leak ten/MSSV | `TestPIIScrubbing` |
+| PRI-05 | Lecturer data isolation | GV chi thay SV trong class duoc assign | RBAC tests, ALERT-003 |
+| PRI-06 | Data retention | Event logs chi giu 6 thang, sau do aggregate + delete | `TestRetention::test_retention_deletes_old_behavioral` |
+| PRI-07 | Export/delete request | SV co mechanism xem/export/xoa du lieu ca nhan | `TestExportFlow`, `TestDeleteAnonymizeFlow` |
+| PRI-08 | Privacy policy | Consent wording da duoc phe duyet truoc khi collect | Manual PO + Phong DT |
+| PRI-09 | Log scrubbing | PII (email, phone, student_id) bi scrub trong logs va Sentry | `TestPIIScrubbing::test_log_filter_scrubs_*` |
+| PRI-10 | Error response scrubbing | Exception messages khong chua PII | `TestPIIScrubbing::test_exception_handler_scrubs_pii` |
+| PRI-11 | Incident response SLA | Privacy incident phai co SLA deadline (48h), escalation | `TestIncidentResponse::test_incident_sla_deadline_set` |
+| PRI-12 | Consent history | Moi thay doi consent duoc giu trong ConsentRecord (khong overwrite) | `TestConsentFlow::test_consent_history_preserved` |
+
+#### 7.2.3. Privacy Release Gate
+
+| # | Dieu kien | Nguong | Nguon verify |
+|---|----------|--------|-------------|
+| PRG-01 | 100% consent flow pass | Tat ca TestConsentFlow tests PASS | CI test report |
+| PRG-02 | 100% export flow pass | Tat ca TestExportFlow tests PASS | CI test report |
+| PRG-03 | 100% delete/anonymize flow pass | Tat ca TestDeleteAnonymizeFlow tests PASS | CI test report |
+| PRG-04 | 100% RBAC pass | Tat ca TestRBAC tests PASS (bao gom consent gate) | CI test report |
+| PRG-05 | 100% audit trail pass | Tat ca TestAuditTrail tests PASS | CI test report |
+| PRG-06 | 0 PII leak | Tat ca TestPIIScrubbing tests PASS; 0 PII trong logs, analytics, error report | CI + manual verify |
+| PRG-07 | 0 tier confusion | Export tra ve dung 3 tiers; delete chi anh huong tier duoc chon | TestExportFlow + TestDeleteAnonymizeFlow |
+| PRG-08 | Incident SLA configured | PrivacyIncident co sla_deadline, is_within_sla property | TestIncidentResponse |
+
+**Bat ky PRG nao FAIL -> NO-GO.**
 
 ---
 
@@ -1808,7 +1843,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Learning integrity (LI-F) | 7 | YES | `tests/integration/test_learning_integrity.py` |
 | Feature criteria (F1-F5) | 18 | YES | `tests/integration/test_feature_criteria.py` |
 | Security hardened (SG+SK) | 11 | YES | `tests/security/test_security_hardened.py` |
-| **Tong** | **~473 + ~217 API** | |
+| Privacy hardened (PP+PRG) | 6 | YES | `tests/integration/test_privacy_hardened.py` |
+| **Tong** | **~479 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -1828,9 +1864,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 1.9
+> - Version: 2.0
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Upgrade Section 7 Security: 10 Security Gates (SG-01..10), 21 SEC checks, 6 Kill Conditions (SK-01..06); them test_security_hardened.py (11 test classes, 25+ tests)
+> - Updated: 2026-04-16 -- Upgrade Section 7.2 Privacy: 6 Privacy Principles (PP-01..06), 12 PRI checks, 8 Privacy Release Gates (PRG-01..08); them test_privacy_hardened.py (6 test classes, 13 tests)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off

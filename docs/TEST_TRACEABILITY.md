@@ -139,6 +139,17 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Privacy Hardened (PP + PRG)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| PP-01 | Consent per-purpose | `tests/integration/test_privacy_hardened.py` | `TestPP01ConsentPerPurpose` |
+| PP-02 | Export 4 data tiers | `tests/integration/test_privacy_hardened.py` | `TestPP02DataTiers` |
+| PP-03 | Delete policy by tier | `tests/integration/test_privacy_hardened.py` | `TestPP03DeletePolicy` |
+| PP-05 | Lecturer minimal access | `tests/integration/test_privacy_hardened.py` | `TestPP05LecturerMinimalAccess` |
+| PRG-06 | Zero PII leak | `tests/integration/test_privacy_hardened.py` | `TestPRG06NoPIILeak` |
+| PRG-07 | No tier confusion | `tests/integration/test_privacy_hardened.py` | `TestPRG07NoTierConfusion` |
+
 ## Security Hardened (SG + SK)
 
 | ID | Description | File | Test class/function |
