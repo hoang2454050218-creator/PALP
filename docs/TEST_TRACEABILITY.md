@@ -139,6 +139,17 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## API Discipline (BD-R, ARG)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| BD-R01 | No 500 for validation | `tests/contract/test_api_discipline.py` | `TestBDR01NoValidation500` |
+| BD-R02 | No stack trace | `tests/contract/test_api_discipline.py` | `TestBDR02NoStackTrace` |
+| BD-R03 | Actionable errors | `tests/contract/test_api_discipline.py` | `TestBDR03ActionableErrors` |
+| BD-R04 | Request ID on learning endpoints | `tests/contract/test_api_discipline.py` | `TestBDR04RequestId` |
+| BD-R05 | Idempotent POST | `tests/contract/test_api_discipline.py` | `TestBDR05Idempotency` |
+| ARG | API completeness | `tests/contract/test_api_discipline.py` | `TestAPICompleteness` |
+
 ## Module Edge Cases (AS, AD, BD, GV)
 
 | ID | Description | File | Test class/function |

@@ -822,7 +822,42 @@ Pass criteria:
 
 ---
 
-## 5. API Contract Testing
+## 5. API Contract Testing and Backend Discipline
+
+### 5.0. API Standard (Upgraded)
+
+Moi API endpoint phai co **8 thuoc tinh** duoc dinh nghia ro trong [API.md](API.md):
+
+| # | Thuoc tinh | Mo ta | Bat buoc |
+|---|----------|-------|---------|
+| API-01 | Method | GET / POST / PATCH / PUT / DELETE | YES |
+| API-02 | Path | URL pattern day du voi params | YES |
+| API-03 | Auth policy | JWT required? Role nao? Public? | YES |
+| API-04 | Request schema | Fields, types, required/optional, constraints | YES |
+| API-05 | Response schema | Status codes, body structure, pagination | YES |
+| API-06 | Error codes | 400/401/403/404/409/429 voi message cu the | YES |
+| API-07 | Idempotency policy | Idempotent? Co idempotency_key? Retry safe? | YES (endpoints POST/PATCH) |
+| API-08 | Audit policy | Tao audit log? Tao event? Request ID? | YES (endpoints tac dong du lieu hoc tap) |
+
+**Backend discipline rules:**
+
+| # | Rule | Chi tiet | Verify |
+|---|------|---------|--------|
+| BD-R01 | Khong dung 500 cho validation | Validation error -> 400, khong bao gio 500 | `test_api_discipline.py::TestBDR01` |
+| BD-R02 | Khong tra stack trace | 500 response chi co `{"detail": "..."}`, khong co Traceback | SEC-10, `test_data_exposure.py` |
+| BD-R03 | Error message du cu the | Error response giai thich duoc loi gi va sai o dau | `test_api_discipline.py::TestBDR03` |
+| BD-R04 | Learning endpoints co request_id | Moi POST /adaptive/submit/, POST /assessment/*/answer/ phai co request_id trong response hoac header | `test_api_discipline.py::TestBDR04` |
+| BD-R05 | Idempotent POST endpoints | POST voi cung idempotency_key -> cung response, khong side effect moi | EVT-008, `test_idempotency.py` |
+
+**API Release Gate:**
+
+| # | Dieu kien | Nguong | Verify |
+|---|----------|--------|--------|
+| ARG-01 | 100% endpoint core co contract test | Happy + 401 + 403 + 404 + 400 | `tests/contract/` |
+| ARG-02 | 100% endpoint core co authz test | Role matrix 23+ combos | `tests/security/test_authz_matrix.py` |
+| ARG-03 | 100% endpoint core co negative test | Invalid input, missing fields, boundary | `tests/contract/test_negative.py` |
+| ARG-04 | 100% endpoint core co retry/idempotency policy | Documented + tested | `tests/contract/test_idempotency.py` |
+| ARG-05 | 0 breaking OpenAPI change | `oasdiff breaking` pass | CI `openapi` job |
 
 ### 5.1. Coverage bat buoc
 
@@ -2078,7 +2113,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Privacy hardened (PP+PRG) | 6 | YES | `tests/integration/test_privacy_hardened.py` |
 | Observability (OB+OD) | 6 | YES | `tests/integration/test_observability.py` |
 | Module edge cases (AS+AD+BD+GV) | 15 | YES | `tests/integration/test_module_edge_cases.py` |
-| **Tong** | **~500 + ~217 API** | |
+| API discipline (BD-R+ARG) | 6 | YES | `tests/contract/test_api_discipline.py` |
+| **Tong** | **~506 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -2098,9 +2134,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.3
+> - Version: 2.4
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them 4 edge-case matrices: AS-01..10, AD-01..10, BD-01..10, GV-01..10 (40 scenarios); them test_module_edge_cases.py (15 test classes); grand total ~717 cases
+> - Updated: 2026-04-16 -- Them Section 5.0 API Standard: 8 API attributes (API-01..08), 5 backend discipline rules (BD-R01..05), 5 API release gates (ARG-01..05); them test_api_discipline.py (6 test classes, 20 tests)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
