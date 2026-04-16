@@ -810,28 +810,47 @@ Moi endpoint trong API.md phai co **toi thieu** cac test case sau:
 
 ## 8. Performance and Load Testing
 
-### 8.1. Performance Targets
+### 8.1. Performance SLO (Upgraded)
 
-| Metric | Target | Measurement | Tool de nghi |
-|--------|--------|-------------|-------------|
-| Page load (FE) | < 3s P95 | First Contentful Paint tren 4G throttled | Lighthouse / Playwright |
-| Adaptive response | < 3s P95 | POST /adaptive/submit/ round-trip | Locust / k6 |
-| Dashboard load | < 3s P95 | GET /dashboard/class/{id}/overview/ | Locust / k6 |
-| Assessment submit | < 3s P95 | POST /assessment/sessions/{sid}/answer/ | Locust / k6 |
-| Health endpoint | < 200ms P99 | GET /api/health/ | curl benchmark |
-| DB query budget | < 500ms/query | Khong co single query vuot 500ms | Django debug toolbar / EXPLAIN |
-| Redis cache hit | > 80% | mastery + dashboard cache | Redis INFO stats |
-| FE bundle size | < 500KB initial JS | Compressed JS sent on first load | next build + source-map-explorer |
+PRD dat MVP la <3s load, <3s adaptive cho 200 concurrent. Bo chuan nang cao **siet hon** de dam bao trai nghiem hoc tap tron tru.
 
-### 8.2. Load Test Scenarios
+| Metric | MVP PRD | **Chuan rat cao** | Measurement | Tool |
+|--------|---------|-------------------|-------------|------|
+| Page load (FE) | < 3s P95 | **< 2.0s P95** | First Contentful Paint tren 4G throttled | Lighthouse / Playwright |
+| Adaptive decision | < 3s P95 | **< 1.5s P95, < 2.5s P99** | POST /adaptive/submit/ round-trip | Locust / k6 |
+| Dashboard load | < 3s P95 | **< 2.0s P95** | GET /dashboard/class/{id}/overview/ | Locust / k6 |
+| Assessment submit | < 3s P95 | **< 800ms P95** | POST /assessment/sessions/{sid}/answer/ | Locust / k6 |
+| Progress update | < 1s P95 | **< 500ms P95** | POST /adaptive/submit/ (mastery+pathway) | Locust / k6 |
+| Health endpoint | < 200ms P99 | **< 100ms P95, < 200ms P99** | GET /api/health/ | curl benchmark |
+| DB query budget | < 500ms/query | **< 300ms P95** | Khong co single query vuot 300ms | Django debug toolbar / EXPLAIN |
+| Redis cache hit | > 80% | **> 85%** | mastery + dashboard cache | Redis INFO stats |
+| FE bundle size | < 500KB | **< 400KB initial JS** | Compressed JS sent on first load | next build + source-map-explorer |
+| Error rate | chua dinh nghia | **< 0.5%** | Tong loi / tong request trong load test | Locust / k6 |
+
+### 8.1.1. Per-endpoint SLA (upgraded)
+
+| Endpoint Group | P95 Target | P99 Target |
+|---------------|-----------|-----------|
+| /auth/ | < 300ms | < 500ms |
+| /assessment/ (submit/complete) | < 800ms | < 1.5s |
+| /adaptive/submit/ | < 1.5s | < 2.5s |
+| /adaptive/mastery/ | < 500ms | < 1s |
+| /dashboard/overview/ | < 2s | < 3s |
+| /dashboard/alerts/ | < 800ms | < 1.5s |
+| /events/track/ | < 300ms | < 500ms |
+| /events/batch/ | < 1.5s | < 2.5s |
+| /health/ | < 100ms | < 200ms |
+
+### 8.2. Load Test Scenarios (Upgraded)
 
 | Scenario | Mo phong | Concurrent users | Duration | Pass criteria |
 |----------|---------|-----------------|----------|---------------|
-| LT-01 | Normal usage | 50 users | 10 phut | P95 < 3s, 0 errors |
-| LT-02 | Peak hour | 100 users | 10 phut | P95 < 3s, 0 errors |
-| LT-03 | Stress test | 200 users | 15 phut | P95 < 5s, error rate < 1% |
-| LT-04 | Spike test | 0 -> 200 trong 30s | 5 phut | He thong recover trong 60s |
-| LT-05 | Endurance | 50 users | 2 gio | Khong memory leak, P95 on dinh |
+| LT-01 | Normal usage | 50 users | 10 phut | P95 < 2s, 0 errors |
+| LT-02 | Peak hour | 100 users | 10 phut | P95 < 2s, error rate < 0.1% |
+| LT-03 | Stress test | 200 users | 15 phut | P95 < 3s, error rate < 0.5% |
+| LT-04 | Spike test | 0 -> 300 trong 30s | 5 phut | He thong recover trong 60s, khong crash |
+| LT-05 | Endurance | 50 users | 2 gio | Khong memory leak, P95 on dinh, RSS delta < 50MB |
+| LT-06 | Sustained peak | 200 users | 30 phut | P95 < 2.5s on dinh, error rate < 0.5% |
 
 ### 8.3. Load Test User Profile
 
@@ -941,6 +960,75 @@ Quy trinh test rollback:
 | MON-03 | Structured logging | Backend logs co timestamp, level, module, message |
 | MON-04 | Log rotation | Logs khong day disk (verify rotation config) |
 | MON-05 | Uptime monitoring | Health endpoint duoc poll dinh ky (moi 5 phut) |
+
+### 9.5. Availability / Reliability Standard (Upgraded)
+
+#### 9.5.1. Uptime SLO
+
+| Metric | Target | Do luong | Ghi chu |
+|--------|--------|---------|---------|
+| Uptime gio hoc (7h-22h) | **>= 99.9%** | Tong thoi gian available / tong thoi gian gio hoc | Cho phep max ~43 phut downtime/thang trong gio hoc |
+| Uptime ngoai gio | >= 99.0% | Tong thoi gian available / tong ngoai gio | Maintenance window cho phep |
+| MTTR (Mean Time to Recovery) | **< 30 phut** | Tu luc phat hien -> he thong hoat dong lai | Doi voi loi P0/P1 |
+| RPO (Recovery Point Objective) | **< 1 gio** | Du lieu co the mat toi da khi restore tu backup | Backup schedule phai dam bao |
+| RTO (Recovery Time Objective) | **< 2 gio** | Thoi gian toi da de khoi phuc toan bo dich vu | Bao gom restore + verify + smoke test |
+
+#### 9.5.2. No Single Point of Failure
+
+| # | Component | SPOF mitigation | Verify |
+|---|-----------|----------------|--------|
+| SPOF-01 | PostgreSQL | Backup tu dong moi 6h + manual truoc deploy | `scripts/backup_db.sh` + cron |
+| SPOF-02 | Redis | Persistent mode (AOF), fallback to DB khi Redis down | `tests/recovery/test_redis_temporary_loss.py`, `tests/recovery/test_cache_failure.py` |
+| SPOF-03 | Celery worker | Worker die -> task retry, supervisor/Docker restart | `tests/recovery/test_worker_die.py`, `tests/recovery/test_celery_retry.py` |
+| SPOF-04 | Application server | Health check + Docker restart policy | `tests/recovery/test_backend_restart.py` |
+| SPOF-05 | ETL pipeline | Atomic transaction, fail -> FAILED status, retry safe | `tests/recovery/test_etl_failure.py`, F5-06 |
+
+#### 9.5.3. Health Check Matrix
+
+| # | Component | Health check | Frequency | Alert khi |
+|---|-----------|-------------|-----------|-----------|
+| HC-01 | Django app | `GET /api/health/` -> 200 + JSON | Moi 30s | 2 consecutive failures |
+| HC-02 | Celery worker | `celery inspect ping` -> pong | Moi 60s | 1 failure |
+| HC-03 | Celery Beat | Verify scheduled tasks co `last_run_at` < 25h | Moi 60s | last_run_at > 25h |
+| HC-04 | Redis | `PING` -> `PONG` | Moi 30s | 1 failure |
+| HC-05 | PostgreSQL | `pg_isready` | Moi 30s | 1 failure |
+| HC-06 | ETL pipeline | ETLRun.status != FAILED cho run gan nhat | Moi 6h | status == FAILED |
+| HC-07 | Disk space | `df -h` root partition | Moi 5 phut | > 85% used |
+
+#### 9.5.4. Cron / Batch Job Monitoring
+
+| # | Job | Schedule | Monitor | Alert khi |
+|---|-----|---------|---------|-----------|
+| CJ-01 | Nightly early warning | 02:00 daily | DataQualityLog entry cho `source=early_warning` | Khong co entry sau 03:00 |
+| CJ-02 | Weekly KPI report | Sunday 06:00 | PilotReport created cho tuan hien tai | Khong co report sau 07:00 Sunday |
+| CJ-03 | KPI integrity audit | 04:00 daily | DataQualityLog entry cho `source=kpi_integrity_audit` | Khong co entry sau 05:00 |
+| CJ-04 | Database backup | Moi 6h | Backup file size > 0 va timestamp moi | File >12h old hoac size=0 |
+| CJ-05 | Event log cleanup | Weekly | EventLog count khong vuot retention limit | Count > limit * 1.5 |
+
+#### 9.5.5. Queue Backlog Alerts
+
+| # | Queue | Normal depth | Alert threshold | Action |
+|---|-------|-------------|----------------|--------|
+| QB-01 | Celery default | 0-10 | **> 50 tasks** | Investigate slow consumer |
+| QB-02 | Celery early_warning | 0 (batch) | **> 100 tasks** | Check nightly batch |
+| QB-03 | Redis pub/sub | N/A | Connection refused | Restart Redis |
+
+#### 9.5.6. Operational Readiness Checklist (Upgraded)
+
+| # | Check | Pass criteria | Blocker? |
+|---|-------|---------------|----------|
+| OPS-01 | `docker-compose up` -> tat ca healthy | Healthy trong 120s | YES |
+| OPS-02 | Health endpoint respond 200 | Trong 5s sau start | YES |
+| OPS-03 | PostgreSQL pg_isready | Pass | YES |
+| OPS-04 | Redis PING -> PONG | Pass | YES |
+| OPS-05 | Celery worker registered | `celery inspect active` co workers | YES |
+| OPS-06 | Celery Beat scheduled | 3 tasks (nightly + weekly + kpi_audit) | YES |
+| OPS-07 | Frontend build thanh cong | `next build` khong loi | YES |
+| OPS-08 | Static files served | collectstatic + access verify | YES |
+| OPS-09 | Backup script hoat dong | `scripts/backup_db.sh` tao file > 0 bytes | YES |
+| OPS-10 | Monitoring armed | Sentry + health poll + Prometheus targets | YES |
+| OPS-11 | Error rate < 0.5% | Smoke test 100 requests, < 1 fail | YES |
+| OPS-12 | No stale cron jobs | Tat ca CJ-01..CJ-05 co last_run < SLA | YES |
 
 ---
 
@@ -1701,9 +1789,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 1.7
+> - Version: 1.8
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 1.6 Core Feature Quality Standards (F1-F5, 30 tieu chi, release criteria); them test_feature_criteria.py (5 test classes, 18 tests); them FC check vao release_gate.py
+> - Updated: 2026-04-16 -- Upgrade Section 8 Performance SLO (siet P95 targets, them error rate, them LT-06); them Section 9.5 Availability/Reliability Standard (uptime 99.9%, SPOF mitigation, health check matrix, cron monitoring, queue alerts, OPS-09..12); upgrade slo_assertions.py targets
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
