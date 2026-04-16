@@ -969,6 +969,56 @@ Moi endpoint trong API.md phai co **toi thieu** cac test case sau:
 | DC-05 | Idempotency | Chay pipeline 2 lan cho cung data -> ket qua giong nhau | Diff = 0 |
 | DC-06 | Data quality score | Score >= 70% sau cleaning | >= 70% |
 
+### 6.5. Database and Migration Standard
+
+> PRD xac dinh 12 entity chinh voi PK/FK ro rang. Tieu chuan nay dam bao schema discipline va migration safety.
+
+#### 6.5.1. Schema Discipline
+
+| # | Tieu chi | Chuan | Verify |
+|---|---------|-------|--------|
+| DB-01 | FK day du | Moi quan he cot loi co FK constraint trong DB (khong chi ORM-level) | `python manage.py inspectdb` + verify FK |
+| DB-02 | Unique: MasteryState | `unique_together = (student, concept)` | DI-04, `test_db_schema.py` |
+| DB-03 | Unique: Assessment session | Max 1 `in_progress` per student per assessment | DI-05, ASSESS-007 |
+| DB-04 | Unique: Alert dedupe | Khong co 2 active alerts cung trigger_type + student + concept | LI-F03, `test_early_warning.py::test_no_duplicate_alerts` |
+| DB-05 | Unique: Event idempotency | `idempotency_key` co UNIQUE constraint | OB-02, EVT-008 |
+| DB-06 | Unique: Concept order | `unique_together = (course, order)` | DI-12 |
+| DB-07 | Soft delete policy | `Alert.status = dismissed/expired` (soft); `EventLog` hard delete qua retention; `User` anonymize (never hard delete) | PP-03, `TestDeleteAnonymizeFlow` |
+| DB-08 | Indexes cho query hot paths | MasteryState(student, concept), Alert(student_class, status), EventLog(actor, event_name, timestamp) | `test_db_schema.py`, `benchmark_indexes` management command |
+
+#### 6.5.2. Migration Discipline
+
+| # | Tieu chi | Chuan | Verify |
+|---|---------|-------|--------|
+| MIG-01 | Backward-compatible | Migration khong pha data cu trong release window; column moi phai co default hoac nullable | Code review + CI `migration-check` |
+| MIG-02 | No destructive without backfill | Khong `RemoveField` hoac `AlterField` khi chua co backfill script | Code review |
+| MIG-03 | Tested on prod-like snapshot | Migration chay tren ban sao DB staging truoc khi deploy prod | Manual drill hoac CI voi pg_dump snapshot |
+| MIG-04 | Rollback strategy documented | Moi migration co reverse operation hoac rollback plan trong PR | PR template checklist |
+| MIG-05 | No data loss | `python manage.py makemigrations --check` trong CI dam bao khong miss migration | CI `migration-check` job |
+
+#### 6.5.3. N+1 Query Prevention
+
+| # | Check | Scope | Threshold | Verify |
+|---|-------|-------|----------|--------|
+| NQ-01 | Dashboard overview | GET /dashboard/class/{id}/overview/ | Max 5 queries | `NPLUSONE_RAISE=True` trong test settings |
+| NQ-02 | Student pathway | GET /adaptive/pathway/{course_id}/ | Max 5 queries | Test settings |
+| NQ-03 | Alert list | GET /dashboard/alerts/ | Max 3 + N alerts (select_related) | Test settings |
+| NQ-04 | Mastery list | GET /adaptive/mastery/ | Max 3 queries | Test settings |
+| NQ-05 | Event list | GET /events/my/ | Max 2 queries | Test settings |
+
+`NPLUSONE_RAISE = True` da duoc bat trong `palp.settings.test` de tu dong phat hien N+1 queries khi chay test.
+
+#### 6.5.4. DB Release Gate
+
+| # | Dieu kien | Nguong | Verify |
+|---|----------|--------|--------|
+| DRG-01 | Migration tested on prod-like snapshot | 100% pass | Manual drill |
+| DRG-02 | Rollback strategy documented | 100% migrations | PR review |
+| DRG-03 | Core indexes co benchmark | Tat ca indexes trong DB-08 | `benchmark_indexes` command |
+| DRG-04 | 0 N+1 query nghiem trong | Dashboard + student flow khong co N+1 | `NPLUSONE_RAISE=True` + CI test |
+| DRG-05 | 0 broken FK | DI-01..DI-12 pass | `release_gate.py` G-05 |
+| DRG-06 | 0 missing unique constraint | DB-02..DB-06 verified | `test_db_schema.py` |
+
 ---
 
 ## 7. Security and Privacy Checklist (Upgraded)
@@ -2114,7 +2164,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Observability (OB+OD) | 6 | YES | `tests/integration/test_observability.py` |
 | Module edge cases (AS+AD+BD+GV) | 15 | YES | `tests/integration/test_module_edge_cases.py` |
 | API discipline (BD-R+ARG) | 6 | YES | `tests/contract/test_api_discipline.py` |
-| **Tong** | **~506 + ~217 API** | |
+| DB schema (DB+MIG+NQ) | 6 | YES | `tests/data_qa/test_db_schema.py` |
+| **Tong** | **~512 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -2134,9 +2185,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.4
+> - Version: 2.5
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 5.0 API Standard: 8 API attributes (API-01..08), 5 backend discipline rules (BD-R01..05), 5 API release gates (ARG-01..05); them test_api_discipline.py (6 test classes, 20 tests)
+> - Updated: 2026-04-16 -- Them Section 6.5 Database/Migration Standard: 8 schema rules (DB-01..08), 5 migration rules (MIG-01..05), 5 N+1 checks (NQ-01..05), 6 DB release gates (DRG-01..06); them test_db_schema.py (6 test classes, 12 tests)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off

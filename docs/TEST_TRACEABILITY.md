@@ -139,6 +139,17 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Database Schema (DB, MIG, NQ)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| DB-01 | FK constraints enforced | `tests/data_qa/test_db_schema.py` | `TestDB01ForeignKeys` |
+| DB-02 | Unique MasteryState | `tests/data_qa/test_db_schema.py` | `TestDB02UniqueMastery` |
+| DB-05 | Unique idempotency_key | `tests/data_qa/test_db_schema.py` | `TestDB05UniqueIdempotencyKey` |
+| DB-06 | Unique Concept order | `tests/data_qa/test_db_schema.py` | `TestDB06UniqueConceptOrder` |
+| DB-08 | Core indexes present | `tests/data_qa/test_db_schema.py` | `TestDB08CoreIndexes` |
+| MIG-05 | No missing migrations | `tests/data_qa/test_db_schema.py` | `TestMIG05NoMissingMigrations` |
+
 ## API Discipline (BD-R, ARG)
 
 | ID | Description | File | Test class/function |
