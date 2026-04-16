@@ -139,6 +139,22 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Security Hardened (SG + SK)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| SG-01 | AuthN: logout clears session | `tests/security/test_security_hardened.py` | `TestSG01AuthN` |
+| SG-03 | Input validation server-side | `tests/security/test_security_hardened.py` | `TestSG03InputValidation` |
+| SG-04 | Zero injection (extended XSS) | `tests/security/test_security_hardened.py` | `TestSG04Injection` |
+| SG-07 | No sensitive data leak | `tests/security/test_security_hardened.py` | `TestSG07SensitiveData` |
+| SG-08 | Audit log completeness | `tests/security/test_security_hardened.py` | `TestSG08Audit` |
+| SG-09 | Rate limiting | `tests/security/test_security_hardened.py` | `TestSG09RateLimit` |
+| SK-01 | IDOR cross-class leak | `tests/security/test_security_hardened.py` | `TestSK01IDORCrossClass` |
+| SK-02 | Export requires auth + ownership | `tests/security/test_security_hardened.py` | `TestSK02ExportAuth` |
+| SK-03 | Token invalid after logout | `tests/security/test_security_hardened.py` | `TestSK03TokenInvalidation` |
+| SK-05 | Audit log immutable | `tests/security/test_security_hardened.py` | `TestSK05AuditImmutable` |
+| SK-06 | Deleted data not accessible | `tests/security/test_security_hardened.py` | `TestSK06DeletedDataGone` |
+
 ## Core Feature Criteria (F1-F5)
 
 | ID | Description | File | Test class/function |

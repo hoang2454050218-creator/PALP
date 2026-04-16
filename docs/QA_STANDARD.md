@@ -771,27 +771,65 @@ Moi endpoint trong API.md phai co **toi thieu** cac test case sau:
 
 ---
 
-## 7. Security and Privacy Checklist
+## 7. Security and Privacy Checklist (Upgraded)
 
-### 7.1. Security Checks (15 hang muc, tat ca phai PASS)
+> PRD: ma hoa PII, TLS 1.3, RBAC 3 vai tro, pseudonymization, export/xoa, audit log, rollback su co.
+> Competition doc: brute force protection, XSS/SQLi/CSRF, JWT/HttpOnly, OWASP checklist.
+> **Tieu chuan nay tong hop ca hai va siet cao hon.**
 
-| # | Hang muc | Chi tiet kiem tra | Cong cu/Phuong phap |
-|---|---------|-------------------|---------------------|
-| SEC-01 | PII encrypted at rest | User.email, User.student_id duoc ma hoa AES-256 trong DB | Query DB truc tiep, verify encrypted |
-| SEC-02 | TLS enforcement | Tat ca API calls qua HTTPS, HTTP redirect sang HTTPS | curl -I http://..., verify redirect |
-| SEC-03 | JWT security | access_token het han dung (default 5-15 min), refresh_token het han dung | Decode JWT, verify exp |
-| SEC-04 | Token khong trong URL | JWT khong xuat hien trong query params hoac URL | Grep access logs |
-| SEC-05 | RBAC enforcement | 23 to hop role x resource deu dung | Automated API test matrix |
-| SEC-06 | SQL injection | Input co SQL syntax khong duoc execute | Chay SQLi payloads len form/API |
-| SEC-07 | XSS protection | Input co script tags duoc escape | Submit <script> payloads, verify escaped |
-| SEC-08 | CSRF protection | POST/PUT/DELETE endpoints co CSRF token (hoac JWT exempt) | Test cross-origin request |
-| SEC-09 | Rate limiting | Login endpoint co rate limit (prevent brute force) | 100 requests/min -> verify block |
-| SEC-10 | Error message khong leak | 500 errors khong tra ve stack trace cho client | Trigger 500, verify response |
-| SEC-11 | Dependency vulnerabilities | Khong co CVE critical/high trong dependencies | pip-audit + npm audit |
-| SEC-12 | Secret management | Khong co secrets trong source code hoac .env committed | grep -r SECRET, PASSWORD, KEY |
-| SEC-13 | Audit log | Tat ca sensitive operations duoc log (login, data access, CRUD PII) | Verify log entries |
-| SEC-14 | CORS configuration | Chi cho phep origins da dinh nghia trong CORS_ALLOWED_ORIGINS | Test cross-origin request tu domain la |
-| SEC-15 | Debug mode OFF | DJANGO_DEBUG=False trong production | Verify settings |
+### 7.1. Security Gate bat buoc (10 nhom, tat ca phai PASS)
+
+| # | Nhom | Chuan bat buoc | SEC ref | Test ref |
+|---|------|---------------|---------|----------|
+| SG-01 | AuthN | Session/token khong bi reuse sai; logout xoa sach cookies + token; refresh token bi revoke sau logout | SEC-03 | `test_security_hardened.py::TestSG01AuthN` |
+| SG-02 | AuthZ | SV khong thay lop khac; GV khong thay lop khac; Admin chi aggregate theo policy | SEC-05, RBAC-001..007 | `test_authz_matrix.py`, `test_idor.py` |
+| SG-03 | Input validation | Khong tin FE; moi input validate o BE; reject oversized/malformed payloads | SEC-06, SEC-07 | `test_injection.py`, `test_security_hardened.py::TestSG03InputValidation` |
+| SG-04 | Injection | 0 SQLi, 0 XSS (stored + reflected), 0 CSRF, 0 IDOR | SEC-06..08 | `test_injection.py`, `test_idor.py`, `test_security_hardened.py::TestSG04Injection` |
+| SG-05 | Secret handling | Khong hardcode secret; rotate duoc; .env KHONG committed | SEC-12 | `detect-secrets` pre-commit, CI `security-audit` |
+| SG-06 | Transport | HTTPS only; HTTP redirect 301; HSTS header | SEC-02 | manual verify production |
+| SG-07 | Sensitive data | PII ma hoa at-rest (AES-256); log khong chua du lieu nhay cam tho; error response khong leak stack trace | SEC-01, SEC-10 | `test_data_exposure.py`, `test_security_hardened.py::TestSG07SensitiveData` |
+| SG-08 | Audit | Xem du lieu, sua rule, export, xoa du lieu, login, logout, role change deu phai log | SEC-13 | `privacy/tests.py`, `test_security_hardened.py::TestSG08Audit` |
+| SG-09 | Rate limit | Login, assessment submit, dashboard actions, export data deu co rate limit | SEC-09 | `test_security_hardened.py::TestSG09RateLimit` |
+| SG-10 | OWASP Top 10 | Pass checklist OWASP Top 10 2021 (A01-A10) | SEC-01..15 | Tong hop tat ca security tests |
+
+### 7.1.1. Security Checks chi tiet (21 hang muc)
+
+| # | Hang muc | Chi tiet | Cong cu |
+|---|---------|---------|--------|
+| SEC-01 | PII encrypted at rest | User.email, User.student_id ma hoa AES-256 trong DB | Query DB, verify ciphertext |
+| SEC-02 | TLS enforcement | HTTPS only, HTTP redirect 301, HSTS header | curl -I |
+| SEC-03 | JWT security | httpOnly cookies, access 5-15min, refresh co rotate | Decode JWT, verify |
+| SEC-04 | Token khong trong URL | JWT khong xuat hien trong query params, URL, logs | Grep logs |
+| SEC-05 | RBAC enforcement | 23+ to hop role x resource dung | `test_authz_matrix.py` |
+| SEC-06 | SQL injection | 0 SQLi qua login, search, filter, form | `test_injection.py` + OWASP ZAP |
+| SEC-07 | XSS protection | Stored XSS o notes/feedback/content duoc escape | `test_injection.py` |
+| SEC-08 | CSRF protection | POST/PUT/DELETE co CSRF hoac JWT httpOnly exempt | Cross-origin test |
+| SEC-09 | Rate limiting | Login: 5/min, submit: 30/min, export: 3/hour | `test_security_hardened.py` |
+| SEC-10 | Error khong leak | 500 khong tra stack trace; 404 khong enumerate | Trigger errors, verify |
+| SEC-11 | Dependency CVE | 0 critical/high CVE | `pip-audit`, `npm audit` |
+| SEC-12 | Secret management | 0 secrets in source; .env.example co, .env khong | `detect-secrets`, git history |
+| SEC-13 | Audit log | Login, logout, export, delete, role change, data access | Verify AuditLog entries |
+| SEC-14 | CORS | Chi origins trong CORS_ALLOWED_ORIGINS | Cross-origin request test |
+| SEC-15 | Debug OFF | DJANGO_DEBUG=False production | Verify settings |
+| SEC-16 | Logout sach | Logout -> cookies cleared + refresh revoked + redirect /login | `test_security_hardened.py::TestSG01AuthN` |
+| SEC-17 | Token invalidation sau role change | Doi role user -> token cu khong con hop le | `test_security_hardened.py::TestSG01AuthN` |
+| SEC-18 | Audit log immutable | AuditLog entries khong sua/xoa duoc qua API | `test_security_hardened.py::TestSG08Audit` |
+| SEC-19 | Deleted data not accessible | Du lieu xoa tren UI khong con truy xuat duoc qua API | `test_security_hardened.py::TestSG04Injection` |
+| SEC-20 | Export requires auth + ownership | Export data chi cho user so huu, khong cho user khac | `test_security_hardened.py::TestSG07SensitiveData` |
+| SEC-21 | Password not in response | Password hash khong bao gio xuat hien trong API response | `test_data_exposure.py` |
+
+### 7.1.2. FAIL NGAY neu co bat ky loi nao (Security Kill Conditions)
+
+| # | Dieu kien FAIL | Hau qua | Muc do | Test ref |
+|---|---------------|---------|--------|----------|
+| SK-01 | IDOR lay du lieu SV lop khac | Lo thong tin hoc tap, vi pham privacy | **P0** | `test_idor.py`, `test_authz_matrix.py::TestObjectLevelAccess` |
+| SK-02 | Export data khong kiem quyen | Bat ky user nao export duoc data cua user khac | **P0** | `test_security_hardened.py::TestSK02ExportAuth` |
+| SK-03 | Token con hieu luc sau logout/role change | Session hijack, privilege escalation | **P0** | `test_security_hardened.py::TestSK03TokenInvalidation` |
+| SK-04 | Stored XSS o ghi chu/feedback/noi dung GV | Ma doc chay trong browser SV/GV khac | **P0** | `test_injection.py::TestXSSPrevention` |
+| SK-05 | Audit log sua/xoa duoc ma khong de vet | Mat kha nang truy vet hanh vi, mat bang chung | **P0** | `test_security_hardened.py::TestSK05AuditImmutable` |
+| SK-06 | Du lieu xoa "tren UI" nhung con truy xuat qua API | Vi pham quyen rieng tu, SV tuong da xoa nhung chua | **P0** | `test_security_hardened.py::TestSK06DeletedDataGone` |
+
+**Bat ky SK nao con ton tai -> NO-GO tuyet doi, khong ngoai le.**
 
 ### 7.2. Privacy Checks (8 hang muc, tat ca phai PASS)
 
@@ -1769,7 +1807,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Product correctness (AP) | 5 | YES | `tests/integration/test_product_correctness.py` |
 | Learning integrity (LI-F) | 7 | YES | `tests/integration/test_learning_integrity.py` |
 | Feature criteria (F1-F5) | 18 | YES | `tests/integration/test_feature_criteria.py` |
-| **Tong** | **~462 + ~217 API** | |
+| Security hardened (SG+SK) | 11 | YES | `tests/security/test_security_hardened.py` |
+| **Tong** | **~473 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -1789,9 +1828,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 1.8
+> - Version: 1.9
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Upgrade Section 8 Performance SLO (siet P95 targets, them error rate, them LT-06); them Section 9.5 Availability/Reliability Standard (uptime 99.9%, SPOF mitigation, health check matrix, cron monitoring, queue alerts, OPS-09..12); upgrade slo_assertions.py targets
+> - Updated: 2026-04-16 -- Upgrade Section 7 Security: 10 Security Gates (SG-01..10), 21 SEC checks, 6 Kill Conditions (SK-01..06); them test_security_hardened.py (11 test classes, 25+ tests)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
