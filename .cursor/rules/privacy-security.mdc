@@ -1,0 +1,84 @@
+---
+description: PII encryption, consent workflow, audit logging, RBAC, and data privacy rules
+globs: backend/privacy/**/*.py,backend/accounts/**/*.py
+alwaysApply: false
+---
+
+# Privacy & Security Standards
+
+## PII Encryption
+
+- All PII encrypted at rest using Fernet symmetric encryption
+- Key: `PII_ENCRYPTION_KEY` env var (32-byte base64-encoded)
+- Never log, serialize, or expose decrypted PII in API error responses
+- PII scrub filter active on all log handlers
+
+## Consent Gate
+
+`ConsentGateMiddleware` blocks PII-accessing endpoints until user gives consent.
+
+- Consent version tracked in `PALP_PRIVACY.CONSENT_VERSION`
+- Consent timestamps recorded per-user
+- Must check consent before processing any personal data
+
+## Audit Logging
+
+`AuditMiddleware` logs access to sensitive paths defined in `AUDIT_SENSITIVE_PREFIXES`:
+
+```python
+AUDIT_SENSITIVE_PREFIXES = [
+    "/api/auth/profile/",
+    "/api/dashboard/",
+    "/api/analytics/",
+    "/api/assessment/profile/",
+    "/api/adaptive/student/",
+    "/api/events/student/",
+    "/api/auth/classes/",
+    "/api/auth/export/",
+]
+```
+
+When adding new endpoints that access PII, add the path prefix to this list.
+
+## RBAC Rules
+
+- Student: can only access own data (mastery, pathway, submissions, events)
+- Lecturer: can only access data from assigned classes (`LecturerClassAssignment`)
+- Admin: full access, manages users and system config
+- Cross-user data access = P0 security bug
+
+```python
+def get_queryset(self):
+    if self.request.user.role == User.Role.STUDENT:
+        return Model.objects.filter(student=self.request.user)
+    elif self.request.user.role == User.Role.LECTURER:
+        return Model.objects.filter(
+            student__classmembership__student_class__lecturerassignment__lecturer=self.request.user
+        )
+```
+
+## Privacy Operations
+
+- Export: user can request full data export (Celery task)
+- Deletion: user can request data deletion with retention policy
+- Retention enforcement: `privacy.enforce_retention` runs nightly via Celery beat
+- Incident SLA: 48 hours (`PALP_PRIVACY.SLA_HOURS`), checked hourly
+
+## Security Checklist (15 items)
+
+When modifying auth/privacy code, verify:
+1. PII encrypted at rest
+2. TLS enforced (prod)
+3. JWT in httpOnly cookies only, not in URL/localStorage
+4. RBAC matrix correct for new endpoints
+5. No SQL injection vectors (use ORM, never raw SQL with user input)
+6. XSS prevention (CSP headers configured in Next.js)
+7. CSRF protection active
+8. Rate limiting on auth endpoints
+9. Error responses don't leak internals
+10. Dependencies scanned (Bandit in CI)
+11. No secrets in repository
+12. Audit trail for sensitive access
+13. CORS restricted (`CORS_ALLOWED_ORIGINS`)
+14. `DEBUG=False` in production
+15. Consent checked before PII access

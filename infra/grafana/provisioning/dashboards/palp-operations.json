@@ -1,0 +1,291 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "title": "App Error Rate (5xx)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(palp_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(palp_http_requests_total[5m])) * 100",
+          "legendFormat": "Error Rate %",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(palp_http_requests_total{status=~\"5..\"}[5m]))",
+          "legendFormat": "5xx/sec",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "API Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(palp_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(palp_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(palp_http_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Adaptive Decision Latency",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le, decision_type))",
+          "legendFormat": "p99 ({{decision_type}})",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Celery Job Success / Fail",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(palp_celery_task_total{status=\"success\"}[5m])) by (task_name)",
+          "legendFormat": "{{task_name}} success",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(palp_celery_task_total{status=\"failure\"}[5m])) by (task_name)",
+          "legendFormat": "{{task_name}} failure",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "ops" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "ETL Data Quality Score",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "id": 5,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "palp_data_quality_score",
+          "legendFormat": "{{source}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 95 },
+              { "color": "green", "value": 99 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Event Ingestion Health",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 16 },
+      "id": 6,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(palp_event_ingestion_total{status=\"created\"}[5m]))",
+          "legendFormat": "Events created/sec",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(palp_event_ingestion_total{status=\"deduplicated\"}[5m]))",
+          "legendFormat": "Deduplicated/sec",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(palp_event_ingestion_total{status=\"error\"}[5m]))",
+          "legendFormat": "Errors/sec",
+          "refId": "C"
+        },
+        {
+          "expr": "palp_event_completeness_ratio * 100",
+          "legendFormat": "Completeness %",
+          "refId": "D"
+        },
+        {
+          "expr": "palp_event_duplication_ratio * 100",
+          "legendFormat": "Duplication %",
+          "refId": "E"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Alert Generation Volume",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 7,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(palp_alert_generation_total[5m])) by (alert_type)",
+          "legendFormat": "{{alert_type}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(increase(palp_alert_generation_total[1h]))",
+          "legendFormat": "Total last hour",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Export / Delete Requests (GDPR)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 8,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(palp_export_delete_requests_total[5m])) by (request_type)",
+          "legendFormat": "{{request_type}}/sec",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(increase(palp_export_delete_requests_total[24h])) by (request_type)",
+          "legendFormat": "{{request_type}} last 24h",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short" },
+        "overrides": []
+      }
+    },
+    {
+      "title": "Backup Freshness",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 32 },
+      "id": 9,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "palp_backup_age_seconds / 3600",
+          "legendFormat": "Hours since backup",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 24 },
+              { "color": "red", "value": 48 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "title": "HTTP Request Rate by Endpoint",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 32 },
+      "id": 10,
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "topk(10, sum(rate(palp_http_requests_total[5m])) by (endpoint))",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps" },
+        "overrides": []
+      }
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["palp", "operations"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "PALP Operations Dashboard",
+  "uid": "palp-ops-main",
+  "version": 1
+}

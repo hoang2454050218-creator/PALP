@@ -1,0 +1,3559 @@
+openapi: 3.0.3
+info:
+  title: PALP API
+  version: 1.0.0
+  description: Personalized Adaptive Learning Platform API
+paths:
+  /api/adaptive/attempts/:
+    get:
+      operationId: adaptive_attempts_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - adaptive
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTaskAttemptList'
+          description: ''
+  /api/adaptive/interventions/:
+    get:
+      operationId: adaptive_interventions_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - adaptive
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContentInterventionList'
+          description: ''
+  /api/adaptive/mastery/:
+    get:
+      operationId: adaptive_mastery_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - adaptive
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMasteryStateList'
+          description: ''
+  /api/adaptive/next-task/{course_id}/:
+    get:
+      operationId: adaptive_next_task_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - adaptive
+      responses:
+        '200':
+          description: No response body
+  /api/adaptive/pathway/{course_id}/:
+    get:
+      operationId: adaptive_pathway_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - adaptive
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentPathway'
+          description: ''
+  /api/adaptive/student/{student_id}/mastery/:
+    get:
+      operationId: adaptive_student_mastery_retrieve
+      parameters:
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - adaptive
+      responses:
+        '200':
+          description: No response body
+  /api/adaptive/submit/:
+    post:
+      operationId: adaptive_submit_create
+      tags:
+      - adaptive
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/data-quality/:
+    get:
+      operationId: analytics_data_quality_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDataQualityLogList'
+          description: ''
+  /api/analytics/kpi-lineage/:
+    get:
+      operationId: analytics_kpi_lineage_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKPILineageList'
+          description: ''
+  /api/analytics/kpi-registry/:
+    get:
+      operationId: analytics_kpi_registry_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKPIDefinitionList'
+          description: ''
+  /api/analytics/kpi-registry/{code}/:
+    get:
+      operationId: analytics_kpi_registry_retrieve
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPIDefinition'
+          description: ''
+  /api/analytics/kpi/{class_id}/:
+    get:
+      operationId: analytics_kpi_retrieve
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - analytics
+      responses:
+        '200':
+          description: No response body
+  /api/analytics/reports/:
+    get:
+      operationId: analytics_reports_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPilotReportList'
+          description: ''
+  /api/analytics/reports/{id}/:
+    get:
+      operationId: analytics_reports_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - analytics
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PilotReport'
+          description: ''
+  /api/assessment/:
+    get:
+      operationId: assessment_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - assessment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAssessmentList'
+          description: ''
+  /api/assessment/{id}/questions/:
+    get:
+      operationId: assessment_questions_list
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - assessment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAssessmentQuestionList'
+          description: ''
+  /api/assessment/{id}/start/:
+    post:
+      operationId: assessment_start_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assessment
+      responses:
+        '200':
+          description: No response body
+  /api/assessment/my-sessions/:
+    get:
+      operationId: assessment_my_sessions_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - assessment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAssessmentSessionList'
+          description: ''
+  /api/assessment/profile/{course_id}/:
+    get:
+      operationId: assessment_profile_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assessment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerProfile'
+          description: ''
+  /api/assessment/profile/{course_id}/student/{student_id}/:
+    get:
+      operationId: assessment_profile_student_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assessment
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearnerProfile'
+          description: ''
+  /api/assessment/sessions/{session_id}/answer/:
+    post:
+      operationId: assessment_sessions_answer_create
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assessment
+      responses:
+        '200':
+          description: No response body
+  /api/assessment/sessions/{session_id}/complete/:
+    post:
+      operationId: assessment_sessions_complete_create
+      parameters:
+      - in: path
+        name: session_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - assessment
+      responses:
+        '200':
+          description: No response body
+  /api/auth/classes/:
+    get:
+      operationId: auth_classes_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - auth
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentClassList'
+          description: ''
+    post:
+      operationId: auth_classes_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentClass'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentClass'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentClass'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentClass'
+          description: ''
+  /api/auth/classes/{class_id}/students/:
+    get:
+      operationId: auth_classes_students_list
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - auth
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+  /api/auth/consent/:
+    post:
+      operationId: auth_consent_create
+      tags:
+      - auth
+      responses:
+        '200':
+          description: No response body
+  /api/auth/delete-my-data/:
+    delete:
+      operationId: auth_delete_my_data_destroy
+      description: 'GDPR Article 17: Right to erasure - soft-delete user data.'
+      tags:
+      - auth
+      responses:
+        '204':
+          description: No response body
+  /api/auth/export/class/{class_id}/:
+    get:
+      operationId: auth_export_class_retrieve
+      description: Lecturer exports aggregated class data as CSV.
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - auth
+      responses:
+        '200':
+          description: No response body
+  /api/auth/export/my-data/:
+    get:
+      operationId: auth_export_my_data_retrieve
+      description: 'GDPR Article 20: Data portability - user exports their own data.'
+      tags:
+      - auth
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomTokenObtainPair'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      responses:
+        '200':
+          description: No response body
+  /api/auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      tags:
+      - auth
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_profile_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: auth_profile_partial_update
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreate'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: Refresh using the HttpOnly cookie instead of request body.
+      tags:
+      - auth
+      responses:
+        '200':
+          description: No response body
+  /api/curriculum/concepts/{concept_id}/content/:
+    get:
+      operationId: curriculum_concepts_content_list
+      parameters:
+      - in: path
+        name: concept_id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSupplementaryContentList'
+          description: ''
+  /api/curriculum/courses/:
+    get:
+      operationId: curriculum_courses_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCourseList'
+          description: ''
+  /api/curriculum/courses/{course_id}/concepts/:
+    get:
+      operationId: curriculum_courses_concepts_list
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConceptList'
+          description: ''
+  /api/curriculum/courses/{course_id}/milestones/:
+    get:
+      operationId: curriculum_courses_milestones_list
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMilestoneListList'
+          description: ''
+  /api/curriculum/courses/{id}/:
+    get:
+      operationId: curriculum_courses_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+  /api/curriculum/milestones/{id}/:
+    get:
+      operationId: curriculum_milestones_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Milestone'
+          description: ''
+  /api/curriculum/my-enrollments/:
+    get:
+      operationId: curriculum_my_enrollments_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEnrollmentList'
+          description: ''
+  /api/curriculum/tasks/:
+    get:
+      operationId: curriculum_tasks_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMicroTaskList'
+          description: ''
+    post:
+      operationId: curriculum_tasks_create
+      tags:
+      - curriculum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicroTask'
+          description: ''
+  /api/curriculum/tasks/{id}/:
+    get:
+      operationId: curriculum_tasks_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this micro task.
+        required: true
+      tags:
+      - curriculum
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicroTask'
+          description: ''
+    put:
+      operationId: curriculum_tasks_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this micro task.
+        required: true
+      tags:
+      - curriculum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MicroTask'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicroTask'
+          description: ''
+    patch:
+      operationId: curriculum_tasks_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this micro task.
+        required: true
+      tags:
+      - curriculum
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMicroTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMicroTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMicroTask'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicroTask'
+          description: ''
+    delete:
+      operationId: curriculum_tasks_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this micro task.
+        required: true
+      tags:
+      - curriculum
+      responses:
+        '204':
+          description: No response body
+  /api/dashboard/alerts/:
+    get:
+      operationId: dashboard_alerts_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - dashboard
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAlertList'
+          description: ''
+  /api/dashboard/alerts/{id}/dismiss/:
+    post:
+      operationId: dashboard_alerts_dismiss_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/class/{class_id}/overview/:
+    get:
+      operationId: dashboard_class_overview_retrieve
+      parameters:
+      - in: path
+        name: class_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/interventions/:
+    post:
+      operationId: dashboard_interventions_create
+      tags:
+      - dashboard
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/interventions/{id}/follow-up/:
+    patch:
+      operationId: dashboard_interventions_follow_up_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - dashboard
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/interventions/history/:
+    get:
+      operationId: dashboard_interventions_history_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - dashboard
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInterventionActionList'
+          description: ''
+  /api/events/batch/:
+    post:
+      operationId: events_batch_create
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchTrack'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BatchTrack'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BatchTrack'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchTrack'
+          description: ''
+  /api/events/my/:
+    get:
+      operationId: events_my_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - events
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventLogList'
+          description: ''
+  /api/events/student/{student_id}/:
+    get:
+      operationId: events_student_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - events
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventLogList'
+          description: ''
+  /api/events/track/:
+    post:
+      operationId: events_track_create
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackEvent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrackEvent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrackEvent'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackEvent'
+          description: ''
+  /api/health/:
+    get:
+      operationId: health_retrieve
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/health/deep/:
+    get:
+      operationId: health_deep_retrieve
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /api/health/ready/:
+    get:
+      operationId: health_ready_retrieve
+      tags:
+      - health
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/audit-log/:
+    get:
+      operationId: privacy_audit_log_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/consent/:
+    get:
+      operationId: privacy_consent_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: privacy_consent_create
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/consent/history/:
+    get:
+      operationId: privacy_consent_history_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/delete/:
+    post:
+      operationId: privacy_delete_create
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/delete/requests/:
+    get:
+      operationId: privacy_delete_requests_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/export/:
+    get:
+      operationId: privacy_export_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/privacy/incidents/:
+    get:
+      operationId: privacy_incidents_retrieve
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: privacy_incidents_create
+      tags:
+      - privacy
+      responses:
+        '200':
+          description: No response body
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/wellbeing/check/:
+    post:
+      operationId: wellbeing_check_create
+      tags:
+      - wellbeing
+      responses:
+        '200':
+          description: No response body
+  /api/wellbeing/my/:
+    get:
+      operationId: wellbeing_my_retrieve
+      tags:
+      - wellbeing
+      responses:
+        '200':
+          description: No response body
+  /api/wellbeing/nudge/{id}/respond/:
+    post:
+      operationId: wellbeing_nudge_respond_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - wellbeing
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    ActionTypeEnum:
+      enum:
+      - send_message
+      - suggest_task
+      - schedule_meeting
+      type: string
+      description: |-
+        * `send_message` - Gửi tin nhắn
+        * `suggest_task` - Gợi ý bài tập
+        * `schedule_meeting` - Đặt lịch gặp
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+        student_name:
+          type: string
+          readOnly: true
+        student_username:
+          type: string
+          readOnly: true
+        student_class:
+          type: integer
+          nullable: true
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/AlertStatusEnum'
+          default: active
+        trigger_type:
+          $ref: '#/components/schemas/TriggerTypeEnum'
+        concept:
+          type: integer
+          nullable: true
+        concept_name:
+          type: string
+          readOnly: true
+        milestone:
+          type: integer
+          nullable: true
+        milestone_title:
+          type: string
+          readOnly: true
+        reason:
+          type: string
+        evidence: {}
+        suggested_action:
+          type: string
+        dismiss_reason_code:
+          oneOf:
+          - $ref: '#/components/schemas/DismissReasonCodeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        dismiss_note:
+          type: string
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - concept_name
+      - created_at
+      - id
+      - milestone_title
+      - reason
+      - severity
+      - student
+      - student_name
+      - student_username
+      - trigger_type
+    AlertStatusEnum:
+      enum:
+      - active
+      - dismissed
+      - resolved
+      - expired
+      type: string
+      description: |-
+        * `active` - Đang mở
+        * `dismissed` - Đã bỏ qua
+        * `resolved` - Đã xử lý
+        * `expired` - Hết hạn
+    Assessment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        time_limit_minutes:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        question_count:
+          type: string
+          readOnly: true
+      required:
+      - course
+      - id
+      - question_count
+      - title
+    AssessmentQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        concept:
+          type: integer
+        question_type:
+          $ref: '#/components/schemas/QuestionTypeEnum'
+        text:
+          type: string
+        options:
+          description: List of answer options
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        points:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - concept
+      - id
+      - text
+    AssessmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        question:
+          type: integer
+        answer: {}
+        is_correct:
+          type: boolean
+          readOnly: true
+        time_taken_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - answer
+      - id
+      - is_correct
+      - question
+    AssessmentSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assessment:
+          type: integer
+        assessment_title:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/AssessmentSessionStatusEnum'
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        total_score:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        total_time_seconds:
+          type: integer
+          readOnly: true
+          nullable: true
+        responses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentResponse'
+          readOnly: true
+      required:
+      - assessment
+      - assessment_title
+      - completed_at
+      - id
+      - responses
+      - started_at
+      - status
+      - submitted_at
+      - total_score
+      - total_time_seconds
+      - version
+    AssessmentSessionStatusEnum:
+      enum:
+      - in_progress
+      - completed
+      - abandoned
+      - expired
+      type: string
+      description: |-
+        * `in_progress` - Đang làm
+        * `completed` - Hoàn thành
+        * `abandoned` - Bỏ dở
+        * `expired` - Hết giờ
+    BatchTrack:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          maxItems: 500
+          minItems: 1
+      required:
+      - events
+    BlankEnum:
+      enum:
+      - ''
+    Concept:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          maxLength: 30
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        prerequisite_ids:
+          type: string
+          readOnly: true
+      required:
+      - code
+      - id
+      - name
+      - prerequisite_ids
+    ContentIntervention:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        concept:
+          type: integer
+        concept_name:
+          type: string
+          readOnly: true
+        intervention_type:
+          $ref: '#/components/schemas/InterventionTypeEnum'
+        source_rule:
+          type: string
+          maxLength: 100
+        rule_version:
+          type: string
+          maxLength: 20
+        p_mastery_at_trigger:
+          type: number
+          format: double
+        mastery_before:
+          type: number
+          format: double
+          nullable: true
+        mastery_after:
+          type: number
+          format: double
+          nullable: true
+        explanation: {}
+        was_helpful:
+          type: boolean
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - concept
+      - concept_name
+      - created_at
+      - id
+      - intervention_type
+      - p_mastery_at_trigger
+      - source_rule
+    ContentTypeEnum:
+      enum:
+      - text
+      - image
+      - video
+      - example
+      - formula
+      type: string
+      description: |-
+        * `text` - Giải thích
+        * `image` - Hình ảnh
+        * `video` - Video
+        * `example` - Ví dụ minh họa
+        * `formula` - Công thức
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        credits:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        concept_count:
+          type: string
+          readOnly: true
+        milestone_count:
+          type: string
+          readOnly: true
+      required:
+      - code
+      - concept_count
+      - id
+      - milestone_count
+      - name
+    CustomTokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - username
+    DataQualityLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        source:
+          type: string
+          maxLength: 100
+        total_records:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        missing_values:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        outliers_detected:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        records_cleaned:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        quality_score:
+          type: number
+          format: double
+        details: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - source
+      - total_records
+    DifficultyEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+      description: |-
+        * `1` - Dễ
+        * `2` - Trung bình
+        * `3` - Khó
+    DifficultyTargetEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+      description: |-
+        * `1` - Dễ
+        * `2` - Trung bình
+        * `3` - Khó
+    DismissReasonCodeEnum:
+      enum:
+      - false_positive
+      - student_leave
+      - resolved_offline
+      - other
+      type: string
+      description: |-
+        * `false_positive` - Báo nhầm
+        * `student_leave` - SV nghỉ phép
+        * `resolved_offline` - Xử lý ngoài hệ thống
+        * `other` - Khác
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+          readOnly: true
+        course:
+          allOf:
+          - $ref: '#/components/schemas/Course'
+          readOnly: true
+        student_class:
+          type: integer
+          nullable: true
+        semester:
+          type: string
+          maxLength: 10
+        enrolled_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - course
+      - enrolled_at
+      - id
+      - semester
+      - student
+    EventLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event_name:
+          $ref: '#/components/schemas/EventNameEnum'
+        properties: {}
+        session_id:
+          type: string
+          maxLength: 100
+        device_type:
+          type: string
+          maxLength: 30
+        source_page:
+          type: string
+          maxLength: 200
+        timestamp_utc:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - event_name
+      - id
+      - timestamp_utc
+    EventNameEnum:
+      enum:
+      - session_started
+      - session_ended
+      - assessment_completed
+      - micro_task_completed
+      - content_intervention
+      - retry_triggered
+      - gv_dashboard_viewed
+      - gv_action_taken
+      - wellbeing_nudge
+      - wellbeing_nudge_shown
+      - wellbeing_nudge_accepted
+      - wellbeing_nudge_dismissed
+      - page_view
+      type: string
+      description: |-
+        * `session_started` - Bắt đầu phiên
+        * `session_ended` - Kết thúc phiên
+        * `assessment_completed` - Hoàn thành assessment
+        * `micro_task_completed` - Hoàn thành micro-task
+        * `content_intervention` - Can thiệp nội dung
+        * `retry_triggered` - Retry triggered
+        * `gv_dashboard_viewed` - GV xem dashboard
+        * `gv_action_taken` - GV thực hiện can thiệp
+        * `wellbeing_nudge` - Nhắc nghỉ
+        * `wellbeing_nudge_shown` - Hiện nhắc nghỉ
+        * `wellbeing_nudge_accepted` - Chấp nhận nghỉ
+        * `wellbeing_nudge_dismissed` - Bỏ qua nhắc nghỉ
+        * `page_view` - Xem trang
+    FollowUpStatusEnum:
+      enum:
+      - pending
+      - student_responded
+      - resolved
+      - no_response
+      type: string
+      description: |-
+        * `pending` - Chờ phản hồi
+        * `student_responded` - SV đã phản hồi
+        * `resolved` - Đã xử lý
+        * `no_response` - Không phản hồi
+    InterventionAction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        alert:
+          type: integer
+        lecturer:
+          type: integer
+          readOnly: true
+        lecturer_name:
+          type: string
+          readOnly: true
+        action_type:
+          $ref: '#/components/schemas/ActionTypeEnum'
+        target_ids:
+          type: array
+          items:
+            type: integer
+          readOnly: true
+        message:
+          type: string
+        context: {}
+        follow_up_status:
+          $ref: '#/components/schemas/FollowUpStatusEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - action_type
+      - alert
+      - created_at
+      - id
+      - lecturer
+      - lecturer_name
+      - target_ids
+      - updated_at
+    InterventionTypeEnum:
+      enum:
+      - supplementary
+      - difficulty_down
+      - difficulty_up
+      - retry_hint
+      - recovery
+      type: string
+      description: |-
+        * `supplementary` - Nội dung bổ trợ
+        * `difficulty_down` - Giảm độ khó
+        * `difficulty_up` - Tăng độ khó
+        * `retry_hint` - Gợi ý retry
+        * `recovery` - Hồi phục
+    KPIDefinition:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          maxLength: 50
+        name:
+          type: string
+          maxLength: 200
+        owner:
+          type: integer
+        owner_username:
+          type: string
+          readOnly: true
+        description:
+          type: string
+        unit:
+          type: string
+          maxLength: 50
+        target_value:
+          type: number
+          format: double
+        target_direction:
+          $ref: '#/components/schemas/TargetDirectionEnum'
+        source_events: {}
+        query_function:
+          type: string
+          maxLength: 200
+        query_sql:
+          type: string
+        baseline_value:
+          type: number
+          format: double
+          nullable: true
+        baseline_locked_at:
+          type: string
+          format: date-time
+          nullable: true
+        baseline_period_start:
+          type: string
+          format: date-time
+          nullable: true
+        baseline_period_end:
+          type: string
+          format: date-time
+          nullable: true
+        intervention_period_start:
+          type: string
+          format: date-time
+          nullable: true
+        intervention_period_end:
+          type: string
+          format: date-time
+          nullable: true
+        is_locked:
+          type: boolean
+        current_version:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/KPIVersion'
+          readOnly: true
+        latest_lineage:
+          type: string
+          readOnly: true
+        integrity_status:
+          type: string
+          readOnly: true
+      required:
+      - code
+      - created_at
+      - description
+      - id
+      - integrity_status
+      - latest_lineage
+      - name
+      - owner
+      - owner_username
+      - query_function
+      - target_direction
+      - target_value
+      - unit
+      - updated_at
+      - versions
+    KPILineage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kpi_code:
+          type: string
+          readOnly: true
+        week_number:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        class_id:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        computed_value:
+          type: number
+          format: double
+        event_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        event_date_range: {}
+        sample_event_ids: {}
+        computation_params: {}
+        data_quality_flags: {}
+        definition_version:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        computed_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - class_id
+      - computed_at
+      - computed_value
+      - definition_version
+      - id
+      - kpi_code
+      - week_number
+    KPIVersion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        version:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        definition_snapshot: {}
+        change_reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - change_reason
+      - created_at
+      - definition_snapshot
+      - id
+      - version
+    LearnerProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        course:
+          type: integer
+          readOnly: true
+        overall_score:
+          type: number
+          format: double
+          readOnly: true
+        initial_mastery:
+          readOnly: true
+          description: Concept-level mastery from assessment
+        strengths:
+          readOnly: true
+        weaknesses:
+          readOnly: true
+        recommended_start_concept:
+          type: integer
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - created_at
+      - id
+      - initial_mastery
+      - overall_score
+      - recommended_start_concept
+      - strengths
+      - student
+      - student_name
+      - updated_at
+      - weaknesses
+    MasteryState:
+      type: object
+      description: Full mastery data for admin views.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        concept:
+          type: integer
+        concept_name:
+          type: string
+          readOnly: true
+        p_mastery:
+          type: number
+          format: double
+        attempt_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        correct_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        last_updated:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - concept
+      - concept_name
+      - id
+      - last_updated
+    MicroTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        milestone:
+          type: integer
+        concept:
+          type: integer
+        concept_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        task_type:
+          $ref: '#/components/schemas/TaskTypeEnum'
+        difficulty:
+          allOf:
+          - $ref: '#/components/schemas/DifficultyEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        estimated_minutes:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        content:
+          description: Task content including questions, options, answers
+        max_score:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - concept
+      - concept_name
+      - id
+      - milestone
+      - title
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        target_week:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Target completion week in the pilot
+        concept_ids:
+          type: array
+          items:
+            type: integer
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/MicroTask'
+          readOnly: true
+        task_count:
+          type: string
+          readOnly: true
+      required:
+      - course
+      - id
+      - target_week
+      - task_count
+      - tasks
+      - title
+    MilestoneList:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        target_week:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          description: Target completion week in the pilot
+        task_count:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - target_week
+      - task_count
+      - title
+    PaginatedAlertList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+    PaginatedAssessmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assessment'
+    PaginatedAssessmentQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentQuestion'
+    PaginatedAssessmentSessionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentSession'
+    PaginatedConceptList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Concept'
+    PaginatedContentInterventionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentIntervention'
+    PaginatedCourseList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+    PaginatedDataQualityLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataQualityLog'
+    PaginatedEnrollmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Enrollment'
+    PaginatedEventLogList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventLog'
+    PaginatedInterventionActionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InterventionAction'
+    PaginatedKPIDefinitionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KPIDefinition'
+    PaginatedKPILineageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KPILineage'
+    PaginatedMasteryStateList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MasteryState'
+    PaginatedMicroTaskList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MicroTask'
+    PaginatedMilestoneListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MilestoneList'
+    PaginatedPilotReportList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PilotReport'
+    PaginatedStudentClassList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentClass'
+    PaginatedSupplementaryContentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupplementaryContent'
+    PaginatedTaskAttemptList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAttempt'
+    PaginatedUserList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PatchedMicroTask:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        milestone:
+          type: integer
+        concept:
+          type: integer
+        concept_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        task_type:
+          $ref: '#/components/schemas/TaskTypeEnum'
+        difficulty:
+          allOf:
+          - $ref: '#/components/schemas/DifficultyEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        estimated_minutes:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        content:
+          description: Task content including questions, options, answers
+        max_score:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+    PatchedUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Tên đăng nhập
+          description: Yêu cầu. 150 ký tự hoặc ít hơn. Chỉ là chữ cái, chữ số và @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Địa chỉ email
+          maxLength: 254
+        first_name:
+          type: string
+          title: Tên
+          maxLength: 150
+        last_name:
+          type: string
+          title: Họ
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        student_id:
+          type: string
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 255
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 200
+        consent_given:
+          type: boolean
+        consent_given_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PilotReport:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        report_type:
+          $ref: '#/components/schemas/ReportTypeEnum'
+        week_number:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+        schema_version:
+          type: string
+          maxLength: 20
+        kpi_definitions_snapshot: {}
+        kpi_data: {}
+        usage_data: {}
+        csat_data: {}
+        notes:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - generated_at
+      - id
+      - report_type
+      - title
+    QuestionTypeEnum:
+      enum:
+      - multiple_choice
+      - true_false
+      - drag_drop
+      type: string
+      description: |-
+        * `multiple_choice` - Trắc nghiệm
+        * `true_false` - Đúng/Sai
+        * `drag_drop` - Kéo thả
+    ReportTypeEnum:
+      enum:
+      - weekly
+      - milestone
+      - final
+      type: string
+      description: |-
+        * `weekly` - Tuần
+        * `milestone` - Mốc báo cáo
+        * `final` - Báo cáo cuối
+    RoleEnum:
+      enum:
+      - student
+      - lecturer
+      - admin
+      type: string
+      description: |-
+        * `student` - Sinh viên
+        * `lecturer` - Giảng viên
+        * `admin` - Quản trị
+    SeverityEnum:
+      enum:
+      - green
+      - yellow
+      - red
+      type: string
+      description: |-
+        * `green` - On-track
+        * `yellow` - Cần chú ý
+        * `red` - Cần can thiệp
+    StudentClass:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        academic_year:
+          type: string
+          maxLength: 9
+        student_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - academic_year
+      - created_at
+      - id
+      - name
+      - student_count
+    StudentPathway:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        current_concept:
+          type: integer
+          nullable: true
+        current_concept_name:
+          type: string
+          readOnly: true
+        current_milestone:
+          type: integer
+          nullable: true
+        current_milestone_title:
+          type: string
+          readOnly: true
+        current_difficulty:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        concepts_completed: {}
+        milestones_completed: {}
+        progress_pct:
+          type: string
+          readOnly: true
+        concepts_needing_review:
+          type: string
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - concepts_needing_review
+      - course
+      - current_concept_name
+      - current_milestone_title
+      - id
+      - progress_pct
+      - updated_at
+    SupplementaryContent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        concept:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        content_type:
+          $ref: '#/components/schemas/ContentTypeEnum'
+        body:
+          type: string
+        media_url:
+          type: string
+          format: uri
+          maxLength: 200
+        difficulty_target:
+          allOf:
+          - $ref: '#/components/schemas/DifficultyTargetEnum'
+          minimum: -2147483648
+          maximum: 2147483647
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+      required:
+      - body
+      - concept
+      - content_type
+      - id
+      - title
+    TargetDirectionEnum:
+      enum:
+      - increase
+      - decrease
+      - absolute
+      type: string
+      description: |-
+        * `increase` - Tăng
+        * `decrease` - Giảm
+        * `absolute` - Đạt ngưỡng
+    TaskAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        task:
+          type: integer
+        task_title:
+          type: string
+          readOnly: true
+        score:
+          type: number
+          format: double
+        max_score:
+          type: number
+          format: double
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        hints_used:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        is_correct:
+          type: boolean
+          readOnly: true
+        answer: {}
+        attempt_number:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - attempt_number
+      - created_at
+      - id
+      - is_correct
+      - task
+      - task_title
+    TaskTypeEnum:
+      enum:
+      - quiz
+      - short_answer
+      - calculation
+      - drag_drop
+      - scenario
+      type: string
+      description: |-
+        * `quiz` - Trắc nghiệm
+        * `short_answer` - Trả lời ngắn
+        * `calculation` - Bài tính
+        * `drag_drop` - Kéo thả
+        * `scenario` - Tình huống
+    TrackEvent:
+      type: object
+      properties:
+        event_name:
+          $ref: '#/components/schemas/EventNameEnum'
+        properties: {}
+        session_id:
+          type: string
+          default: ''
+          maxLength: 100
+        device_type:
+          type: string
+          default: ''
+          maxLength: 30
+        device:
+          type: string
+          writeOnly: true
+          default: ''
+          description: Legacy alias for device_type; prefer device_type.
+          maxLength: 50
+        source_page:
+          type: string
+          default: ''
+          maxLength: 200
+        client_timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        idempotency_key:
+          type: string
+          nullable: true
+          maxLength: 150
+        course_id:
+          type: integer
+          nullable: true
+        class_id:
+          type: integer
+          nullable: true
+        concept_id:
+          type: integer
+          nullable: true
+        task_id:
+          type: integer
+          nullable: true
+        difficulty_level:
+          type: integer
+          nullable: true
+        attempt_number:
+          type: integer
+          nullable: true
+        mastery_before:
+          type: number
+          format: double
+          nullable: true
+        mastery_after:
+          type: number
+          format: double
+          nullable: true
+        intervention_reason:
+          type: string
+          default: ''
+          maxLength: 100
+      required:
+      - event_name
+    TriggerTypeEnum:
+      enum:
+      - inactivity
+      - retry_failure
+      - milestone_lag
+      - low_mastery
+      type: string
+      description: |-
+        * `inactivity` - Không hoạt động
+        * `retry_failure` - Thất bại nhiều lần
+        * `milestone_lag` - Chậm tiến độ
+        * `low_mastery` - Mastery thấp
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Tên đăng nhập
+          description: Yêu cầu. 150 ký tự hoặc ít hơn. Chỉ là chữ cái, chữ số và @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Địa chỉ email
+          maxLength: 254
+        first_name:
+          type: string
+          title: Tên
+          maxLength: 150
+        last_name:
+          type: string
+          title: Họ
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        student_id:
+          type: string
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 255
+        avatar_url:
+          type: string
+          format: uri
+          maxLength: 200
+        consent_given:
+          type: boolean
+        consent_given_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - username
+    UserCreate:
+      type: object
+      properties:
+        username:
+          type: string
+          title: Tên đăng nhập
+          description: Yêu cầu. 150 ký tự hoặc ít hơn. Chỉ là chữ cái, chữ số và @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Địa chỉ email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        first_name:
+          type: string
+          title: Tên
+          maxLength: 150
+        last_name:
+          type: string
+          title: Họ
+          maxLength: 150
+        student_id:
+          type: string
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 255
+      required:
+      - password
+      - username

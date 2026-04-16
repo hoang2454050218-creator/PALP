@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+src = ["."]
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".venv",
+    "htmlcov",
+    "**/migrations/**",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+explicit_package_bases = true
+ignore_missing_imports = true
+check_untyped_defs = false
+disallow_untyped_defs = false
+warn_unused_ignores = true
+exclude = "(migrations|tests/|htmlcov|\\.venv)"
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "manage.py",
+    "*/settings/*",
+]
+
+[tool.coverage.report]
+precision = 1
+show_missing = true
+skip_covered = false

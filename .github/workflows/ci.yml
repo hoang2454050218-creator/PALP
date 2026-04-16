@@ -1,0 +1,712 @@
+name: PALP CI
+
+
+
+on:
+
+  push:
+
+    branches: [main, develop]
+
+  pull_request:
+
+    branches: [main, develop]
+
+  workflow_dispatch:
+
+    inputs:
+
+      run_release_gate:
+
+        description: "Run Go/No-Go release gate checks"
+
+        type: boolean
+
+        default: false
+
+
+
+concurrency:
+
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+
+  cancel-in-progress: true
+
+
+
+env:
+
+  OASDIFF_VERSION: "1.10.21"
+
+
+
+jobs:
+
+  lint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+
+        uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Set up Node 20
+
+        uses: actions/setup-node@v4
+
+        with:
+
+          node-version: "20"
+
+          cache: npm
+
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend dev dependencies
+
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+        working-directory: backend
+
+      - name: Ruff check + format (project package)
+
+        run: |
+
+          ruff check palp
+
+          ruff format --check palp
+
+        working-directory: backend
+
+      - name: Bandit
+
+        run: bandit -r . -x ./tests,./accounts/tests,./adaptive/tests,./assessment/tests,./curriculum/tests,./dashboard/tests,./events/tests,./analytics/tests,./wellbeing/tests,./privacy/tests,./scripts/tests -ll
+
+        working-directory: backend
+
+      - name: Mypy (project package only)
+
+        run: mypy --follow-imports=skip palp
+
+        working-directory: backend
+
+      - name: Install frontend deps
+
+        run: npm ci
+
+        working-directory: frontend
+
+      - name: ESLint
+
+        run: npm run lint
+
+        working-directory: frontend
+
+      - name: TypeScript
+
+        run: npx tsc --noEmit
+
+        working-directory: frontend
+
+
+
+  migration-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+
+        run: pip install -r requirements.txt
+
+        working-directory: backend
+
+      - name: No missing migrations
+
+        env:
+
+          DJANGO_SETTINGS_MODULE: palp.settings.development
+
+        run: python manage.py makemigrations --check --dry-run
+
+        working-directory: backend
+
+
+
+  openapi:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install oasdiff
+
+        run: |
+
+          curl -sSL "https://github.com/tufin/oasdiff/releases/download/v${{ env.OASDIFF_VERSION }}/oasdiff_${{ env.OASDIFF_VERSION }}_linux_amd64.tar.gz" | sudo tar xz -C /usr/local/bin
+
+          oasdiff version
+
+      - name: Install dependencies
+
+        run: pip install -r requirements.txt
+
+        working-directory: backend
+
+      - name: Generate schema and diff (breaking)
+
+        env:
+
+          DJANGO_SETTINGS_MODULE: palp.settings.development
+
+          OPENAPI_RELAXED: "1"
+
+        run: |
+
+          python manage.py spectacular --file /tmp/schema-ci.yaml
+
+          test -f openapi/schema-baseline.yaml
+
+          oasdiff breaking openapi/schema-baseline.yaml /tmp/schema-ci.yaml
+
+        working-directory: backend
+
+
+
+  security-audit:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - uses: actions/setup-node@v4
+
+        with:
+
+          node-version: "20"
+
+          cache: npm
+
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: pip-audit
+
+        run: |
+
+          pip install pip-audit
+
+          pip-audit -r requirements.txt --strict --desc
+
+        working-directory: backend
+
+      - name: npm audit
+
+        run: npm audit --audit-level=high
+
+        working-directory: frontend
+
+
+
+  backend-test:
+
+    runs-on: ubuntu-latest
+
+    needs: [lint, migration-check, openapi, security-audit]
+
+    services:
+
+      postgres:
+
+        image: postgres:16-alpine
+
+        env:
+
+          POSTGRES_DB: palp_test
+
+          POSTGRES_USER: palp
+
+          POSTGRES_PASSWORD: test_password
+
+        ports:
+
+          - 5432:5432
+
+        options: >-
+
+          --health-cmd pg_isready
+
+          --health-interval 10s
+
+          --health-timeout 5s
+
+          --health-retries 5
+
+      redis:
+
+        image: redis:7-alpine
+
+        ports:
+
+          - 6379:6379
+
+        options: >-
+
+          --health-cmd "redis-cli ping"
+
+          --health-interval 10s
+
+          --health-timeout 5s
+
+          --health-retries 5
+
+    env:
+
+      DJANGO_SETTINGS_MODULE: palp.settings.test
+
+      POSTGRES_DB: palp_test
+
+      POSTGRES_USER: palp
+
+      POSTGRES_PASSWORD: test_password
+
+      POSTGRES_HOST: localhost
+
+      REDIS_URL: redis://localhost:6379/0
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install dependencies
+
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+        working-directory: backend
+
+      - name: Unit tests + coverage
+
+        run: >
+
+          pytest -m "not integration and not contract and not security and not load and not data_qa and not recovery"
+
+          --cov=. --cov-report=xml --cov-report=html:htmlcov --cov-report=term-missing
+
+          --cov-fail-under=80 --junitxml=junit.xml
+
+        working-directory: backend
+
+      - name: Core module coverage gates (>=85%)
+
+        run: |
+
+          coverage report --include='*/adaptive/*' --fail-under=85
+
+          coverage report --include='*/assessment/*' --fail-under=85
+
+          coverage report --include='*/dashboard/*' --fail-under=85
+
+          coverage report --include='*/accounts/*' --fail-under=85
+
+        working-directory: backend
+
+      - name: Integration tests
+
+        run: pytest -m integration --no-cov -v
+
+        working-directory: backend
+
+      - name: Contract tests
+
+        run: pytest -m contract --no-cov -v
+
+        working-directory: backend
+
+      - name: Security tests
+
+        run: pytest -m security --no-cov -v
+
+        working-directory: backend
+
+      - name: Data QA tests
+
+        run: pytest -m data_qa --no-cov -v
+
+        working-directory: backend
+
+      - name: Recovery tests
+
+        run: pytest -m recovery --no-cov -v
+
+        working-directory: backend
+
+      - name: Upload coverage HTML
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: backend-coverage
+
+          path: backend/htmlcov/
+
+      - name: Upload coverage XML
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: coverage-xml
+
+          path: backend/coverage.xml
+
+
+
+  frontend-test:
+
+    runs-on: ubuntu-latest
+
+    needs: [lint, migration-check, openapi, security-audit]
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+        with:
+
+          node-version: "20"
+
+          cache: npm
+
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+
+        run: npm ci
+
+        working-directory: frontend
+
+      - name: Unit tests
+
+        run: npm run test:run
+
+        working-directory: frontend
+
+      - name: Coverage
+
+        run: npm run test:cov
+
+        working-directory: frontend
+
+
+
+  e2e:
+
+    runs-on: ubuntu-latest
+
+    needs: [backend-test, frontend-test]
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+        with:
+
+          node-version: "20"
+
+          cache: npm
+
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - name: Install Playwright
+
+        run: npx playwright install --with-deps chromium
+
+        working-directory: frontend
+
+      - name: Install frontend deps
+
+        run: npm ci
+
+        working-directory: frontend
+
+      - name: Install backend deps
+
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+        working-directory: backend
+
+      - name: Run E2E tests
+
+        run: npm run test:e2e
+
+        working-directory: frontend
+
+        env:
+
+          DJANGO_SETTINGS_MODULE: palp.settings.test
+
+      - name: Upload E2E report
+
+        if: always()
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: playwright-report
+
+          path: frontend/playwright-report/
+
+
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    needs: [backend-test, frontend-test]
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+
+        run: docker build -t palp-backend:ci ./backend
+
+      - name: Build frontend dev image
+
+        run: docker build -t palp-frontend:dev:ci ./frontend
+
+      - name: Build frontend production image
+
+        run: docker build -f Dockerfile.prod -t palp-frontend:prod:ci .
+
+        working-directory: frontend
+
+      - name: Compose production build (syntax + deps)
+
+        run: docker compose -f docker-compose.prod.yml build
+
+        env:
+
+          POSTGRES_PASSWORD: ci-build-not-used
+
+
+
+  release-gate:
+
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_release_gate == 'true'
+
+    runs-on: ubuntu-latest
+
+    needs: [e2e, build]
+
+    services:
+
+      postgres:
+
+        image: postgres:16-alpine
+
+        env:
+
+          POSTGRES_DB: palp_test
+
+          POSTGRES_USER: palp
+
+          POSTGRES_PASSWORD: test_password
+
+        ports:
+
+          - 5432:5432
+
+        options: >-
+
+          --health-cmd pg_isready
+
+          --health-interval 10s
+
+          --health-timeout 5s
+
+          --health-retries 5
+
+      redis:
+
+        image: redis:7-alpine
+
+        ports:
+
+          - 6379:6379
+
+        options: >-
+
+          --health-cmd "redis-cli ping"
+
+          --health-interval 10s
+
+          --health-timeout 5s
+
+          --health-retries 5
+
+    env:
+
+      DJANGO_SETTINGS_MODULE: palp.settings.test
+
+      POSTGRES_DB: palp_test
+
+      POSTGRES_USER: palp
+
+      POSTGRES_PASSWORD: test_password
+
+      POSTGRES_HOST: localhost
+
+      REDIS_URL: redis://localhost:6379/0
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+        with:
+
+          python-version: "3.12"
+
+          cache: pip
+
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - uses: actions/setup-node@v4
+
+        with:
+
+          node-version: "20"
+
+          cache: npm
+
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install backend dependencies
+
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+        working-directory: backend
+
+      - name: Install frontend dependencies
+
+        run: npm ci
+
+        working-directory: frontend
+
+      - name: Run database migrations
+
+        run: python manage.py migrate --noinput
+
+        working-directory: backend
+
+      - name: Run release gate checks
+
+        run: python scripts/release_gate.py --format text 2>&1 | tee release-gate-report.txt
+
+        working-directory: ${{ github.workspace }}
+
+      - name: Generate JSON report
+
+        if: always()
+
+        run: python scripts/release_gate.py --format json > release-gate-report.json || true
+
+        working-directory: ${{ github.workspace }}
+
+      - name: Upload release gate report
+
+        if: always()
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: release-gate-report
+
+          path: |
+
+            release-gate-report.txt
+
+            release-gate-report.json
+

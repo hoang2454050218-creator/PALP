@@ -1,0 +1,28 @@
+name: PALP Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target (staging|production)"
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      base_url:
+        description: "Smoke test BASE_URL (e.g. https://staging.palp.example.com)"
+        required: true
+        type: string
+
+jobs:
+  post_deploy_smoke:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Post-deploy smoke
+        env:
+          BASE_URL: ${{ github.event.inputs.base_url }}
+        run: bash scripts/smoke_test.sh

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/format-python.sh",
+        "matcher": "\\.py$",
+        "failClosed": false,
+        "timeout": 15
+      }
+    ]
+  }
+}

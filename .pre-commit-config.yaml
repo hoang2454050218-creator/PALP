@@ -1,0 +1,45 @@
+# PALP Pre-commit hooks — QA_STANDARD Section 11.2
+# Install: pip install pre-commit && pre-commit install
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: no-commit-to-branch
+        args: [--branch, main]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: (package-lock\.json|requirements.*\.txt)$
+
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: ESLint (frontend)
+        entry: npm run lint
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-typecheck
+        name: TypeScript check (frontend)
+        entry: npx tsc --noEmit
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        pass_filenames: false
