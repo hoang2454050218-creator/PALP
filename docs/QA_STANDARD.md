@@ -433,6 +433,21 @@ P3-P4:
 | ASSESS-011 | Assessment 15-20 cau, hoan thanh <=15 phut (do duoc) | E2E | P2 |
 | ASSESS-012 | >=90% SV hoan thanh khong can ho tro (do tu UAT) | UAT | P1 |
 
+**Assessment Edge-case Matrix (AS-01..AS-10):**
+
+| ID | Tinh huong | Ky vong | Test ref | Muc do |
+|----|-----------|--------|----------|--------|
+| AS-01 | SV vao lan dau | Assessment mo dung, timer dung | ASSESS-001, FE-004 | P0 |
+| AS-02 | Reload giua bai | State giu nguyen | ASSESS-006, `assessment-edge-cases.spec.ts` | P1 |
+| AS-03 | Mat mang giua bai | Luu cuc bo / retry sync dung | `assessment-edge-cases.spec.ts` | P1 |
+| AS-04 | Nop dung luc het gio | Chi 1 ket qua hop le, khong duplicate | `test_module_edge_cases.py::TestAS04TimeoutSubmit` | P1 |
+| AS-05 | 2 tab cung nop | Chi 1 ban ghi canonical | ASSESS-007, F1-06 | P1 |
+| AS-06 | Lam lai assessment | Ban moi nhat thang, ban cu archived | `test_module_edge_cases.py::TestAS06Retake` | P1 |
+| AS-07 | Chuyen thiet bi giua chung | Resume dung neu policy cho phep | `test_module_edge_cases.py::TestAS07CrossDevice` | P2 |
+| AS-08 | Token het han giua bai | Re-auth khong mat du lieu | `test_module_edge_cases.py::TestAS08TokenExpiry` | P1 |
+| AS-09 | Cau keo-tha sai format | Khong crash, bao loi dung | `assessment-edge-cases.spec.ts` | P2 |
+| AS-10 | Role GV truy cap endpoint SV submit | Bi chan dung | RBAC tests, `test_authz_matrix.py` | P0 |
+
 ### 3.3. adaptive (BKT Engine & Pathway)
 
 **Scope**: BKT math, pathway decision rules, mastery state, cache, retry logic
@@ -463,6 +478,21 @@ P3-P4:
 | SUBMIT-002 | Submit task voi is_correct=true -> mastery tang | API | P0 |
 | SUBMIT-003 | Submit task voi is_correct=false -> pathway.action co the la "supplement" | API | P0 |
 
+**Adaptive Edge-case Matrix (AD-01..AD-10):**
+
+| ID | Tinh huong | Ky vong | Test ref | Muc do |
+|----|-----------|--------|----------|--------|
+| AD-01 | Dung lien tiep 5 cau | Do kho tang dung rule | BKT-004, PATH-003 | P0 |
+| AD-02 | Sai 2 cau lien tiep cung concept | Chen intervention dung | PATH-001, LI-F01 | P0 |
+| AD-03 | Sai 2 cau o 2 concept khac nhau | Flag dung concept yeu nhat | `test_module_edge_cases.py::TestAD03MultiConcept` | P1 |
+| AD-04 | Doan mo dung | Guess probability xu ly dung (P(guess) < 0.5) | BKT-007, `test_bkt_property.py` | P1 |
+| AD-05 | Offline truoc intervention | State luu, resume dung | `test_module_edge_cases.py::TestAD05OfflineResume` | P1 |
+| AD-06 | Retry xong dung | Quay lai luong chinh | LI-F04, J3 | P0 |
+| AD-07 | Retry sai lan 3 | Tao alert GV | EW-004, `test_module_edge_cases.py::TestAD07RetryAlert` | P0 |
+| AD-08 | 2 request song song cap nhat mastery | Khong race condition | `test_module_edge_cases.py::TestAD08ConcurrentMastery` | P1 |
+| AD-09 | Rule version doi giua session | Session dang chay khong hong | `test_module_edge_cases.py::TestAD09RuleVersionChange` | P2 |
+| AD-10 | Intervention content missing | Co fallback an toan | `test_module_edge_cases.py::TestAD10InterventionFallback` | P1 |
+
 ### 3.4. curriculum (Course Structure)
 
 **Scope**: Course/concept/milestone/task CRUD, prerequisite graph, content schema
@@ -479,6 +509,21 @@ P3-P4:
 | CURR-008 | Seed data 10 concepts voi prerequisites cho SBVL load thanh cong | Integration | P1 |
 | CURR-009 | Filter tasks theo milestone va concept hoat dong dung | API | P2 |
 | CURR-010 | Enrollment chi cho phep student enroll course active | API | P2 |
+
+**Backward Design Edge-case Matrix (BD-01..BD-10):**
+
+| ID | Tinh huong | Ky vong | Test ref | Muc do |
+|----|-----------|--------|----------|--------|
+| BD-01 | Complete 1 task | Progress tang dung | F3-01 | P0 |
+| BD-02 | Click hoan thanh 2 lan | Khong double-count | F3-02, AP-04 | P0 |
+| BD-03 | Task done roi refresh | State giu dung | AP-03 | P1 |
+| BD-04 | Hoan thanh milestone khong theo thu tu | He thong cho phep neu policy cho phep | `test_module_edge_cases.py::TestBD04FlexOrder` | P2 |
+| BD-05 | GV doi template giua chung | Mapping state dung | `test_module_edge_cases.py::TestBD05TemplateMigration` | P2 |
+| BD-06 | 2 thiet bi cung thao tac | Khong conflict pha progress | `test_module_edge_cases.py::TestBD06ConcurrentProgress` | P2 |
+| BD-07 | Undo/mark incomplete | Progress rollback dung | `test_module_edge_cases.py::TestBD07ProgressRollback` | P2 |
+| BD-08 | Task khoa truoc dieu kien | Khong truy cap duoc | CURR-003 (prereqs), `test_module_edge_cases.py::TestBD08Prerequisites` | P1 |
+| BD-09 | Milestone xong nhung task con chua du | Khong danh dau sai | F3-03 | P0 |
+| BD-10 | Progress >100% hoac am | Khong bao gio xay ra | F3-06, LI-F05 | P0 |
 
 ### 3.5. dashboard (Early Warning & Intervention)
 
@@ -506,6 +551,21 @@ P3-P4:
 | ACTION-004 | Intervention history ghi day du who, when, what | API | P1 |
 | DASH-001 | Overview tra ve dung: total, on_track, needs_attention, needs_intervention | API | P0 |
 | DASH-002 | Overview load < 3s voi Redis cache | Performance | P1 |
+
+**Dashboard GV Edge-case Matrix (GV-01..GV-10):**
+
+| ID | Tinh huong | Ky vong | Test ref | Muc do |
+|----|-----------|--------|----------|--------|
+| GV-01 | Lop moi chua co data | Hien "Dang thu thap du lieu" | F4-05, `dashboard-edge-cases.spec.ts` | P1 |
+| GV-02 | 5 SV inactive 3 ngay | Sinh canh bao dung | EW-001, EW-002 | P0 |
+| GV-03 | Mastery giam manh | Flag dung | EW low_mastery | P0 |
+| GV-04 | SV nghi phep hop le | Khong flag sai hoac dismiss duoc | `test_module_edge_cases.py::TestGV04LegitimateAbsence` | P2 |
+| GV-05 | GV mo lop khac | Bi chan | RBAC, SK-01, `dashboard-edge-cases.spec.ts` | P0 |
+| GV-06 | Dismiss alert | Ghi audit + reason | ALERT-002 | P1 |
+| GV-07 | Gui tin nhan can thiep | Luu action dung | ACTION-001 | P1 |
+| GV-08 | Hanh dong xong do lai sau 1 tuan | Dashboard cap nhat dung | `test_module_edge_cases.py::TestGV08FollowUp` | P2 |
+| GV-09 | Alert job chay lai | Khong sinh duplicate alert | LI-F03, `test_early_warning.py::TestInactivityAlert::test_no_duplicate_alerts` | P0 |
+| GV-10 | Data stale 24h | UI phai noi ro last updated | `dashboard-edge-cases.spec.ts` | P2 |
 
 ### 3.6. analytics (KPI & Reporting)
 
@@ -2017,7 +2077,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Security hardened (SG+SK) | 11 | YES | `tests/security/test_security_hardened.py` |
 | Privacy hardened (PP+PRG) | 6 | YES | `tests/integration/test_privacy_hardened.py` |
 | Observability (OB+OD) | 6 | YES | `tests/integration/test_observability.py` |
-| **Tong** | **~485 + ~217 API** | |
+| Module edge cases (AS+AD+BD+GV) | 15 | YES | `tests/integration/test_module_edge_cases.py` |
+| **Tong** | **~500 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -2037,9 +2098,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.2
+> - Version: 2.3
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 1.7 Test Strategy tong the: 9-layer test pyramid (TP-01..09), execution order, cross-cutting concerns (TC-01..08), test data strategy, grand total ~690 cases
+> - Updated: 2026-04-16 -- Them 4 edge-case matrices: AS-01..10, AD-01..10, BD-01..10, GV-01..10 (40 scenarios); them test_module_edge_cases.py (15 test classes); grand total ~717 cases
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off

@@ -139,6 +139,26 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Module Edge Cases (AS, AD, BD, GV)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| AS-04 | Timeout submit | `tests/integration/test_module_edge_cases.py` | `TestAS04TimeoutSubmit` |
+| AS-06 | Retake assessment | `tests/integration/test_module_edge_cases.py` | `TestAS06Retake` |
+| AS-07 | Cross-device resume | `tests/integration/test_module_edge_cases.py` | `TestAS07CrossDevice` |
+| AS-08 | Token expiry mid-assessment | `tests/integration/test_module_edge_cases.py` | `TestAS08TokenExpiry` |
+| AD-03 | Multi-concept flagging | `tests/integration/test_module_edge_cases.py` | `TestAD03MultiConcept` |
+| AD-05 | Offline state resume | `tests/integration/test_module_edge_cases.py` | `TestAD05OfflineResume` |
+| AD-07 | Retry alert creation | `tests/integration/test_module_edge_cases.py` | `TestAD07RetryAlert` |
+| AD-08 | Concurrent mastery update | `tests/integration/test_module_edge_cases.py` | `TestAD08ConcurrentMastery` |
+| AD-09 | Rule version stability | `tests/integration/test_module_edge_cases.py` | `TestAD09RuleVersionChange` |
+| AD-10 | Intervention fallback | `tests/integration/test_module_edge_cases.py` | `TestAD10InterventionFallback` |
+| BD-04 | Flexible milestone order | `tests/integration/test_module_edge_cases.py` | `TestBD04FlexOrder` |
+| BD-06 | Concurrent progress | `tests/integration/test_module_edge_cases.py` | `TestBD06ConcurrentProgress` |
+| BD-08 | Prerequisite enforcement | `tests/integration/test_module_edge_cases.py` | `TestBD08Prerequisites` |
+| GV-04 | Legitimate absence | `tests/integration/test_module_edge_cases.py` | `TestGV04LegitimateAbsence` |
+| GV-08 | Follow-up measurement | `tests/integration/test_module_edge_cases.py` | `TestGV08FollowUp` |
+
 ## Observability (OB + OD)
 
 | ID | Description | File | Test class/function |
