@@ -1734,31 +1734,58 @@ NEU tat ca FAIL conditions = OK:
 | Docker build | `docker-compose build` | YES | 10 min |
 | Security scan | `pip-audit && npm audit` | YES (critical) | 5 min |
 
-### 11.5. Pre-release (Manual Trigger)
+### 11.5. Pre-release Checklist (Upgraded -- 12 items)
 
-| Check | Responsible | Block release? |
-|-------|------------|---------------|
-| Full regression suite | QA | YES |
-| Performance benchmark (LT-01 toi LT-03) | QA | YES |
-| Backup/restore drill | DevOps | YES |
-| Security checklist (15 items) sign-off | Tech Lead | YES |
-| Privacy checklist (8 items) sign-off | PO | YES |
-| UAT pass (neu lan dau) | PO + GV | YES |
-| OpenAPI schema review | Tech Lead | YES |
+> Competition doc: CI/CD tu lint, type check, unit/integration, build images, deploy Docker.
+> PALP siet them: release notes, migration plan, rollback plan, config parity, feature flags.
 
-### 11.6. Post-deploy Smoke Test
+| # | Check | Responsible | Block release? |
+|---|-------|------------|---------------|
+| PRC-01 | Full regression suite (tat ca test groups) | QA | YES |
+| PRC-02 | Performance benchmark (LT-01 toi LT-06) | QA | YES |
+| PRC-03 | Backup/restore drill (Section 9.2) | DevOps | YES |
+| PRC-04 | Security checklist (21 items) sign-off | Tech Lead | YES |
+| PRC-05 | Privacy checklist (12 items) sign-off | PO | YES |
+| PRC-06 | UAT pass (neu lan dau) | PO + GV | YES |
+| PRC-07 | OpenAPI schema review | Tech Lead | YES |
+| PRC-08 | Release notes drafted va linked to version tag | PO | YES |
+| PRC-09 | Migration plan reviewed (forward + backward compatible) | Tech Lead | YES |
+| PRC-10 | Rollback plan documented (image tag + DB restore path) | DevOps | YES |
+| PRC-11 | Monitoring dashboard live (Grafana) + Sentry + alert rules armed | DevOps | YES |
+| PRC-12 | Config parity staging vs prod checked (.env / secrets) | DevOps | YES |
+
+Chay `scripts/release_checklist.py --phase pre` de in checklist.
+
+### 11.6. Post-deploy Checklist (Upgraded -- 10 items)
+
+| # | Check | Verify | Timeout | Action on fail |
+|---|-------|--------|---------|----------------|
+| POC-01 | Smoke tests pass | `scripts/smoke_test.sh` | 2 phut | **ROLLBACK** |
+| POC-02 | Core journey sample pass | J1 + J4 manual hoac Playwright | 5 phut | **ROLLBACK** |
+| POC-03 | Error rate normal vs SLO | Grafana panel OD-01 < 1% | 15 phut | **ROLLBACK** |
+| POC-04 | Event ingestion normal | Grafana panel OD-06 ingestion rate > 0 | 5 phut | Investigate |
+| POC-05 | Adaptive engine metrics normal | `/adaptive/submit/` P95 < 1.5s | 10 phut | Investigate |
+| POC-06 | Alert generation normal | Grafana panel OD-07, khong co silent batch | 15 phut | Investigate |
+| POC-07 | No data lag | Celery queue depth < 50; analytics freshness OK | 10 phut | Investigate |
+| POC-08 | Sentry: 0 new errors | Sentry dashboard, 15 phut sau deploy | 15 phut | WARN |
+| POC-09 | Rollback decision window | On-call + runbook san sang | **< 30 phut** | -- |
+| POC-10 | Team notification | Slack/email thong bao deploy thanh cong | Ngay | -- |
 
 ```
 Smoke test script (auto chay sau deploy):
 
-1. GET /api/health/ -> expect 200 {"status": "ok"}         [BLOCK nếu fail]
-2. POST /api/auth/login/ -> expect 200 (test account)      [BLOCK nếu fail]
-3. GET /api/curriculum/courses/ -> expect 200               [BLOCK nếu fail]
-4. GET /api/dashboard/alerts/?class_id=1 -> expect 200      [BLOCK nếu fail]
-5. Sentry: 0 new errors trong 15 phut sau deploy            [WARN nếu fail]
+1. GET /api/health/ -> expect 200 {"status": "ok"}         [BLOCK -> rollback]
+2. POST /api/auth/login/ -> expect 200 (test account)      [BLOCK -> rollback]
+3. GET /api/curriculum/courses/ -> expect 200               [BLOCK -> rollback]
+4. GET /api/dashboard/alerts/?class_id=1 -> expect 200      [BLOCK -> rollback]
+5. POST /api/adaptive/submit/ -> expect 200 (test data)    [BLOCK -> rollback]
+6. GET /api/events/my/ -> expect 200                        [WARN]
+7. Sentry: 0 new errors trong 15 phut sau deploy            [WARN]
 
-Neu bat ky buoc BLOCK fail -> tu dong rollback
+Neu bat ky buoc BLOCK fail -> tu dong rollback trong < 15 phut
 ```
+
+Chay `scripts/release_checklist.py --phase post` de in checklist.
 
 ---
 
@@ -2285,9 +2312,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.7
+> - Version: 2.8
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 8.5 Load/Stress/Soak (5 scenarios LS-01..05), Section 8.6 Recovery Matrix (9 scenarios RCV-01..09, 4 release gates RCV-RG1..4, rollback <15 phut)
+> - Updated: 2026-04-16 -- Upgrade Section 11.5 Pre-release (12 items PRC-01..12: release notes, migration plan, rollback plan, config parity); upgrade Section 11.6 Post-deploy (10 items POC-01..10: rollback window <30 phut, 7-step smoke test)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
