@@ -175,6 +175,14 @@ def check_learning_integrity(skip_tests: bool) -> CheckResult:
         "LI",
     )
 
+def check_feature_criteria(skip_tests: bool) -> CheckResult:
+    if skip_tests:
+        return CheckResult("FC", "Feature criteria (F1-F5)", Status.SKIP, "--skip-tests")
+    return _run_pytest(
+        "tests/integration/test_feature_criteria.py",
+        "FC",
+    )
+
 
 # ---------------------------------------------------------------------------
 # Go checks (G-01 to G-10)
@@ -561,6 +569,7 @@ def run_gate(skip_tests: bool = False) -> GateReport:
         check_g10_kpi(),
         check_data_cleaning(skip_tests),
         check_event_completeness(skip_tests),
+        check_feature_criteria(skip_tests),
     ]
 
     if report.no_go_passed and report.go_passed:

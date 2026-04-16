@@ -139,6 +139,29 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Core Feature Criteria (F1-F5)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| F1-03 | Score calculation exact | `tests/integration/test_feature_criteria.py` | `TestF1Assessment::test_f1_03_score_calculation_exact` |
+| F1-06 | Two tabs -> 1 session | `tests/integration/test_feature_criteria.py` | `TestF1Assessment::test_f1_06_two_tabs_only_one_session` |
+| F1-08 | Submit audit event | `tests/integration/test_feature_criteria.py` | `TestF1Assessment::test_f1_08_submit_creates_audit_event` |
+| F2-02 | Intervention version info | `tests/integration/test_feature_criteria.py` | `TestF2Adaptive::test_f2_02_intervention_has_version_info` |
+| F2-03 | Mastery delta recorded | `tests/integration/test_feature_criteria.py` | `TestF2Adaptive::test_f2_03_intervention_records_mastery_delta` |
+| F2-04 | No repeated intervention | `tests/integration/test_feature_criteria.py` | `TestF2Adaptive::test_f2_04_no_repeated_intervention_without_gain` |
+| F2-05 | No infinite retry loop | `tests/integration/test_feature_criteria.py` | `TestF2Adaptive::test_f2_05_no_infinite_retry_loop` |
+| F2-06 | Pathway has message | `tests/integration/test_feature_criteria.py` | `TestF2Adaptive::test_f2_06_pathway_response_has_message` |
+| F3-01 | Progress from data | `tests/integration/test_feature_criteria.py` | `TestF3BackwardDesign::test_f3_01_progress_from_data_not_ui` |
+| F3-02 | Idempotent completion | `tests/integration/test_feature_criteria.py` | `TestF3BackwardDesign::test_f3_02_task_completion_idempotent` |
+| F3-06 | No impossible progress | `tests/integration/test_feature_criteria.py` | `TestF3BackwardDesign::test_f3_06_no_impossible_progress` |
+| F4-01 | Alert 5 required fields | `tests/integration/test_feature_criteria.py` | `TestF4Dashboard::test_f4_01_alert_has_all_5_required_fields` |
+| F4-05 | Insufficient data flagged | `tests/integration/test_feature_criteria.py` | `TestF4Dashboard::test_f4_05_insufficient_data_flagged` |
+| F4-06 | Lecturer scoped | `tests/integration/test_feature_criteria.py` | `TestF4Dashboard::test_f4_06_lecturer_scoped_to_own_class` |
+| F5-01 | ETL run metadata | `tests/integration/test_feature_criteria.py` | `TestF5Pipeline::test_f5_01_etl_run_has_metadata` |
+| F5-02 | No silent coercion | `tests/integration/test_feature_criteria.py` | `TestF5Pipeline::test_f5_02_no_silent_coercion` |
+| F5-05 | Reproducible pipeline | `tests/integration/test_feature_criteria.py` | `TestF5Pipeline::test_f5_05_pipeline_reproducible` |
+| F5-06 | Atomic failure | `tests/integration/test_feature_criteria.py` | `TestF5Pipeline::test_f5_06_atomic_failure_no_partial_output` |
+
 ## Learning Integrity (LI-F)
 
 | ID | Description | File | Test class/function |

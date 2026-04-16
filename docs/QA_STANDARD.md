@@ -129,6 +129,87 @@ Day la lop chat luong **quan trong nhat** cua PALP. Nhieu he thong "dung ky thua
 
 **Nguyen tac**: Neu bat ky LI-F nao con ton tai -> **NO-GO tuyet doi**, vi day la loi **gay hai truc tiep den sinh vien va giang vien**.
 
+### 1.6. Core Feature Quality Standards
+
+Day la tieu chuan **cap chuc nang cot loi**, ap dung cho 5 feature chinh cua MVP. Moi feature co **release criteria rieng** -- tat ca phai PASS truoc khi release.
+
+#### 1.6.1. F1 -- Assessment dau vao
+
+PRD: 15-20 cau, <=15 phut, save giua chung, lam lai lay lan moi nhat, >=90% hoan thanh khong ho tro, thoi gian TB <12 phut.
+
+| # | Tieu chi | Chuan | Test ref |
+|---|---------|-------|----------|
+| F1-01 | 0 mat du lieu giua chung | Save progress phai persist qua tab close, network loss, refresh | ASSESS-006, AP-03, AS-02 |
+| F1-02 | 0 duplicate submission | Cung session khong duoc submit 2 lan -> 400 hoac idempotent | ASSESS-007, ASSESS-008, AP-04 |
+| F1-03 | 0 sai score | Score = correct / total * 100, khong sai so | ASSESS-003, `test_feature_criteria.py::TestF1Assessment` |
+| F1-04 | 0 sai mapping profile | LearnerProfile.strengths/weaknesses chi chua concept IDs ton tai | ASSESS-004, ASSESS-005, DI-08 |
+| F1-05 | Resume dung vi tri | Sau mat mang, SV quay lai dung cau da tra loi cuoi | ASSESS-006, AS-02 |
+| F1-06 | 2 tab cung luc -> 1 ket qua | Start session tren tab 2 khi tab 1 dang lam -> reject hoac reuse | ASSESS-007, `test_feature_criteria.py::TestF1Assessment` |
+| F1-07 | Deadline 15p nhat quan FE/BE | Timer FE va server-side timeout phai dong bo (sai so <=5s) | ASSESS-010, `test_feature_criteria.py::TestF1Assessment` |
+| F1-08 | Moi lan nop co audit trail | Event assessment_completed fire voi score, time_taken | EC-03, EVT-005, ACTION-002 |
+
+**Release criteria F1**: 100% save/resume pass, 100% multiple-submit pass, 100% timeout pass, 100% ownership pass, p95 submit < 800ms, 0 P1 score/persistence.
+
+#### 1.6.2. F2 -- Adaptive Pathway v1
+
+PRD: Rule-based + BKT, response <3s, xu ly guess probability, sync state offline.
+
+| # | Tieu chi | Chuan | Test ref |
+|---|---------|-------|----------|
+| F2-01 | BKT deterministic | Cung input -> cung output, moi lan | PATH-004, BKT-001..008 |
+| F2-02 | Rule engine versioned | ContentIntervention luu rule version, pathway co version tracking | `test_feature_criteria.py::TestF2Adaptive` |
+| F2-03 | Intervention day du metadata | Moi intervention luu: concept_id, reason, trigger_rule, mastery_before, mastery_after | `test_feature_criteria.py::TestF2Adaptive` |
+| F2-04 | Khong lap intervention >2 lan lien tiep | Neu cung loai intervention xay ra >2 lan ma khong co learning gain -> escalate hoac doi loai | `test_feature_criteria.py::TestF2Adaptive` |
+| F2-05 | Khong loop vo han | Sai -> video -> sai -> video khong vuot qua MAX_RETRY (default 5) | RETRY-001..003, LI-F04, `test_feature_criteria.py::TestF2Adaptive` |
+| F2-06 | SV luon thay ly do chuyen noi dung | pathway response co message giai thich | PATH-001..003, LI-04, AP-02 |
+
+**Release criteria F2**: 100% rule branch pass, 100% retry/recovery pass, p95 adaptive <1.5s, p99 <2.5s, 0 wrong-concept, 0 progress corruption, 0 orphan state.
+
+#### 1.6.3. F3 -- Backward Design Dashboard
+
+PRD: 5-10 milestones, 3-5 micro-tasks/milestone, flexible ordering, phan hoi <1s.
+
+| # | Tieu chi | Chuan | Test ref |
+|---|---------|-------|----------|
+| F3-01 | Progress tinh tu du lieu, khong suy dien | progress_pct = completed_tasks / total_tasks, tinh tu DB | `test_feature_criteria.py::TestF3BackwardDesign` |
+| F3-02 | Task completion idempotent | Submit cung task 2 lan -> attempt_number tang, completion khong double-count | RETRY-003, AP-04, DI-04 |
+| F3-03 | Milestone chi complete khi du tasks | Milestone status = completed chi khi tat ca tasks con da completed | `test_feature_criteria.py::TestF3BackwardDesign` |
+| F3-04 | Partial completion co trang thai rieng | in_progress vs completed vs not_started phan biet ro | `test_feature_criteria.py::TestF3BackwardDesign` |
+| F3-05 | Khong mat thanh tuu sau refresh | Refresh/doi thiet bi -> progress van dung | AP-03, ASSESS-006 |
+| F3-06 | 0 progress sai | Khong double-count, khong am, khong >100% | LI-F05, AP-04 |
+
+**Release criteria F3**: 100% milestone math pass, 100% reorder logic pass, 0 double-count/negative/>100%, p95 progress update <500ms.
+
+#### 1.6.4. F4 -- Dashboard giang vien / Early Warning
+
+PRD: Phan nhom X/V/D, canh bao inactive >=3 ngay hoac mastery giam manh, dismiss + action.
+
+| # | Tieu chi | Chuan | Test ref |
+|---|---------|-------|----------|
+| F4-01 | Alert co day du 5 truong | danh tinh (dung quyen), ly do, timestamp, evidence snapshot, trang thai xu ly | EW-008, LI-F06, `test_feature_criteria.py::TestF4Dashboard` |
+| F4-02 | Dismiss phai co reason | dismiss_note khong rong khi dismiss | ALERT-002, `test_feature_criteria.py::TestF4Dashboard` |
+| F4-03 | Action GV co audit | Moi intervention tao event gv_action_taken + ghi InterventionAction | ACTION-002, ACTION-004 |
+| F4-04 | Khong false alert tu stale data | Alert chi dua tren du lieu moi nhat, khong dung cache cu qua 24h | LI-F03, EW-003, EW-006 |
+| F4-05 | Chua du du lieu -> UI noi ro | data_sufficient=false -> hien "Dang thu thap du lieu" | DASH-001, `test_feature_criteria.py::TestF4Dashboard` |
+| F4-06 | 0 cross-class leak | GV chi thay SV trong class minh | RBAC-004, ALERT-003, NG-03 |
+
+**Release criteria F4**: 100% RBAC pass, 100% evidence rendering pass, UAT precision >=80%, 0 cross-class leak, 0 stale alert.
+
+#### 1.6.5. F5 -- Data Cleaning Pipeline
+
+PRD: KNN imputation, Z-score/IQR, outlier tach review, sensitivity analysis MNAR, ETL hoc vu 3 ky.
+
+| # | Tieu chi | Chuan | Test ref |
+|---|---------|-------|----------|
+| F5-01 | Moi run co metadata day du | run_id, input_version, output_version, checksum, schema_snapshot | ETL-001, `test_feature_criteria.py::TestF5Pipeline` |
+| F5-02 | Khong silent coercion | Type mismatch -> loi ro rang, khong tu ep kieu | `test_feature_criteria.py::TestF5Pipeline` |
+| F5-03 | >50% missing -> exclude dung rule | Column co >50% missing bi flag hoac excluded | DC-03, imputation.py HIGH_MISSING_THRESHOLD |
+| F5-04 | Outlier khong silently drop | Outlier duoc flag va dua vao review queue, khong bi xoa | DC-04, detect_outliers -> review_queue |
+| F5-05 | Reproducible | Cung input + cung seed -> cung output checksum | DC-05, pipeline compute_df_checksum |
+| F5-06 | Fail giua chung -> khong tao output "nua sach nua ban" | Pipeline dung atomic transaction, fail -> status=FAILED, khong co partial output | `test_feature_criteria.py::TestF5Pipeline` |
+
+**Release criteria F5**: 100% schema validation pass, 100% duplicate key detection pass, 100% outlier queue pass, 100% reproducibility pass, 0 silent corruption, 0 run thieu report.
+
 ---
 
 ## 2. Mo hinh phan cap loi va nguong pass/fail
@@ -1599,7 +1680,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | API contract (estimated) | ~217 | YES | `tests/contract/test_api_contract.py`, `tests/contract/test_negative.py`, `tests/contract/test_idempotency.py`, `tests/contract/test_request_validation.py`, `tests/contract/test_api_schema.py` |
 | Product correctness (AP) | 5 | YES | `tests/integration/test_product_correctness.py` |
 | Learning integrity (LI-F) | 7 | YES | `tests/integration/test_learning_integrity.py` |
-| **Tong** | **~444 + ~217 API** | |
+| Feature criteria (F1-F5) | 18 | YES | `tests/integration/test_feature_criteria.py` |
+| **Tong** | **~462 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -1619,9 +1701,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 1.6
+> - Version: 1.7
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 1.5 Learning Integrity Standard (6 tieu chi LI-01..LI-06, 6 failure conditions LI-F01..LI-F06, psychological safety); them test_learning_integrity.py (7 test classes, 19 tests); them LI check vao release_gate.py
+> - Updated: 2026-04-16 -- Them Section 1.6 Core Feature Quality Standards (F1-F5, 30 tieu chi, release criteria); them test_feature_criteria.py (5 test classes, 18 tests); them FC check vao release_gate.py
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
