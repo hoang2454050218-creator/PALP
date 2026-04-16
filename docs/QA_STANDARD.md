@@ -210,6 +210,111 @@ PRD: KNN imputation, Z-score/IQR, outlier tach review, sensitivity analysis MNAR
 
 **Release criteria F5**: 100% schema validation pass, 100% duplicate key detection pass, 100% outlier queue pass, 100% reproducibility pass, 0 silent corruption, 0 run thieu report.
 
+### 1.7. Test Strategy tong the -- Test Pyramid
+
+PALP la san pham EdTech anh huong truc tiep den learning outcomes. Test strategy phai **cao hon** muc thong thuong -- khong chi dam bao "khong crash" ma dam bao **khong dua ra quyet dinh sai ve hoc tap**.
+
+#### 1.7.1. Test Pyramid -- 9 lop
+
+```
+                    +-------+
+                    |  UAT  |  Hanh vi that SV+GV (>= 90% task success)
+                   +--------+
+                  | Recovery |  Backup/restore/retry/rollback (100% pass)
+                 +----------+
+                | Data QA    |  ETL, analytics, BKT bounds (100% pass)
+               +------------+
+              |    Load      |  Performance + stability (pass SLO)
+             +--------------+
+            |   Security     |  Auth/AuthZ/OWASP (100% pass)
+           +----------------+
+          |      E2E         |  7 core journeys + privacy (100% pass)
+         +------------------+
+        |     Contract       |  Schema request/response/error (100% API)
+       +--------------------+
+      |    Integration       |  API + DB + cache + queue + ETL (100% core)
+     +----------------------+
+    |        Unit            |  Logic, BKT, rules, pure functions (>= 90% core)
+    +------------------------+
+```
+
+#### 1.7.2. Nguong bat buoc theo lop
+
+| # | Lop test | Muc tieu | Nguong | CI stage | Implementation |
+|---|---------|---------|--------|----------|----------------|
+| TP-01 | Unit | Logic nho, pure functions, BKT math, pathway rules, scoring | **>= 90% coverage core** (assessment, adaptive, dashboard, accounts) | PR Gate | `pytest -m "not integration..."`, per-app `tests/` |
+| TP-02 | Integration | API + DB + cache + queue + ETL, cross-app flows | **100% core endpoint co test** | Pre-merge | `pytest -m integration`, `tests/integration/` |
+| TP-03 | Contract | Schema request/response, error codes, OpenAPI diff | **100% public API** | PR Gate | `pytest -m contract`, `tests/contract/`, `oasdiff` |
+| TP-04 | E2E | Hanh trinh nguoi dung toan bo (FE + BE) | **100% core journeys pass** (J1-J7) | Pre-merge | `npm run test:e2e`, `e2e/journeys/` |
+| TP-05 | Security | Auth, AuthZ, RBAC matrix, injection, IDOR, OWASP | **100% pass** | Pre-merge | `pytest -m security`, `tests/security/` |
+| TP-06 | Load | Performance, stability, SLO compliance | **Pass SLO** (Section 8.1) | Pre-release | Locust, `tests/load/`, `slo_assertions.py` |
+| TP-07 | Data QA | ETL pipeline, BKT bounds, event completeness, KPI integrity | **100% pass** | Pre-merge | `pytest -m data_qa`, `tests/data_qa/` |
+| TP-08 | Recovery | Backup/restore, rollback, cache failure, worker restart | **100% pass** | Pre-release | `pytest -m recovery`, `tests/recovery/` |
+| TP-09 | UAT | Hanh vi that cua SV va GV trong moi truong staging | **>= 90% task success**, SUS >= 80 | Pre-release | UAT_SCRIPT.md, 2 vong, 15 tasks |
+
+#### 1.7.3. Cross-cutting test concerns
+
+| # | Concern | Ap dung cho | Verify bang |
+|---|---------|------------|------------|
+| TC-01 | Product correctness (AP-01..05) | Integration, E2E | `test_product_correctness.py` |
+| TC-02 | Learning integrity (LI-F01..06) | Integration | `test_learning_integrity.py` |
+| TC-03 | Feature criteria (F1-F5) | Integration | `test_feature_criteria.py` |
+| TC-04 | Privacy hardened (PP, PRG) | Integration | `test_privacy_hardened.py` |
+| TC-05 | Security hardened (SG, SK) | Security | `test_security_hardened.py` |
+| TC-06 | Observability (OB, OD) | Integration | `test_observability.py` |
+| TC-07 | Event completeness (EC) | Unit | `test_event_completeness.py` |
+| TC-08 | Data cleaning (DC) | Data QA | `test_data_cleaning.py` |
+
+#### 1.7.4. Test execution order va dependencies
+
+```
+PR Gate (moi PR, block merge):
+  Unit tests ──> Coverage gates ──> Contract tests ──> OpenAPI diff
+                                                           |
+Pre-merge (sau approve, block merge):                      v
+  Integration ──> E2E journeys ──> Security ──> Data QA ──> Docker build
+                                                                |
+Pre-release (manual trigger, block release):                    v
+  Full regression ──> Load test ──> Recovery ──> Security checklist
+       |                                              |
+       v                                              v
+  Backup/restore drill ──> Privacy checklist ──> UAT (2 vong)
+                                                      |
+                                                      v
+                                           Go/No-Go decision gate
+                                                      |
+                                                      v
+Post-deploy:                                    Deploy staging/prod
+  Smoke test ──> Sentry verify ──> Notify team
+```
+
+#### 1.7.5. Test data strategy
+
+| Moi truong | Data source | Quan ly boi |
+|-----------|-------------|-------------|
+| Unit tests | In-memory DB (SQLite), factory fixtures (`conftest.py`) | Dev |
+| Integration | PostgreSQL test DB, seeded fixtures | Dev + CI |
+| E2E | Staging DB, seeded via `scripts/seed_data.py` | DevOps |
+| Load | Staging DB, 50-200 simulated users (Locust profiles) | QA |
+| UAT | Staging DB, 20-30 SV that + 2-3 GV that | PO + QA |
+
+#### 1.7.6. Tong hop so luong test
+
+| Lop | So test cases/files | Marker/tag |
+|-----|--------------------|-----------| 
+| Unit | ~170 cases (per-app `tests/`) | default (no marker) |
+| Integration | ~80 cases (`tests/integration/`, cross-cutting) | `@pytest.mark.integration` |
+| Contract | ~217 cases (`tests/contract/`) | `@pytest.mark.contract` |
+| E2E | 8 journey specs + 7 feature specs | Playwright `e2e/` |
+| Security | ~40 cases (`tests/security/`) | `@pytest.mark.security` |
+| Load | 6 scenarios (Locust) | `@pytest.mark.load` |
+| Data QA | ~30 cases (`tests/data_qa/`) | `@pytest.mark.data_qa` |
+| Recovery | ~15 cases (`tests/recovery/`) | `@pytest.mark.recovery` |
+| Frontend unit | 7 test files (Vitest) | `src/**/*.test.ts` |
+| **Tong backend** | **~550 cases** | |
+| **Tong FE** | **~60 cases (unit) + ~80 cases (E2E)** | |
+| **Grand total** | **~690 cases** | |
+
 ---
 
 ## 2. Mo hinh phan cap loi va nguong pass/fail
@@ -1932,9 +2037,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.1
+> - Version: 2.2
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 7.3 Observability Standard: 18 event fields (EF-01..18), 5 observability SLOs (OB-01..05), 9 dashboard panels (OD-01..09); them test_observability.py (6 test classes, 15 tests)
+> - Updated: 2026-04-16 -- Them Section 1.7 Test Strategy tong the: 9-layer test pyramid (TP-01..09), execution order, cross-cutting concerns (TC-01..08), test data strategy, grand total ~690 cases
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
