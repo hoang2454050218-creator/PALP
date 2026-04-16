@@ -616,9 +616,58 @@ P3-P4:
 | WB-005 | Nudge KHONG lam gian doan flow hoc tap (khong block UI) | E2E | P1 |
 | WB-006 | Nudge history xem duoc qua API | API | P2 |
 
-### 3.9. Frontend (Next.js 14)
+### 3.9. Frontend (Next.js 14) -- UX & Accessibility Standard
 
 **Scope**: E2E journeys, responsive, error states, loading states, UX quality, accessibility
+
+#### 3.9.0. UX Quality Standard (Upgraded)
+
+Moi man hinh PALP phai tra loi duoc **4 cau hoi** sau cho nguoi dung:
+
+| # | Cau hoi | Chuan | FE test ref |
+|---|---------|-------|-------------|
+| UX-Q1 | Toi dang o dau? | Navigation sidebar co aria-current="page"; breadcrumb hoac page title ro rang | FE-015 |
+| UX-Q2 | Toi can lam gi tiep? | Empty state co huong dan; pathway hien buoc tiep; task hien goal + submit | FE-027, FE-005, FE-006 |
+| UX-Q3 | He thong vua lam gi? | Toast notification sau action; feedback dung/sai sau submit; mastery update visible | FE-016, FE-004 |
+| UX-Q4 | Neu co loi thi xu ly sao? | Error state co message + huong dan cu the; khong man hinh trang; khong "dang xu ly" qua 2s | FE-012, FE-013 |
+
+**UX anti-patterns (KHONG DUOC co):**
+
+| # | Anti-pattern | Chuan | FE test ref | Muc do |
+|---|-------------|-------|-------------|--------|
+| UX-AP1 | Loading tren 2s khong co skeleton/spinner | Moi fetch phai co loading indicator trong 500ms | FE-013 | P2 |
+| UX-AP2 | Copy phan xet nguoi hoc | Dung "can bo sung" thay "yeu/kem"; dung "gap kho khan" thay "that bai" | FE-026, `mastery-logic.test.ts` TRIGGER_LABELS test | P2 |
+| UX-AP3 | Canh bao chi to mau khong giai thich | Severity phai co icon + text + description | FE-021, `constants.test.ts` severity icon test | P1 |
+| UX-AP4 | Man hinh trang khong huong dan | Empty state phai co next-step suggestion | FE-027, GV-01 | P2 |
+| UX-AP5 | Error khong co cach xu ly | Error message phai goi y cach fix (retry, quay lai, lien he) | FE-012 | P1 |
+
+#### 3.9.1. Accessibility Minimum -- WCAG 2.1 AA (Practical)
+
+| # | Tieu chi | Chuan | FE test ref | Muc do |
+|---|---------|-------|-------------|--------|
+| A11Y-01 | Responsive mobile | 375px usable, sidebar drawer, form accessible | FE-011, FE-025, `accessibility.spec.ts::Mobile responsive` | P2 |
+| A11Y-02 | Keyboard navigation | Tab di qua duoc flow core (login -> dashboard -> task -> submit) | FE-023, `accessibility.spec.ts::Tab order` | P1 |
+| A11Y-03 | Form labels | Tat ca input co label lien ket, error co aria-describedby | FE-018, `accessibility.spec.ts::Form inputs` | P1 |
+| A11Y-04 | Contrast | >= 4.5:1 text, >= 3:1 large text (WCAG 2.1 AA) | FE-022, `accessibility.spec.ts::Color and contrast` | P1 |
+| A11Y-05 | Khong chi dung mau | Severity/mastery/progress deu co icon + text ben canh mau | FE-021, `accessibility.spec.ts::Color and contrast` | P1 |
+| A11Y-06 | Skip link | Skip-to-content link hoat dong | FE-019, `accessibility.spec.ts::Skip link` | P2 |
+| A11Y-07 | Focus trap | Modal/dialog co focus trap + Escape close | FE-020 | P1 |
+| A11Y-08 | Quiz a11y | Assessment options co role="radiogroup" + role="radio" + aria-checked | FE-017, `accessibility.spec.ts::Quiz accessibility` | P1 |
+| A11Y-09 | Error role | Error message co role="alert" | FE-002, `accessibility.spec.ts::error message has role=alert` | P1 |
+| A11Y-10 | Lang attribute | html lang="vi" | `accessibility.spec.ts::has correct lang attribute` | P2 |
+| A11Y-11 | axe-core scan | WCAG 2.1 AA scan pass tren login, dashboard, task pages | FE-024, `accessibility.spec.ts::passes automated WCAG AA checks` | P1 |
+
+**Accessibility Release Gate:**
+
+| # | Dieu kien | Nguong |
+|---|----------|--------|
+| A11Y-RG1 | axe-core WCAG 2.1 AA scan | 0 violations tren 3 pages core (login, dashboard, task) |
+| A11Y-RG2 | Keyboard flow core | Tab qua duoc login -> dashboard -> task -> submit |
+| A11Y-RG3 | Severity khong chi mau | 100% severity indicators co icon + text |
+| A11Y-RG4 | Form labels day du | 100% form inputs co label lien ket |
+| A11Y-RG5 | Mobile usable | Login + assessment + pathway usable o 375px |
+
+#### 3.9.2. FE Test Cases
 
 | Test Group | Mo ta | Loai | Muc do |
 |-----------|-------|------|--------|
@@ -2185,9 +2234,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.5
+> - Version: 2.6
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Them Section 6.5 Database/Migration Standard: 8 schema rules (DB-01..08), 5 migration rules (MIG-01..05), 5 N+1 checks (NQ-01..05), 6 DB release gates (DRG-01..06); them test_db_schema.py (6 test classes, 12 tests)
+> - Updated: 2026-04-16 -- Upgrade Section 3.9 Frontend/UX: 4-question UX framework (UX-Q1..Q4), 5 UX anti-patterns (UX-AP1..5), 11 accessibility criteria (A11Y-01..11), 5 accessibility release gates (A11Y-RG1..5)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
