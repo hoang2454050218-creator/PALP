@@ -879,6 +879,73 @@ Moi endpoint trong API.md phai co **toi thieu** cac test case sau:
 
 **Bat ky PRG nao FAIL -> NO-GO.**
 
+### 7.3. Observability and Instrumentation Standard
+
+> PRD xac dinh event core: session_started, assessment_completed, micro_task_completed, content_intervention, retry_triggered, gv_dashboard_viewed, gv_action_taken, wellbeing_nudge.
+> **Tieu chuan nay nang cap len chuan observability cap van hanh.**
+
+#### 7.3.1. Event Quality Standard
+
+Moi event phai co **toi thieu** cac truong sau:
+
+**Truong bat buoc (tat ca events):**
+
+| # | Field | Mo ta | Constraint |
+|---|-------|-------|-----------|
+| EF-01 | event_name | Ten event tu EventName choices | NOT NULL, valid choice |
+| EF-02 | event_version | Version schema event | NOT NULL, default "1.0" |
+| EF-03 | timestamp_utc | Thoi gian event (UTC) | NOT NULL |
+| EF-04 | actor_type | student / lecturer / admin / system | NOT NULL, valid choice |
+| EF-05 | actor_id | FK den User (nullable cho system) | FK valid hoac NULL |
+| EF-06 | session_id | Browser session identifier | String, max 100 |
+| EF-07 | course_id | FK den Course | Nullable FK |
+| EF-08 | class_id | FK den StudentClass | Nullable FK |
+| EF-09 | device_type | desktop / mobile / tablet | String, max 30 |
+| EF-10 | source_page | URL/page name | String, max 200 |
+| EF-11 | request_id | UUID de correlate logs | UUID, auto-generated |
+
+**Truong bat buoc bo sung (learning events):**
+
+| # | Field | Ap dung cho | Constraint |
+|---|-------|------------|-----------|
+| EF-12 | concept_id | micro_task_completed, content_intervention | FK valid |
+| EF-13 | task_id | micro_task_completed | FK valid |
+| EF-14 | difficulty_level | micro_task_completed | 1-3 |
+| EF-15 | attempt_number | micro_task_completed, retry_triggered | >= 1 |
+| EF-16 | mastery_before | micro_task_completed, content_intervention | [0.0, 1.0] |
+| EF-17 | mastery_after | micro_task_completed, content_intervention | [0.0, 1.0] |
+| EF-18 | intervention_reason | content_intervention | String, non-empty |
+
+**Confirmation events**: assessment_completed, micro_task_completed, gv_action_taken phai co `confirmed_at` timestamp sau khi BE verify thanh cong.
+
+#### 7.3.2. Observability SLO
+
+| # | Metric | Target | Measurement | Verify |
+|---|--------|--------|-------------|--------|
+| OB-01 | Event completeness | **>= 99.5%** | (events voi required fields day du) / (tong events) | `test_observability.py`, release_gate G-06 |
+| OB-02 | Event duplication rate | **<= 0.1%** | (duplicate events) / (tong events) | Idempotency key check, EVT-008 |
+| OB-03 | Clock skew normalized | timestamp_utc la server-side, client_timestamp luu rieng | Verify timestamp_utc = server time | `test_observability.py` |
+| OB-04 | 0 orphan event | Moi event co actor map duoc (tru system events) | `actor_id` FK valid | DI-11, EC tests |
+| OB-05 | Critical events BE-confirmed | assessment_completed, micro_task_completed, gv_action_taken KHONG chi fire o FE | `confirmed_at` NOT NULL cho confirmation events | `test_observability.py` |
+
+#### 7.3.3. Operations Dashboard bat buoc
+
+Phai co dashboard (Grafana) voi **toi thieu 9 panels** sau:
+
+| # | Panel | Metric | Threshold |
+|---|-------|--------|-----------|
+| OD-01 | App error rate | `sum(rate(5xx)) / sum(rate(total)) * 100` | < 1% green, < 5% yellow, >= 5% red |
+| OD-02 | API latency | p50, p95, p99 per endpoint group | P95 < SLO (Section 8.1.1) |
+| OD-03 | Adaptive decision latency | `/adaptive/submit/` p95 | < 1.5s |
+| OD-04 | Job success/fail | Celery task results | 0 failures alert |
+| OD-05 | ETL data quality score | `DataQualityLog.quality_score` | >= 70% |
+| OD-06 | Event ingestion health | Events/min, completeness % | Ingestion rate > 0 |
+| OD-07 | Alert generation volume | Alerts created per batch | Spike detection |
+| OD-08 | Export/delete requests | GDPR request count + completion rate | Pending > 48h alert |
+| OD-09 | Backup freshness | Last backup timestamp | > 12h old = alert |
+
+**Implementation**: `infra/grafana/provisioning/dashboards/palp-operations.json` (da co day du 9 panels + HTTP request rate).
+
 ---
 
 ## 8. Performance and Load Testing
@@ -1844,7 +1911,8 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 | Feature criteria (F1-F5) | 18 | YES | `tests/integration/test_feature_criteria.py` |
 | Security hardened (SG+SK) | 11 | YES | `tests/security/test_security_hardened.py` |
 | Privacy hardened (PP+PRG) | 6 | YES | `tests/integration/test_privacy_hardened.py` |
-| **Tong** | **~479 + ~217 API** | |
+| Observability (OB+OD) | 6 | YES | `tests/integration/test_observability.py` |
+| **Tong** | **~485 + ~217 API** | |
 
 ### F. Tham chieu tai lieu
 
@@ -1864,9 +1932,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.0
+> - Version: 2.1
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Upgrade Section 7.2 Privacy: 6 Privacy Principles (PP-01..06), 12 PRI checks, 8 Privacy Release Gates (PRG-01..08); them test_privacy_hardened.py (6 test classes, 13 tests)
+> - Updated: 2026-04-16 -- Them Section 7.3 Observability Standard: 18 event fields (EF-01..18), 5 observability SLOs (OB-01..05), 9 dashboard panels (OD-01..09); them test_observability.py (6 test classes, 15 tests)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off

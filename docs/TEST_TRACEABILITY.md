@@ -139,6 +139,17 @@
 | AP-04 | No double-count | `tests/integration/test_product_correctness.py` | `TestAP04NoDoubleCount` |
 | AP-05 | No false alert | `tests/integration/test_product_correctness.py` | `TestAP05NoFalseAlert` |
 
+## Observability (OB + OD)
+
+| ID | Description | File | Test class/function |
+|----|-------------|------|---------------------|
+| OB-01 | Event completeness fields | `tests/integration/test_observability.py` | `TestOB01EventCompleteness` |
+| OB-02 | Event deduplication | `tests/integration/test_observability.py` | `TestOB02EventDeduplication` |
+| OB-03 | Clock skew normalized | `tests/integration/test_observability.py` | `TestOB03ClockNormalization` |
+| OB-04 | Zero orphan events | `tests/integration/test_observability.py` | `TestOB04NoOrphanEvents` |
+| OB-05 | Critical events BE-confirmed | `tests/integration/test_observability.py` | `TestOB05CriticalEventConfirmation` |
+| OD-01..09 | Operations dashboard panels | `tests/integration/test_observability.py` | `TestOperationsDashboard` |
+
 ## Privacy Hardened (PP + PRG)
 
 | ID | Description | File | Test class/function |
