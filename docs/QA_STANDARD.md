@@ -1322,6 +1322,57 @@ Admin user (10% traffic):
 | Weekly report | 10 tuan data x 90 SV | < 10 phut | Report generated day du |
 | Data quality check | Full dataset | < 15 phut | Score computed |
 
+### 8.5. Load/Stress/Soak Expectations (Upgraded)
+
+> Competition doc: backup, restore <1h, daily dump, worker, queue, Docker deploy, health check.
+> PALP siet them: restore drill dinh ky, soak 30 phut, spike 300, rollback <15 phut.
+
+#### 8.5.1. Load test user actions (200 concurrent)
+
+```
+200 users dong thoi thuc hien:
+  1. Login (JWT via httpOnly cookie)
+  2. Load dashboard (student: /dashboard, lecturer: /overview)
+  3. Complete task (POST /adaptive/submit/ voi BKT update)
+  4. Trigger adaptive (verify pathway response)
+  5. Repeat 3-4 trong 10 phut
+```
+
+#### 8.5.2. Ky vong chi tiet theo scenario
+
+| # | Scenario | Duration | Ky vong | Pass criteria |
+|---|---------|---------|--------|---------------|
+| LS-01 | Soak test | **30 phut**, 200 users | P95 on dinh suot 30 phut; error rate < 0.5%; queue depth < 50 | P95 cuoi <= 1.2x P95 dau; RSS delta < 50MB |
+| LS-02 | Spike test | 0 -> **300 users** trong 5 phut | He thong khong crash; recover ve P95 < 3s trong 60s | 0 unrecoverable errors; auto-scale (neu co) kick in |
+| LS-03 | Queue stability | 200 users, 15 phut | Queue depth khong tang vo han; worker xu ly kip | Max queue depth < 100 tasks; drain trong 60s sau stop |
+| LS-04 | Dashboard freshness | 100 users lecturer | Dashboard GV khong stale qua 1 chu ky refresh (60s cache TTL) | `cached_at` < 120s old |
+| LS-05 | Memory stability | 50 users, 2 gio | Khong memory leak ro rang | RSS cuoi - RSS dau < 50MB; no OOM kill |
+
+### 8.6. Recovery Test Matrix (Upgraded)
+
+Moi scenario duoi day phai pass **100%** truoc release. Implementation: `tests/recovery/`.
+
+| # | Scenario | Mo ta | Pass criteria | Test file |
+|---|---------|-------|---------------|-----------|
+| RCV-01 | Mat Redis tam thoi | Redis down 30s -> up lai | App fallback sang DB; khong crash; cache rebuild tu dong | `test_redis_temporary_loss.py` |
+| RCV-02 | Restart BE giua session | Backend restart trong khi SV dang lam task | Session state (assessment, mastery) khong mat; SV continue duoc | `test_backend_restart.py` |
+| RCV-03 | ETL fail giua chung | ETL pipeline loi o stage 3/6 | Status = FAILED; khong co partial output; retry an toan | `test_etl_failure.py` |
+| RCV-04 | Worker die giua job | Celery worker bi kill giua early warning batch | Task retry tu dong; khong co duplicate alerts; job hoan thanh | `test_worker_die.py` |
+| RCV-05 | Restore DB tu backup | pg_dump -> drop -> restore | Record counts khop; login thanh cong; mastery data dung | `test_db_restore.py` |
+| RCV-06 | Replay queued jobs | Celery task bi queue nhung chua chay | Replay thanh cong; idempotent; khong duplicate side effects | `test_queue_replay.py` |
+| RCV-07 | Rollback release | Deploy moi -> rollback ve phien ban cu | He thong quay lai trang thai cu trong **< 15 phut**; du lieu khong mat; Celery van chay | `test_rollback.py` |
+| RCV-08 | Cache failure cascade | Redis va Celery cache dong thoi mat | App van respond (cham hon); DB query truc tiep; khong 500 | `test_cache_failure.py` |
+| RCV-09 | Celery retry exhaustion | Task fail qua max_retries | Task marked as failed; alert/log ghi nhan; khong infinite retry | `test_celery_retry.py` |
+
+**Recovery Release Gate:**
+
+| # | Dieu kien | Nguong |
+|---|----------|--------|
+| RCV-RG1 | 100% recovery tests pass | Tat ca RCV-01..09 trong CI | 
+| RCV-RG2 | Backup/restore drill pass | Backup -> destroy -> restore -> verify (Section 9.2) |
+| RCV-RG3 | Rollback kha thi trong < 15 phut | Tested va documented |
+| RCV-RG4 | Restore drill dinh ky | It nhat 1 lan / sprint |
+
 ---
 
 ## 9. Operational Readiness
@@ -2234,9 +2285,9 @@ Example: BKT-004 = "Golden vector: 5 cau lien tuc dung -> P(mastery) tang dan"
 ---
 
 > **Document control**
-> - Version: 2.6
+> - Version: 2.7
 > - Created: 2026-04-16
-> - Updated: 2026-04-16 -- Upgrade Section 3.9 Frontend/UX: 4-question UX framework (UX-Q1..Q4), 5 UX anti-patterns (UX-AP1..5), 11 accessibility criteria (A11Y-01..11), 5 accessibility release gates (A11Y-RG1..5)
+> - Updated: 2026-04-16 -- Them Section 8.5 Load/Stress/Soak (5 scenarios LS-01..05), Section 8.6 Recovery Matrix (9 scenarios RCV-01..09, 4 release gates RCV-RG1..4, rollback <15 phut)
 > - Author: Tech Lead
 > - Reviewers: PO, QA Lead, Dev Lead, GV Representative
 > - Next review: Truoc Sprint 4 kick-off
