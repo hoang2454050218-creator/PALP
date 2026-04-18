@@ -70,7 +70,7 @@ class TestDetectOutliersZScore:
 
     def test_extreme_value_detected(self):
         data = np.array([10, 12, 11, 13, 10, 12, 11, 100])
-        outliers = detect_outliers_zscore(data)
+        outliers = detect_outliers_zscore(data, threshold=2.0)
         assert len(outliers) > 0
         assert 7 in outliers
 

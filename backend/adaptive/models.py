@@ -29,6 +29,11 @@ class MasteryState(models.Model):
             ),
         ]
 
+    def save(self, **kwargs):
+        super().save(**kwargs)
+        from django.core.cache import cache
+        cache.delete(f"mastery:{self.student_id}:{self.concept_id}")
+
     def __str__(self):
         return f"{self.student.username} | {self.concept.name}: P(L)={self.p_mastery:.2f}"
 
@@ -143,6 +148,20 @@ class StudentPathway(models.Model):
                 name="uq_pathway_student_course",
             ),
         ]
+
+    @property
+    def progress_pct(self) -> float:
+        """Completed concepts divided by total active concepts in the course.
+
+        Always clamped to [0, 100] so consumers can rely on the invariant
+        without defensively clamping themselves.
+        """
+        completed = len(self.concepts_completed or [])
+        total = self.course.concepts.filter(is_active=True).count() if self.course_id else 0
+        if total <= 0:
+            return 0.0
+        pct = (completed / total) * 100
+        return max(0.0, min(100.0, round(pct, 2)))
 
 
 class PathwayOverride(models.Model):

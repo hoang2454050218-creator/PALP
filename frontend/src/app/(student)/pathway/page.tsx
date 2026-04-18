@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Circle, Lock, ArrowRight, Route } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -11,28 +12,49 @@ import { ErrorState } from "@/components/shared/error-state";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { difficultyLabel } from "@/lib/utils";
-import type { StudentPathway, Milestone, Concept } from "@/types";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
+import type { StudentPathway, Milestone, MilestoneDetail, Concept } from "@/types";
 import Link from "next/link";
 
 export default function PathwayPage() {
+  const router = useRouter();
+  useEnsureCourseContext("student");
+  const courseId = useCourseContext((s) => s.courseId);
+  const ctxLoading = useCourseContext((s) => s.loading);
   const [pathway, setPathway] = useState<StudentPathway | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [concepts, setConcepts] = useState<Concept[]>([]);
+  const [milestoneConceptMap, setMilestoneConceptMap] = useState<Record<number, number[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  async function load() {
+  async function load(id: number) {
     setLoading(true);
     setError(false);
     try {
       const [p, mData, cData] = await Promise.all([
-        api.get<StudentPathway>("/adaptive/pathway/1/"),
-        api.get<any>("/curriculum/courses/1/milestones/"),
-        api.get<any>("/curriculum/courses/1/concepts/"),
+        api.get<StudentPathway>(`/adaptive/pathway/${id}/`),
+        api.get<Milestone[] | { results: Milestone[] }>(`/curriculum/courses/${id}/milestones/`),
+        api.get<Concept[] | { results: Concept[] }>(`/curriculum/courses/${id}/concepts/`),
       ]);
       setPathway(p);
-      setMilestones(Array.isArray(mData) ? mData : mData.results || []);
+      const milestoneList = Array.isArray(mData) ? mData : mData.results || [];
+      setMilestones(milestoneList);
       setConcepts(Array.isArray(cData) ? cData : cData.results || []);
+
+      const detailEntries = await Promise.all(
+        milestoneList.map((m) =>
+          api
+            .get<MilestoneDetail>(`/curriculum/milestones/${m.id}/`)
+            .then((d) => [m.id, d.concept_ids ?? []] as const)
+            .catch(() => [m.id, [] as number[]] as const),
+        ),
+      );
+      const map: Record<number, number[]> = {};
+      detailEntries.forEach(([mid, ids]) => {
+        map[mid] = ids;
+      });
+      setMilestoneConceptMap(map);
     } catch {
       setError(true);
     } finally {
@@ -41,8 +63,8 @@ export default function PathwayPage() {
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    if (courseId != null) load(courseId);
+  }, [courseId]);
 
   if (error) {
     return (
@@ -51,14 +73,14 @@ export default function PathwayPage() {
         <ErrorState
           title="Không thể tải lộ trình"
           message="Vui lòng kiểm tra kết nối mạng hoặc hoàn thành đánh giá đầu vào trước."
-          onRetry={load}
-          onBack={() => window.location.href = "/dashboard"}
+          onRetry={() => courseId != null && load(courseId)}
+          onBack={() => router.push("/dashboard")}
         />
       </div>
     );
   }
 
-  if (loading) {
+  if (loading || ctxLoading) {
     return (
       <div>
         <PageHeader title="Lộ trình học tập" description="Sức Bền Vật Liệu — Adaptive Pathway" />
@@ -133,7 +155,7 @@ export default function PathwayPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     {completed ? (
-                      <CheckCircle2 className="h-6 w-6 text-green-500 mt-0.5 shrink-0" aria-hidden="true" />
+                      <CheckCircle2 className="h-6 w-6 text-success mt-0.5 shrink-0" aria-hidden="true" />
                     ) : isCurrent ? (
                       <Circle className="h-6 w-6 text-primary fill-primary/20 mt-0.5 shrink-0" aria-hidden="true" />
                     ) : (
@@ -160,9 +182,9 @@ export default function PathwayPage() {
               {(isCurrent || completed) && (
                 <CardContent>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {concepts
-                      .filter((c) => milestone.order <= 2 ? c.order <= 2 * milestone.order : true)
-                      .slice(0, 3)
+                    {(milestoneConceptMap[milestone.id] ?? [])
+                      .map((cid) => concepts.find((c) => c.id === cid))
+                      .filter((c): c is Concept => Boolean(c))
                       .map((c) => (
                         <Badge
                           key={c.id}

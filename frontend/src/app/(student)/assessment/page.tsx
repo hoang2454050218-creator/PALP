@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { CheckCircle2, Clock, ArrowRight, RotateCcw, ClipboardCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, Clock, ArrowRight, ClipboardCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/shared/page-header";
-import { ErrorState } from "@/components/shared/error-state";
 import { CardSkeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-import type { Assessment, AssessmentQuestion, AssessmentSession, LearnerProfile } from "@/types";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
+import type { Assessment, AssessmentQuestion, AssessmentSession, Concept, LearnerProfile } from "@/types";
 
 type Phase = "intro" | "quiz" | "result";
 
 export default function AssessmentPage() {
+  const router = useRouter();
+  useEnsureCourseContext("student");
+  const courseId = useCourseContext((s) => s.courseId);
   const [phase, setPhase] = useState<Phase>("intro");
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,16 +30,41 @@ export default function AssessmentPage() {
   const [startTime, setStartTime] = useState(0);
   const [profile, setProfile] = useState<LearnerProfile | null>(null);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [conceptMap, setConceptMap] = useState<Record<number, Concept>>({});
 
   useEffect(() => {
+    setLoading(true);
     api.get<{ results?: Assessment[] } | Assessment[]>("/assessment/")
       .then((data) => {
         const list = Array.isArray(data) ? data : data.results || [];
         setAssessments(list);
       })
-      .catch(() => {})
+      .catch(() => {
+        toast({
+          variant: "error",
+          title: "Không thể tải danh sách",
+          description: "Vui lòng kiểm tra kết nối và thử lại.",
+        });
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (courseId == null) return;
+    api
+      .get<Concept[] | { results: Concept[] }>(`/curriculum/courses/${courseId}/concepts/`)
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.results || [];
+        const map: Record<number, Concept> = {};
+        list.forEach((c) => {
+          map[c.id] = c;
+        });
+        setConceptMap(map);
+      })
+      .catch(() => {
+        // Non-fatal: result view will gracefully fall back to concept ids.
+      });
+  }, [courseId]);
 
   const startAssessment = async (assessmentId: number) => {
     try {
@@ -223,7 +252,7 @@ export default function AssessmentPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" aria-hidden="true" />
+                  <CheckCircle2 className="h-4 w-4 text-success" aria-hidden="true" />
                   Nắm vững
                 </CardTitle>
               </CardHeader>
@@ -231,7 +260,9 @@ export default function AssessmentPage() {
                 {profile.strengths.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {profile.strengths.map((id) => (
-                      <Badge key={id} variant="success">Concept #{id}</Badge>
+                      <Badge key={id} variant="success">
+                        {conceptMap[id]?.name ?? `Concept #${id}`}
+                      </Badge>
                     ))}
                   </div>
                 ) : (
@@ -242,7 +273,7 @@ export default function AssessmentPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <ArrowRight className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                  <ArrowRight className="h-4 w-4 text-info" aria-hidden="true" />
                   Cần bổ sung
                 </CardTitle>
               </CardHeader>
@@ -250,7 +281,9 @@ export default function AssessmentPage() {
                 {profile.weaknesses.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {profile.weaknesses.map((id) => (
-                      <Badge key={id} variant="warning">Concept #{id}</Badge>
+                      <Badge key={id} variant="warning">
+                        {conceptMap[id]?.name ?? `Concept #${id}`}
+                      </Badge>
                     ))}
                   </div>
                 ) : (
@@ -260,7 +293,7 @@ export default function AssessmentPage() {
             </Card>
           </div>
 
-          <Button onClick={() => window.location.href = "/pathway"} className="w-full">
+          <Button onClick={() => router.push("/pathway")} className="w-full">
             Bắt đầu lộ trình học
           </Button>
         </div>

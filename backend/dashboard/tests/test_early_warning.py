@@ -13,9 +13,10 @@ pytestmark = pytest.mark.django_db
 
 def _create_session_event(student, days_ago=0, hours_ago=0):
     return EventLog.objects.create(
-        user=student,
+        actor=student,
+        actor_type=EventLog.ActorType.STUDENT,
         event_name=EventLog.EventName.SESSION_STARTED,
-        created_at=timezone.now() - timedelta(days=days_ago, hours=hours_ago),
+        timestamp_utc=timezone.now() - timedelta(days=days_ago, hours=hours_ago),
     )
 
 

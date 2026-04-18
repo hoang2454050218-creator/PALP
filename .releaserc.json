@@ -1,0 +1,75 @@
+{
+  "branches": [
+    "master",
+    {"name": "develop", "prerelease": "beta"},
+    {"name": "release/*", "prerelease": "rc"}
+  ],
+  "tagFormat": "v${version}",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          {"type": "feat", "release": "minor"},
+          {"type": "fix", "release": "patch"},
+          {"type": "perf", "release": "patch"},
+          {"type": "refactor", "release": "patch"},
+          {"type": "docs", "scope": "readme", "release": "patch"},
+          {"type": "test", "release": false},
+          {"type": "build", "release": false},
+          {"type": "ci", "release": false},
+          {"type": "chore", "release": false},
+          {"breaking": true, "release": "major"},
+          {"revert": true, "release": "patch"}
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            {"type": "feat", "section": "Tính năng mới"},
+            {"type": "fix", "section": "Bug fixes"},
+            {"type": "perf", "section": "Cải thiện hiệu năng"},
+            {"type": "refactor", "section": "Refactor"},
+            {"type": "docs", "section": "Tài liệu"},
+            {"type": "test", "section": "Tests", "hidden": true},
+            {"type": "build", "section": "Build", "hidden": true},
+            {"type": "ci", "section": "CI", "hidden": true},
+            {"type": "chore", "section": "Chores", "hidden": true}
+          ]
+        }
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# PALP Changelog\n\nTất cả thay đổi đáng chú ý của PALP được ghi lại theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/) và tuân theo [Semantic Versioning](https://semver.org/lang/vi/)."
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {"path": "backend/openapi/schema-baseline.yaml", "label": "OpenAPI spec"},
+          {"path": "sbom-backend.cyclonedx.json", "label": "Backend SBOM (CycloneDX)"},
+          {"path": "sbom-frontend.cyclonedx.json", "label": "Frontend SBOM (CycloneDX)"}
+        ],
+        "successComment": ":tada: Phiên bản ${nextRelease.version} đã được phát hành trong PR/issue này!",
+        "failTitle": "Release thất bại",
+        "labels": ["release"]
+      }
+    ]
+  ]
+}

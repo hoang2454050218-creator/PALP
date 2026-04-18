@@ -198,9 +198,13 @@ class MyPathwayView(generics.RetrieveAPIView):
     permission_classes = (IsStudent,)
 
     def get_object(self):
+        from django.shortcuts import get_object_or_404
+        from curriculum.models import Course
+
+        course = get_object_or_404(Course, pk=self.kwargs["course_id"])
         pathway, _ = StudentPathway.objects.get_or_create(
             student=self.request.user,
-            course_id=self.kwargs["course_id"],
+            course=course,
         )
         return pathway
 
@@ -269,23 +273,24 @@ class NextTaskView(APIView):
         return qs.order_by("difficulty", "order").first()
 
     def _find_task_any_concept(self, pathway, completed_task_ids):
-        pending_concepts = (
+        # Single query across every pending concept ordered by concept.order
+        # then difficulty - O(1) round-trip instead of O(pending_concepts).
+        pending_concept_ids = list(
             pathway.current_concept.course.concepts
             .filter(is_active=True)
             .exclude(id__in=pathway.concepts_completed)
+            .values_list("id", flat=True)
             .order_by("order")
         )
-        for concept in pending_concepts:
-            task = (
-                MicroTask.objects
-                .filter(concept=concept, is_active=True)
-                .exclude(id__in=completed_task_ids)
-                .order_by("difficulty", "order")
-                .first()
-            )
-            if task:
-                return task
-        return None
+        if not pending_concept_ids:
+            return None
+        return (
+            MicroTask.objects
+            .filter(concept_id__in=pending_concept_ids, is_active=True)
+            .exclude(id__in=completed_task_ids)
+            .order_by("concept__order", "difficulty", "order")
+            .first()
+        )
 
 
 class StudentMasteryView(generics.ListAPIView):

@@ -13,31 +13,35 @@ import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { getMasteryLabel } from "@/lib/constants";
-import { masteryColor, masteryBg } from "@/lib/utils";
+import { displayName, masteryColor, masteryBg } from "@/lib/utils";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
 import type { StudentPathway, MasteryState, LearnerProfile } from "@/types";
 import Link from "next/link";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+  useEnsureCourseContext("student");
+  const courseId = useCourseContext((s) => s.courseId);
+  const ctxLoading = useCourseContext((s) => s.loading);
   const [pathway, setPathway] = useState<StudentPathway | null>(null);
   const [mastery, setMastery] = useState<MasteryState[]>([]);
   const [profile, setProfile] = useState<LearnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  async function load() {
+  async function load(id: number) {
     setLoading(true);
     setError(false);
     try {
       const [p, m] = await Promise.all([
-        api.get<StudentPathway>("/adaptive/pathway/1/").catch(() => null),
-        api.get<MasteryState[]>("/adaptive/mastery/?course=1").catch(() => []),
+        api.get<StudentPathway>(`/adaptive/pathway/${id}/`).catch(() => null),
+        api.get<MasteryState[] | { results: MasteryState[] }>(`/adaptive/mastery/?course=${id}`).catch(() => []),
       ]);
       setPathway(p);
       if (Array.isArray(m)) setMastery(m);
-      else if (m && "results" in (m as any)) setMastery((m as any).results);
+      else if (m && "results" in m) setMastery(m.results);
 
-      const prof = await api.get<LearnerProfile>("/assessment/profile/1/").catch(() => null);
+      const prof = await api.get<LearnerProfile>(`/assessment/profile/${id}/`).catch(() => null);
       setProfile(prof);
     } catch {
       setError(true);
@@ -47,27 +51,29 @@ export default function StudentDashboard() {
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    if (courseId != null) load(courseId);
+  }, [courseId]);
+
+  const greeting = `Xin chào, ${displayName(user)}`;
 
   if (error) {
     return (
       <div>
-        <PageHeader title={`Xin chào, ${user?.last_name} ${user?.first_name}`} />
+        <PageHeader title={greeting} />
         <ErrorState
           title="Không thể tải dữ liệu"
           message="Vui lòng kiểm tra kết nối mạng và thử lại."
-          onRetry={load}
+          onRetry={() => courseId != null && load(courseId)}
         />
       </div>
     );
   }
 
-  if (loading) {
+  if (loading || ctxLoading) {
     return (
       <div>
         <PageHeader
-          title={`Xin chào, ${user?.last_name} ${user?.first_name}`}
+          title={greeting}
           description="Sức Bền Vật Liệu — Pilot PALP"
         />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -87,7 +93,7 @@ export default function StudentDashboard() {
   return (
     <div>
       <PageHeader
-        title={`Xin chào, ${user?.last_name} ${user?.first_name}`}
+        title={greeting}
         description="Sức Bền Vật Liệu — Pilot PALP"
       />
 

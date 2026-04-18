@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from assessment.models import AssessmentSession
@@ -5,6 +7,10 @@ from assessment.models import AssessmentSession
 pytestmark = pytest.mark.django_db
 
 URL = "/api/assessment/"
+
+
+def _idem_header():
+    return {"HTTP_IDEMPOTENCY_KEY": str(uuid.uuid4())}
 
 
 class TestAssessmentList:
@@ -20,13 +26,13 @@ class TestAssessmentList:
 
 class TestStartAssessment:
     def test_start_creates_session(self, student_api, assessment):
-        resp = student_api.post(f"{URL}{assessment.id}/start/")
+        resp = student_api.post(f"{URL}{assessment.id}/start/", **_idem_header())
         assert resp.status_code == 201
         assert resp.data["status"] == "in_progress"
 
     def test_start_again_returns_existing(self, student_api, assessment):
-        r1 = student_api.post(f"{URL}{assessment.id}/start/")
-        r2 = student_api.post(f"{URL}{assessment.id}/start/")
+        r1 = student_api.post(f"{URL}{assessment.id}/start/", **_idem_header())
+        r2 = student_api.post(f"{URL}{assessment.id}/start/", **_idem_header())
         assert r2.status_code == 200
         assert r1.data["id"] == r2.data["id"]
 
@@ -40,7 +46,7 @@ class TestAssessmentQuestions:
 
 class TestSubmitAnswerAPI:
     def test_submit_answer(self, student_api, assessment):
-        start = student_api.post(f"{URL}{assessment.id}/start/")
+        start = student_api.post(f"{URL}{assessment.id}/start/", **_idem_header())
         session_id = start.data["id"]
         q_id = assessment.questions.first().id
 
@@ -48,6 +54,7 @@ class TestSubmitAnswerAPI:
             f"{URL}sessions/{session_id}/answer/",
             {"question_id": q_id, "answer": "A", "time_taken_seconds": 5},
             format="json",
+            **_idem_header(),
         )
         assert resp.status_code == 200
         assert resp.data["is_correct"] is True
@@ -55,7 +62,7 @@ class TestSubmitAnswerAPI:
 
 class TestCompleteAssessmentAPI:
     def test_complete_returns_profile(self, student_api, assessment):
-        start = student_api.post(f"{URL}{assessment.id}/start/")
+        start = student_api.post(f"{URL}{assessment.id}/start/", **_idem_header())
         session_id = start.data["id"]
 
         for q in assessment.questions.order_by("order"):
@@ -63,9 +70,10 @@ class TestCompleteAssessmentAPI:
                 f"{URL}sessions/{session_id}/answer/",
                 {"question_id": q.id, "answer": "A", "time_taken_seconds": 5},
                 format="json",
+                **_idem_header(),
             )
 
-        resp = student_api.post(f"{URL}sessions/{session_id}/complete/")
+        resp = student_api.post(f"{URL}sessions/{session_id}/complete/", **_idem_header())
         assert resp.status_code == 200
         assert "profile" in resp.data
 

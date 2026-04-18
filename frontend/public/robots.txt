@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /metrics
+Disallow: /metrics/
+Disallow: /_next/
+Allow: /
+
+Sitemap: https://palp.dau.edu.vn/sitemap.xml

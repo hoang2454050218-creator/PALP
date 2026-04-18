@@ -1,0 +1,91 @@
+groups:
+  - name: palp-slo
+    interval: 30s
+    rules:
+      - alert: PalpHigh5xxRate
+        expr: |
+          (
+            sum(rate(palp_http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(palp_http_requests_total[5m]))
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: page
+          team: platform
+          slo: availability
+        annotations:
+          summary: "PALP error rate above 1%"
+          description: "5xx rate is {{ $value | humanizePercentage }} for the last 5 minutes."
+          runbook: https://docs.palp.dau.edu.vn/runbooks/high-5xx
+
+      - alert: PalpCeleryQueueBacklog
+        expr: max(palp_celery_queue_depth) by (queue) > 100
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Celery queue {{ $labels.queue }} backlog > 100 for 10m"
+          description: "Workers may be undersized or stuck. Inspect with `celery -A palp inspect active`."
+
+      - alert: PalpDeepHealthDown
+        expr: up{job="palp-backend"} == 0
+        for: 3m
+        labels:
+          severity: page
+          team: platform
+        annotations:
+          summary: "Backend down"
+          description: "Prometheus has been unable to scrape the backend for 3 minutes."
+
+      - alert: PalpBackupStale
+        expr: time() - palp_backup_age_seconds > 26 * 3600
+        for: 30m
+        labels:
+          severity: page
+          team: platform
+        annotations:
+          summary: "Backup older than 26 hours"
+          description: "Last successful backup was {{ $value | humanizeDuration }} ago."
+
+      - alert: PalpRestoreDrillStale
+        expr: time() - palp_backup_last_restore_drill_unix > 14 * 86400
+        for: 1h
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Restore drill not run in 14 days"
+          description: "Compliance requirement. Trigger via `just restore-drill`."
+
+      - alert: PalpEventCompletenessLow
+        expr: palp_event_completeness_ratio < 0.995
+        for: 10m
+        labels:
+          severity: page
+          team: data
+        annotations:
+          summary: "Event completeness below SLO"
+          description: "Completeness {{ $value | humanizePercentage }} (SLO 99.5%). Investigate event ingestion failures."
+
+      - alert: PalpBKTAdvanceAnomaly
+        expr: |
+          (
+            sum(rate(palp_adaptive_decision_duration_seconds_count{decision_type="advance"}[1h]))
+            /
+            sum(rate(palp_adaptive_decision_duration_seconds_count[1h]))
+          ) > 0.40
+          or
+          (
+            sum(rate(palp_adaptive_decision_duration_seconds_count{decision_type="advance"}[1h]))
+            /
+            sum(rate(palp_adaptive_decision_duration_seconds_count[1h]))
+          ) < 0.02
+        for: 30m
+        labels:
+          severity: warning
+          team: pedagogy
+        annotations:
+          summary: "BKT advance rate anomaly"
+          description: "Advance rate is {{ $value | humanizePercentage }} (expected 5-30%)."

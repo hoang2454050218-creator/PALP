@@ -1,0 +1,87 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":enableVulnerabilityAlertsWithLabel(security)",
+    "group:allNonMajor",
+    "schedule:weekly"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "pin",
+  "prHourlyLimit": 4,
+  "prConcurrentLimit": 8,
+  "timezone": "Asia/Ho_Chi_Minh",
+  "schedule": [
+    "before 6am every weekday",
+    "every weekend"
+  ],
+  "packageRules": [
+    {
+      "description": "Group all django-* packages together",
+      "matchPackagePatterns": ["^django"],
+      "groupName": "django ecosystem",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Group all radix-ui packages",
+      "matchPackagePatterns": ["^@radix-ui/"],
+      "groupName": "radix-ui",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "description": "Auto-merge minor + patch updates that pass CI after 1-day soak",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "Major updates require manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "addLabels": ["major-update", "needs-review"]
+    },
+    {
+      "description": "Security updates jump the queue",
+      "matchPackagePatterns": ["*"],
+      "vulnerabilityAlerts": {
+        "labels": ["security", "priority/high"],
+        "automerge": true
+      }
+    },
+    {
+      "description": "Pin Docker images to digest",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "pinDigests": true
+    },
+    {
+      "description": "Backend Python ecosystem",
+      "matchManagers": ["pip_requirements", "pep621"],
+      "labels": ["dependencies", "backend", "python"]
+    },
+    {
+      "description": "Frontend npm ecosystem",
+      "matchManagers": ["npm"],
+      "labels": ["dependencies", "frontend", "javascript"]
+    },
+    {
+      "description": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "labels": ["dependencies", "ci"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 5am on monday"]
+  },
+  "osvVulnerabilityAlerts": true,
+  "configMigration": true
+}

@@ -282,9 +282,14 @@ class TestAP04NoDoubleCount:
         assert start1.status_code == 201
 
         start2 = student_api.post(f"/api/assessment/{assessment.pk}/start/")
-        assert start2.status_code in (400, 409), (
-            "Should not allow 2 active sessions for same assessment"
-        )
+        # Re-start of an already-active session must NOT create a new one:
+        # the API resumes (200) and returns the same session id.
+        assert start2.status_code == 200, "Existing in-progress session should be resumed, not rejected"
+        assert start2.data["id"] == start1.data["id"], "Resume must return the same session id"
+        assert AssessmentSession.objects.filter(
+            student=student, assessment=assessment,
+            status=AssessmentSession.Status.IN_PROGRESS,
+        ).count() == 1, "Only one in-progress session may exist for the student"
 
 
 # ---------------------------------------------------------------------------
@@ -315,7 +320,7 @@ class TestAP05NoFalseAlert:
         alerts = Alert.objects.filter(
             student=student,
             severity__in=[Alert.Severity.RED, Alert.Severity.YELLOW],
-            status=Alert.Status.ACTIVE,
+            status=Alert.AlertStatus.ACTIVE,
         )
         assert alerts.count() == 0, (
             "Active student who just submitted correctly should not have alerts"
@@ -324,7 +329,7 @@ class TestAP05NoFalseAlert:
     def test_inactive_student_correctly_flagged(
         self, student, class_with_members,
     ):
-        from dashboard.services import run_early_warning_check
+        from dashboard.services import compute_early_warnings
 
         EventLog.objects.create(
             event_name=EventLog.EventName.SESSION_ENDED,
@@ -333,7 +338,7 @@ class TestAP05NoFalseAlert:
             actor_type=EventLog.ActorType.STUDENT,
         )
 
-        run_early_warning_check(class_with_members.id)
+        compute_early_warnings(class_with_members.id)
 
         alerts = Alert.objects.filter(
             student=student,

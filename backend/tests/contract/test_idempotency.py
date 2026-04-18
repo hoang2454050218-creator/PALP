@@ -80,7 +80,7 @@ class TestAdaptiveIdempotency:
             "answer": task.content["correct_answer"],
             "duration_seconds": 30,
             "hints_used": 0,
-        }, format="json")
+        }, format="json", HTTP_IDEMPOTENCY_KEY=None)
         assert resp.status_code == 400
         assert resp.data["error"]["code"] == "VALIDATION_ERROR"
 
@@ -115,6 +115,7 @@ class TestAssessmentIdempotency:
     def test_start_missing_key(self, student_api, assessment):
         resp = student_api.post(
             f"/api/assessment/{assessment.pk}/start/",
+            HTTP_IDEMPOTENCY_KEY=None,
         )
         assert resp.status_code == 400
 
@@ -211,15 +212,17 @@ class TestDashboardIdempotency:
             "alert_id": 1,
             "action_type": "send_message",
             "target_student_ids": [1],
-        }, format="json")
+        }, format="json", HTTP_IDEMPOTENCY_KEY=None)
         assert resp.status_code == 400
 
     def test_dismiss_optional_key(
         self, lecturer_api, alert, class_with_members,
     ):
+        from dashboard.models import Alert
+
         resp = lecturer_api.post(
             f"/api/dashboard/alerts/{alert.pk}/dismiss/",
-            {"dismiss_reason_code": "resolved"},
+            {"dismiss_reason_code": Alert.DismissReason.RESOLVED_OFFLINE.value},
             format="json",
         )
         assert resp.status_code == 200
@@ -252,7 +255,7 @@ class TestPrivacyIdempotency:
     def test_delete_missing_key(self, student_api):
         resp = student_api.post("/api/privacy/delete/", {
             "tiers": ["learning_data"],
-        }, format="json")
+        }, format="json", HTTP_IDEMPOTENCY_KEY=None)
         assert resp.status_code == 400
 
     def test_delete_with_key(self, student_api):

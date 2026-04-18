@@ -1,0 +1,103 @@
+{
+  "name": "PALP — Personalized Adaptive Learning Platform",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "nodeGypDependencies": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "forwardPorts": [3000, 3002, 8000, 8002, 5437, 6382, 9090, 3003],
+  "portsAttributes": {
+    "3002": {"label": "PALP Frontend", "onAutoForward": "openPreview"},
+    "8002": {"label": "PALP Backend API"},
+    "9090": {"label": "Prometheus"},
+    "3003": {"label": "Grafana"}
+  },
+
+  "postCreateCommand": ".devcontainer/post-create.sh",
+
+  "remoteEnv": {
+    "DJANGO_SETTINGS_MODULE": "palp.settings.development",
+    "PYTHONPATH": "/workspaces/${localWorkspaceFolderBasename}/backend",
+    "POSTGRES_HOST_PORT": "5437",
+    "REDIS_HOST_PORT": "6382",
+    "BACKEND_HOST_PORT": "8002",
+    "FRONTEND_HOST_PORT": "3002"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "vitest.explorer",
+        "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one",
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-vietnamese",
+        "ms-vscode.live-server"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["backend"],
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit"
+          },
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "[typescript]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.formatOnSave": true,
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+        ],
+        "files.associations": {
+          "*.mdc": "markdown"
+        },
+        "cSpell.language": "en,vi",
+        "cSpell.allowCompoundWords": true,
+        "git.autofetch": true,
+        "editor.bracketPairColorization.enabled": true,
+        "editor.guides.bracketPairs": "active"
+      }
+    }
+  },
+
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "TZ": "Asia/Ho_Chi_Minh",
+    "LANG": "vi_VN.UTF-8"
+  },
+
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-bashhistory,target=/commandhistory,type=volume",
+    "source=${localWorkspaceFolderBasename}-vscode-server,target=/home/vscode/.vscode-server,type=volume"
+  ],
+
+  "updateContentCommand": "pip install -r backend/requirements.txt -r backend/requirements-dev.txt && cd frontend && npm ci"
+}

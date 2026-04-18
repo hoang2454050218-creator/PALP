@@ -132,11 +132,72 @@ def check_ng06_core_events(skip_tests: bool) -> CheckResult:
         return CheckResult("NG-06", "Event core", Status.SKIP, "--skip-tests")
     return _run_pytest("-k EVT", "NG-06")
 
+def _read_unix_sentinel(path: str) -> float | None:
+    try:
+        with open(path) as f:
+            return float(f.read().strip())
+    except (OSError, ValueError):
+        return None
+
+
 def check_ng07_backup() -> CheckResult:
+    """Auto-verify backup freshness AND restore drill freshness via sentinels.
+
+    Sentinels are written by:
+        - scripts/backup_db.sh                 -> .last_backup_unix
+        - analytics.tasks.weekly_restore_drill -> .last_restore_drill_unix
+
+    Falls back to MANUAL when sentinels are absent (e.g. fresh CI environment).
+    """
+    backup_dir = os.environ.get("PALP_BACKUP_DIR", "/backups")
+    backup_max_age_hours = float(os.environ.get("PALP_BACKUP_MAX_AGE_HOURS", "26"))
+    drill_max_age_days = float(os.environ.get("PALP_RESTORE_DRILL_MAX_AGE_DAYS", "14"))
+
+    backup_sentinel = os.path.join(backup_dir, ".last_backup_unix")
+    drill_sentinel = os.path.join(backup_dir, ".last_restore_drill_unix")
+
+    backup_ts = _read_unix_sentinel(backup_sentinel)
+    drill_ts = _read_unix_sentinel(drill_sentinel)
+
+    if backup_ts is None and drill_ts is None:
+        return CheckResult(
+            "NG-07", "Backup restore",
+            Status.MANUAL,
+            f"No sentinels found in {backup_dir}; run backup_db.sh and weekly_restore_drill once",
+        )
+
+    now = time.time()
+    parts = []
+    failures = []
+
+    if backup_ts is None:
+        failures.append("backup sentinel missing")
+    else:
+        backup_age_h = (now - backup_ts) / 3600
+        if backup_age_h > backup_max_age_hours:
+            failures.append(f"backup stale ({backup_age_h:.1f}h > {backup_max_age_hours:.0f}h)")
+        else:
+            parts.append(f"backup age={backup_age_h:.1f}h")
+
+    if drill_ts is None:
+        failures.append("restore drill never run")
+    else:
+        drill_age_d = (now - drill_ts) / 86400
+        if drill_age_d > drill_max_age_days:
+            failures.append(
+                f"restore drill stale ({drill_age_d:.1f}d > {drill_max_age_days:.0f}d)"
+            )
+        else:
+            parts.append(f"last restore drill={drill_age_d:.1f}d ago")
+
+    if failures:
+        return CheckResult(
+            "NG-07", "Backup restore", Status.FAIL, "; ".join(failures + parts),
+        )
     return CheckResult(
-        "NG-07", "Backup restore",
-        Status.MANUAL, "Run backup/restore drill (QA_STANDARD Section 9.2)",
+        "NG-07", "Backup restore", Status.PASS, "; ".join(parts),
     )
+
 
 def check_ng08_rollback() -> CheckResult:
     return CheckResult(
@@ -443,10 +504,9 @@ def check_g06_event_completeness() -> CheckResult:
 
 
 def check_g07_backup() -> CheckResult:
-    return CheckResult(
-        "G-07", "Backup restore",
-        Status.MANUAL, "Run backup/restore drill (QA_STANDARD Section 9.2)",
-    )
+    """Mirror NG-07 with same sentinel-based logic to keep Go/No-Go aligned."""
+    result = check_ng07_backup()
+    return CheckResult("G-07", "Backup restore", result.status, result.detail)
 
 def check_g08_uat() -> CheckResult:
     return CheckResult(

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\etl\imputation.py
+# hypothesis_version: 6.151.9
+
+[0.05, 0.2, 0.5, 100, 'MAR_likely', 'MAR_suspected', 'MNAR_suspected', 'action', 'column_details', 'columns_excluded', 'columns_imputed', 'complete', 'excluded', 'knn_imputed', 'mechanism', 'missing_count', 'missing_pct', 'negligible', 'palp.etl', 'total_values_imputed', 'values_imputed']

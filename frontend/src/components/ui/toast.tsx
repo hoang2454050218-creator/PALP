@@ -12,10 +12,10 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        success: "border-green-200 bg-green-50 text-green-900",
-        error: "border-red-200 bg-red-50 text-red-900",
-        warning: "border-yellow-200 bg-yellow-50 text-yellow-900",
-        info: "border-blue-200 bg-blue-50 text-blue-900",
+        success: "border-success/40 bg-success/10 text-success-foreground",
+        error: "border-danger/40 bg-danger/10 text-danger-foreground",
+        warning: "border-warning/40 bg-warning/10 text-warning-foreground",
+        info: "border-info/40 bg-info/10 text-info-foreground",
       },
     },
     defaultVariants: { variant: "info" },
@@ -30,10 +30,10 @@ const ICONS = {
 } as const;
 
 const ICON_COLORS = {
-  success: "text-green-600",
-  error: "text-red-600",
-  warning: "text-yellow-600",
-  info: "text-blue-600",
+  success: "text-success",
+  error: "text-danger",
+  warning: "text-warning",
+  info: "text-info",
 } as const;
 
 export function Toaster() {

@@ -1,0 +1,58 @@
+global:
+  resolve_timeout: 5m
+  http_config:
+    follow_redirects: true
+
+route:
+  receiver: webhook-default
+  group_by: [alertname, severity]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers:
+        - severity = page
+      receiver: pager-team
+      continue: true
+
+    - matchers:
+        - severity = warning
+      receiver: slack-warnings
+
+    - matchers:
+        - team = pedagogy
+      receiver: slack-pedagogy
+
+receivers:
+  - name: webhook-default
+    webhook_configs:
+      - url: http://localhost:5001/alerts
+        send_resolved: true
+
+  - name: pager-team
+    webhook_configs:
+      - url: '{{ env "ALERTMANAGER_PAGE_WEBHOOK" }}'
+        send_resolved: true
+
+  - name: slack-warnings
+    slack_configs:
+      - api_url: '{{ env "SLACK_WARNINGS_WEBHOOK" }}'
+        channel: "#palp-alerts"
+        title: "{{ .GroupLabels.alertname }}"
+        text: "{{ range .Alerts }}{{ .Annotations.summary }}\n{{ .Annotations.description }}{{ end }}"
+        send_resolved: true
+
+  - name: slack-pedagogy
+    slack_configs:
+      - api_url: '{{ env "SLACK_PEDAGOGY_WEBHOOK" }}'
+        channel: "#palp-pedagogy"
+        title: "[Pedagogy] {{ .GroupLabels.alertname }}"
+        text: "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+        send_resolved: true
+
+inhibit_rules:
+  - source_matchers:
+      - severity = page
+    target_matchers:
+      - severity = warning
+    equal: [alertname]

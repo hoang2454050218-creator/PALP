@@ -6,12 +6,18 @@ student leave dismissal, cross-class access denial, dismiss audit trail,
 intervention action logging, post-intervention re-measurement,
 duplicate alert prevention, and data staleness indicator.
 """
+import uuid
+
 import pytest
 from datetime import timedelta
 
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import status as http_status
+
+
+def _idem():
+    return {"HTTP_IDEMPOTENCY_KEY": str(uuid.uuid4())}
 
 from accounts.models import (
     ClassMembership,
@@ -35,9 +41,10 @@ URL_INTERVENTIONS = "/api/dashboard/interventions/"
 
 def _event(student, days_ago=0):
     EventLog.objects.create(
-        user=student,
+        actor=student,
+        actor_type=EventLog.ActorType.STUDENT,
         event_name=EventLog.EventName.SESSION_STARTED,
-        created_at=timezone.now() - timedelta(days=days_ago),
+        timestamp_utc=timezone.now() - timedelta(days=days_ago),
     )
 
 
@@ -301,7 +308,7 @@ class TestGV07InterventionMessageSaved:
             "action_type": "send_message",
             "target_student_ids": [student.id],
             "message": "Hãy thử lại bài tập nhé",
-        }, format="json")
+        }, format="json", **_idem())
 
         assert resp.status_code == http_status.HTTP_201_CREATED
 
@@ -321,7 +328,7 @@ class TestGV07InterventionMessageSaved:
             "action_type": "suggest_task",
             "target_student_ids": [student.id],
             "message": "Thử bài tập bổ trợ",
-        }, format="json")
+        }, format="json", **_idem())
 
         alert.refresh_from_db()
         assert alert.status == Alert.AlertStatus.RESOLVED
@@ -336,7 +343,7 @@ class TestGV07InterventionMessageSaved:
             "alert_id": alert.id,
             "action_type": "schedule_meeting",
             "target_student_ids": [student.id],
-        }, format="json")
+        }, format="json", **_idem())
 
         assert EventLog.objects.count() > initial_count
 

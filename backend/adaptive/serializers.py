@@ -103,7 +103,7 @@ class StudentPathwaySerializer(serializers.ModelSerializer):
             "id", "course", "current_concept", "current_concept_name",
             "current_milestone", "current_milestone_title",
             "current_difficulty", "concepts_completed",
-            "milestones_completed", "progress_pct",
+            "milestones_completed", "tasks_completed", "progress_pct",
             "concepts_needing_review", "updated_at",
         )
 

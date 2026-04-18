@@ -25,8 +25,8 @@ class TestUserRoleProperties:
 
 class TestUserStudentIdIndex:
     def test_student_id_field_is_indexed(self):
-        field = User._meta.get_field("student_id")
-        assert field.db_index is True
+        hash_field = User._meta.get_field("student_id_hash")
+        assert hash_field.db_index is True
 
 
 class TestStudentClassStr:

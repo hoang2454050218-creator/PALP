@@ -1,0 +1,76 @@
+# PALP Code Owners
+#
+# Each line is a file pattern followed by one or more owners.
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence, they will
+# be requested for review when someone opens a pull request.
+#
+# Order is important; the LAST matching pattern takes precedence.
+#
+# Sponsor reviewers per area-of-expertise. Replace handles with
+# real GitHub usernames before flipping repo public.
+
+# Default owners for everything
+*                                       @palp-team
+
+# Architecture & Decision Records
+/docs/adr/                              @palp-team @palp-architect
+/docs/POST_PILOT_ROADMAP.md             @palp-team @palp-architect
+
+# Backend — pedagogy modules (BKT, adaptive, assessment)
+/backend/adaptive/                      @palp-pedagogy @palp-backend
+/backend/assessment/                    @palp-pedagogy @palp-backend
+/backend/curriculum/                    @palp-pedagogy @palp-backend
+
+# Backend — privacy & security
+/backend/privacy/                       @palp-security @palp-backend
+/backend/accounts/                      @palp-security @palp-backend
+/backend/palp/settings/                 @palp-security @palp-backend
+
+# Backend — analytics & data
+/backend/analytics/                     @palp-data @palp-backend
+/backend/dashboard/                     @palp-data @palp-backend
+/backend/events/                        @palp-data @palp-backend
+
+# Backend — wellbeing & researcher tools
+/backend/wellbeing/                     @palp-pedagogy @palp-backend
+/backend/featureflags/                  @palp-platform @palp-backend
+/backend/experiments/                   @palp-pedagogy @palp-data
+
+# Frontend — design system
+/frontend/src/components/ui/            @palp-design @palp-frontend
+/frontend/src/components/shared/        @palp-design @palp-frontend
+
+# Frontend — privacy
+/frontend/src/components/privacy/       @palp-security @palp-frontend
+/frontend/src/app/(student)/privacy/    @palp-security @palp-frontend
+
+# Frontend — student experience
+/frontend/src/app/(student)/            @palp-pedagogy @palp-frontend
+
+# Frontend — lecturer experience
+/frontend/src/app/(lecturer)/           @palp-pedagogy @palp-frontend
+
+# Tests
+/backend/tests/security/                @palp-security
+/backend/tests/data_qa/                 @palp-data
+/backend/tests/recovery/                @palp-platform
+/backend/tests/contract/                @palp-backend
+
+# Infra & DevOps
+/.github/workflows/                     @palp-platform
+/docker-compose*.yml                    @palp-platform
+/backend/Dockerfile                     @palp-platform
+/frontend/Dockerfile*                   @palp-platform
+/nginx/                                 @palp-platform
+/infra/                                 @palp-platform
+/scripts/                               @palp-platform
+
+# Documentation
+/docs/                                  @palp-team
+/README.md                              @palp-team
+/CONTRIBUTING.md                        @palp-team
+/CODE_OF_CONDUCT.md                     @palp-team
+/SECURITY.md                            @palp-security
+/GOVERNANCE.md                          @palp-team
+/LICENSE                                @palp-team

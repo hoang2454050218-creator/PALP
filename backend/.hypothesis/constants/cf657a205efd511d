@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\assessment\models.py
+# hypothesis_version: 6.151.9
+
+[200, 'Bỏ dở', 'Correct answer(s)', 'Hoàn thành', 'Hết giờ', 'Kéo thả', 'Trắc nghiệm', 'abandoned', 'assessment', 'assessment_questions', 'assessment_sessions', 'assessments', 'completed', 'course', 'curriculum.Concept', 'curriculum.Course', 'drag_drop', 'expired', 'in_progress', 'learner_profile', 'learner_profiles', 'multiple_choice', 'order', 'palp_assessment', 'palp_learner_profile', 'profiles', 'question', 'questions', 'responses', 'session', 'sessions', 'status', 'student', 'true_false', 'Đang làm', 'Đúng/Sai']

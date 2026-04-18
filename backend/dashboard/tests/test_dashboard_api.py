@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from rest_framework import status
 
@@ -70,7 +72,7 @@ class TestDismissAlertAPI:
 
         resp = lecturer_api.post(
             URL_DISMISS.format(alert.id),
-            {"dismiss_note": "Student on leave"},
+            {"dismiss_reason_code": "student_leave", "dismiss_note": "Student on leave"},
             format="json",
         )
 
@@ -90,12 +92,17 @@ class TestCreateInterventionAPI:
             trigger=Alert.TriggerType.RETRY_FAILURE,
         )
 
-        resp = lecturer_api.post(URL_INTERVENTIONS, {
-            "alert_id": alert.id,
-            "action_type": "send_message",
-            "target_student_ids": [student.id],
-            "message": "Please retry the exercise",
-        }, format="json")
+        resp = lecturer_api.post(
+            URL_INTERVENTIONS,
+            {
+                "alert_id": alert.id,
+                "action_type": "send_message",
+                "target_student_ids": [student.id],
+                "message": "Please retry the exercise",
+            },
+            format="json",
+            HTTP_IDEMPOTENCY_KEY=str(uuid.uuid4()),
+        )
 
         assert resp.status_code == status.HTTP_201_CREATED
         alert.refresh_from_db()

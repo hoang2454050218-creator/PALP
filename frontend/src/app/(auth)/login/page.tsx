@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
+import { ApiError } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,6 +16,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const usernameRef = useRef<HTMLInputElement>(null);
+
+  // Programmatic focus on mount keeps the UX of "click → start typing"
+  // without violating jsx-a11y/no-autofocus (which warns about screen
+  // readers losing context when the page autoFocus jumps unexpectedly).
+  useEffect(() => {
+    const t = window.setTimeout(() => usernameRef.current?.focus(), 0);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,15 +32,23 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login(username, password);
+      await login(username.trim(), password);
       const user = useAuth.getState().user;
-      if (user?.role === "lecturer") {
-        router.push("/overview");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push(user?.role === "lecturer" || user?.role === "admin" ? "/overview" : "/dashboard");
     } catch (err) {
-      setError("Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.");
+      if (err instanceof ApiError) {
+        if (err.status === 401 || err.status === 400) {
+          setError("Tên đăng nhập hoặc mật khẩu không đúng. Vui lòng kiểm tra lại.");
+        } else if (err.status === 429) {
+          setError("Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau ít phút.");
+        } else if (err.isServerError() || err.isNetwork()) {
+          setError("Không thể kết nối tới máy chủ. Vui lòng thử lại sau.");
+        } else {
+          setError(err.detail || "Đăng nhập không thành công.");
+        }
+      } else {
+        setError("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.");
+      }
     } finally {
       setLoading(false);
     }
@@ -39,7 +57,7 @@ export default function LoginPage() {
   const hasError = error.length > 0;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/5 via-background to-info/10 p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
@@ -70,12 +88,12 @@ export default function LoginPage() {
                 Tên đăng nhập
               </label>
               <Input
+                ref={usernameRef}
                 id="username"
                 placeholder="Nhập tên đăng nhập"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                autoFocus
                 autoComplete="username"
                 aria-invalid={hasError || undefined}
                 aria-describedby={hasError ? "login-error" : undefined}

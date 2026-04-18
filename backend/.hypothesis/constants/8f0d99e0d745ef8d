@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\accounts\admin.py
+# hypothesis_version: 6.151.9
+
+['PALP', 'Soft Delete', 'academic_year', 'assigned_at', 'consent_given', 'consent_given_at', 'created_at', 'deleted_at', 'email', 'fields', 'is_active', 'is_deleted', 'joined_at', 'lecturer', 'name', 'phone', 'role', 'student', 'student_class', 'student_id', 'username']

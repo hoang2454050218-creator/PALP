@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\featureflags\admin.py
+# hypothesis_version: 6.151.9
+
+['-when', 'after', 'before', 'changed_by', 'created_at', 'description', 'enabled', 'flag', 'name', 'rollout_pct', 'rules_json', 'updated_at', 'when']

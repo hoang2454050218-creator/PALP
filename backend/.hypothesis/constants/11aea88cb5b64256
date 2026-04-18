@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\admin.py
+# hypothesis_version: 6.151.9
+
+['change_reason', 'class_id', 'code', 'computation_params', 'computed_at', 'computed_value', 'created_at', 'created_by', 'current_version', 'data_quality_flags', 'definition_snapshot', 'definition_version', 'event_count', 'event_date_range', 'generated_at', 'is_locked', 'kpi', 'kpi__code', 'name', 'owner', 'quality_score', 'report', 'report_type', 'sample_event_ids', 'schema_version', 'source', 'target_direction', 'target_value', 'title', 'total_records', 'updated_at', 'version', 'week_number']

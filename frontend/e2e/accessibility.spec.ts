@@ -1,5 +1,37 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
+
+const STUDENT_USER = process.env.E2E_STUDENT_USER || 'sv_test'
+const STUDENT_PASS = process.env.E2E_STUDENT_PASS || 'testpass123'
+const LECTURER_USER = process.env.E2E_LECTURER_USER || 'lec_test'
+const LECTURER_PASS = process.env.E2E_LECTURER_PASS || 'testpass123'
+
+async function loginAs(page: Page, user: string, pass: string) {
+  await page.goto('/login')
+  await page.fill('#username', user)
+  await page.fill('#password', pass)
+  await page.click('button[type="submit"]')
+  await page.waitForURL(/\/(dashboard|overview)/, { timeout: 15000 })
+}
+
+async function setTheme(page: Page, theme: 'light' | 'dark' | 'high-contrast') {
+  await page.evaluate((t) => {
+    document.documentElement.dataset.theme = t
+  }, theme)
+}
+
+async function expectNoSeriousViolations(page: Page, label: string) {
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+    .analyze()
+  const blocking = results.violations.filter((v) =>
+    ['serious', 'critical'].includes(v.impact ?? ''),
+  )
+  if (blocking.length > 0) {
+    console.log(`[axe ${label}] violations:`, JSON.stringify(blocking, null, 2))
+  }
+  expect(blocking, `${label} must be axe-clean (serious/critical)`).toEqual([])
+}
 
 test.describe('Accessibility — WCAG 2.1 AA', () => {
   test.describe('Login page', () => {
@@ -133,5 +165,63 @@ test.describe('Accessibility — WCAG 2.1 AA', () => {
         expect(label).toBeTruthy()
       }
     })
+  })
+
+  test.describe('Authenticated routes — student', () => {
+    const STUDENT_ROUTES = ['/dashboard', '/pathway', '/task', '/wellbeing', '/preferences', '/privacy']
+    for (const route of STUDENT_ROUTES) {
+      test(`route ${route} passes axe (light theme)`, async ({ page }) => {
+        await loginAs(page, STUDENT_USER, STUDENT_PASS)
+        await setTheme(page, 'light')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} light`)
+      })
+
+      test(`route ${route} passes axe (dark theme)`, async ({ page }) => {
+        await loginAs(page, STUDENT_USER, STUDENT_PASS)
+        await setTheme(page, 'dark')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} dark`)
+      })
+
+      test(`route ${route} passes axe (high-contrast theme)`, async ({ page }) => {
+        await loginAs(page, STUDENT_USER, STUDENT_PASS)
+        await setTheme(page, 'high-contrast')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} high-contrast`)
+      })
+    }
+  })
+
+  test.describe('Authenticated routes — lecturer', () => {
+    const LECTURER_ROUTES = ['/overview', '/alerts', '/knowledge-graph', '/history', '/preferences']
+    for (const route of LECTURER_ROUTES) {
+      test(`route ${route} passes axe (light theme)`, async ({ page }) => {
+        await loginAs(page, LECTURER_USER, LECTURER_PASS)
+        await setTheme(page, 'light')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} light`)
+      })
+
+      test(`route ${route} passes axe (dark theme)`, async ({ page }) => {
+        await loginAs(page, LECTURER_USER, LECTURER_PASS)
+        await setTheme(page, 'dark')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} dark`)
+      })
+
+      test(`route ${route} passes axe (high-contrast theme)`, async ({ page }) => {
+        await loginAs(page, LECTURER_USER, LECTURER_PASS)
+        await setTheme(page, 'high-contrast')
+        await page.goto(route)
+        await page.waitForLoadState('networkidle')
+        await expectNoSeriousViolations(page, `${route} high-contrast`)
+      })
+    }
   })
 })

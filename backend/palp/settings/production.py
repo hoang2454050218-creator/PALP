@@ -16,9 +16,19 @@ if not os.environ.get("POSTGRES_PASSWORD"):
 if not os.environ.get("PII_ENCRYPTION_KEY"):
     raise ImproperlyConfigured("PII_ENCRYPTION_KEY must be set in production.")
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+_raw_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
+if not ALLOWED_HOSTS:
+    raise ImproperlyConfigured(
+        "DJANGO_ALLOWED_HOSTS must be set to a comma-separated list of valid hostnames in production."
+    )
 
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+_raw_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+if not CORS_ALLOWED_ORIGINS:
+    raise ImproperlyConfigured(
+        "CORS_ALLOWED_ORIGINS must be set to a comma-separated list of allowed origins in production."
+    )
 CORS_ALLOW_CREDENTIALS = True
 
 # TLS / HTTPS

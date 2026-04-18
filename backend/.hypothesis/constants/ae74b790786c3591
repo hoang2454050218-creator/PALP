@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\privacy\services.py
+# hypothesis_version: 6.151.9
+
+[',', '-created_at', '.', 'Deleted', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR', 'User', 'academic', 'action', 'anonymize', 'anonymized', 'avatar_url', 'behavioral', 'column', 'consent_given', 'consent_given_at', 'consent_history', 'count', 'created_at', 'delete_policy', 'deleted', 'description', 'email', 'first_name', 'granted', 'hard_delete', 'id', 'inference', 'isoformat', 'label', 'last_changed_at', 'last_name', 'last_updated', 'models', 'palp.privacy', 'phone', 'pii', 'pk', 'purpose', 'related_model', 'retention_months', 'role', 'started_at', 'student_id', 'summary', 'tiers', 'timestamp_utc', 'total_affected', 'user', 'username', 'version']

@@ -61,8 +61,8 @@ class TestF1Assessment:
 
         session = AssessmentSession.objects.get(pk=sid)
         expected = round(correct_count / total * 100, 2) if total > 0 else 0
-        assert abs(session.score - expected) <= 0.01, (
-            f"Score mismatch: got {session.score}, expected {expected}"
+        assert abs(session.total_score - expected) <= 0.01, (
+            f"Score mismatch: got {session.total_score}, expected {expected}"
         )
 
     def test_f1_06_two_tabs_only_one_session(
@@ -243,7 +243,9 @@ class TestF3BackwardDesign:
 
         attempts = TaskAttempt.objects.filter(student=student, task=task)
         assert attempts.count() == 2
-        assert attempts.last().attempt_number == 2
+        # Default ordering on TaskAttempt is "-created_at" (newest first),
+        # so the latest attempt with attempt_number=2 is .first().
+        assert attempts.first().attempt_number == 2
 
     def test_f3_06_no_impossible_progress(
         self, student, course, student_with_pathway,

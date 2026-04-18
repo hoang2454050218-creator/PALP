@@ -65,8 +65,32 @@ BACKUP_AGE_SECONDS = Gauge(
     "Seconds since last successful backup",
 )
 
+BACKUP_LAST_RESTORE_DRILL_UNIX = Gauge(
+    "palp_backup_last_restore_drill_unix",
+    "Unix timestamp of the last successful backup restore drill",
+)
+
+CELERY_QUEUE_DEPTH = Gauge(
+    "palp_celery_queue_depth",
+    "Number of pending tasks in Celery broker queue",
+    ["queue"],
+)
+
+CELERY_BEAT_LAST_PING_UNIX = Gauge(
+    "palp_celery_beat_last_ping_unix",
+    "Unix timestamp of the last Celery Beat heartbeat",
+)
+
 EXPORT_DELETE_REQUESTS = Counter(
     "palp_export_delete_requests_total",
     "GDPR data export/delete requests",
     ["request_type"],
+)
+
+# Surfaces silent failures in cache-backed counters so an outage does not
+# leave SLO dashboards reading 0% errors when the truth is "we cannot count".
+METRICS_MIDDLEWARE_ERRORS = Counter(
+    "palp_metrics_middleware_errors_total",
+    "RequestMetricsMiddleware cache failures (incr / add)",
+    ["operation"],
 )

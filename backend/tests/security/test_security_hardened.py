@@ -128,9 +128,15 @@ class TestSG07SensitiveData:
     """PII must not leak in responses, logs, or error messages."""
 
     def test_error_response_no_stack_trace(self, student_api):
-        resp = student_api.get("/api/assessment/999999/")
-        assert resp.status_code in (404, 403)
-        content = str(resp.data)
+        # Hit a definitely-non-existent assessment id to force an error.
+        # GET on a POST-only endpoint returns 405; missing pk on a list
+        # endpoint returns 404. Either way, no stack trace must leak.
+        resp = student_api.get("/api/assessment/999999/questions/")
+        assert resp.status_code in (400, 403, 404, 405)
+        content = (
+            str(resp.data) if hasattr(resp, "data") and resp.data is not None
+            else resp.content.decode("utf-8", errors="ignore")
+        )
         assert "Traceback" not in content
         assert "File \"" not in content
 
@@ -149,7 +155,9 @@ class TestSG07SensitiveData:
         resp = student_api.get("/api/adaptive/mastery/")
         content = str(resp.data)
         assert student_b.username not in content
-        assert str(student_b.email) not in content
+        # Empty email is "" which is "in" any string, so guard with truthiness.
+        if student_b.email:
+            assert student_b.email not in content
 
 
 # ---------------------------------------------------------------------------

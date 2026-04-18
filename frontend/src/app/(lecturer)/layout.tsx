@@ -17,17 +17,22 @@ export default function LecturerLayout({ children }: { children: React.ReactNode
   }, [initialize]);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated()) {
+    if (loading) return;
+    if (!isAuthenticated()) {
       router.replace("/login");
+      return;
     }
-  }, [loading, router]);
+    if (user && user.role !== "lecturer" && user.role !== "admin") {
+      router.replace("/dashboard");
+    }
+  }, [loading, user, router]);
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center" role="status" aria-label="Đang tải">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground animate-pulse">Đang tải...</p>
+          <div className="h-10 w-10 motion-safe:animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm text-muted-foreground motion-safe:animate-pulse">Đang tải...</p>
         </div>
       </div>
     );

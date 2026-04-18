@@ -5,9 +5,15 @@ from django.conf import settings
 from django.db import connection
 from django.core.cache import cache
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from accounts.permissions import IsAdminUser
+from .constants import (
+    CELERY_HEALTH_PING_CACHE_KEY,
+    CELERY_HEALTH_PING_STALE_THRESHOLD_SECONDS,
+)
 
 logger = logging.getLogger("palp.health")
 
@@ -55,11 +61,11 @@ def _check_celery():
 
 def _check_celery_beat():
     try:
-        last_ping = cache.get("palp:celery:health_ping")
+        last_ping = cache.get(CELERY_HEALTH_PING_CACHE_KEY)
         if last_ping is None:
             return {"status": "unknown", "detail": "no heartbeat recorded yet"}
         elapsed = time.time() - float(last_ping)
-        if elapsed > 600:
+        if elapsed > CELERY_HEALTH_PING_STALE_THRESHOLD_SECONDS:
             return {"status": "unhealthy", "last_heartbeat_seconds_ago": round(elapsed)}
         return {"status": "healthy", "last_heartbeat_seconds_ago": round(elapsed)}
     except Exception as exc:
@@ -68,26 +74,50 @@ def _check_celery_beat():
 
 
 def _check_queue_depth():
+    """Return per-queue depth across every monitored Celery queue.
+
+    Previously this function only inspected the default ``celery`` queue, which
+    silently hid backlog on the dedicated ``events_high`` and ``events_dlq``
+    queues used for hot-path event emission. Now it iterates over
+    ``settings.PALP_CELERY_MONITORED_QUEUES`` and falls back to the canonical
+    list defined in ``analytics.constants`` so the deep-health view stays in
+    sync with ``check_queue_backlog``.
+    """
+    from .constants import CELERY_DEFAULT_QUEUES
+
     try:
         import redis as redis_lib
 
         broker_url = getattr(settings, "CELERY_BROKER_URL", "redis://localhost:6379/1")
-        r = redis_lib.from_url(broker_url)
-        depth = r.llen("celery")
+        r = redis_lib.from_url(broker_url, socket_timeout=3)
+
+        queues = getattr(settings, "PALP_CELERY_MONITORED_QUEUES", CELERY_DEFAULT_QUEUES)
         thresholds = getattr(settings, "PALP_QUEUE_ALERT", {})
         warn_threshold = thresholds.get("WARN", 50)
         critical_threshold = thresholds.get("CRITICAL", 200)
 
-        if depth >= critical_threshold:
-            level = "critical"
-            logger.error("Queue backlog critical: %d tasks pending", depth)
-        elif depth >= warn_threshold:
-            level = "warning"
-            logger.warning("Queue backlog elevated: %d tasks pending", depth)
-        else:
-            level = "normal"
+        depths = {}
+        worst_level = "normal"
+        worst_rank = 0
+        rank = {"normal": 0, "warning": 1, "critical": 2}
 
-        return {"status": level, "depth": depth}
+        for queue in queues:
+            depth = int(r.llen(queue) or 0)
+            depths[queue] = depth
+            if depth >= critical_threshold:
+                level = "critical"
+                logger.error("Queue %s critical: %d tasks pending", queue, depth)
+            elif depth >= warn_threshold:
+                level = "warning"
+                logger.warning("Queue %s elevated: %d tasks pending", queue, depth)
+            else:
+                level = "normal"
+            if rank[level] > worst_rank:
+                worst_rank = rank[level]
+                worst_level = level
+
+        total_depth = sum(depths.values())
+        return {"status": worst_level, "depth": total_depth, "by_queue": depths}
     except Exception as exc:
         logger.error("Queue depth check failed: %s", exc)
         return {"status": "unknown", "error": str(exc)}

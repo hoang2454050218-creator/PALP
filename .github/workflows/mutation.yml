@@ -1,0 +1,73 @@
+name: Mutation Testing (nightly)
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # Daily 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  mutmut:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: palp_test
+          POSTGRES_USER: palp
+          POSTGRES_PASSWORD: test_password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    env:
+      DJANGO_SETTINGS_MODULE: palp.settings.test
+      POSTGRES_DB: palp_test
+      POSTGRES_USER: palp
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_HOST: localhost
+      REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+
+      - run: pip install -r requirements.txt -r requirements-dev.txt mutmut
+        working-directory: backend
+
+      - name: Run mutation tests on critical modules
+        run: |
+          mutmut run \
+            --paths-to-mutate=adaptive/engine.py,dashboard/services.py,events/emitter.py \
+            --runner='python -m pytest -x --no-cov -m "not slow and not load and not recovery"' \
+            --use-coverage \
+            --no-progress \
+          || true
+          mutmut results > ../mutation-report.txt
+          mutmut html
+        working-directory: backend
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation-report
+          path: |
+            mutation-report.txt
+            backend/html/
+
+      - name: Comment results
+        if: always()
+        run: |
+          if [ -f mutation-report.txt ]; then
+            echo "## Mutation testing summary" >> $GITHUB_STEP_SUMMARY
+            cat mutation-report.txt | head -50 >> $GITHUB_STEP_SUMMARY
+          fi

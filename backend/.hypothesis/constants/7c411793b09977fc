@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\privacy\admin.py
+# hypothesis_version: 6.151.9
+
+['action', 'actor', 'actor__username', 'completed_at', 'created_at', 'description', 'detail', 'granted', 'ip_address', 'is_within_sla', 'purpose', 'request_id', 'requested_at', 'resource', 'result_summary', 'severity', 'status', 'target_user', 'tiers', 'title', 'user', 'user__username', 'user_agent', 'version']

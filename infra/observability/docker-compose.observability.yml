@@ -1,0 +1,106 @@
+#
+# Observability stack -- opt-in profile so dev/CI don't pay the RAM cost.
+#
+# Bring up with:    just observability
+#                   docker compose --profile observability up -d
+#
+# Components:
+#   loki         log aggregation (Grafana Labs)
+#   promtail     ships container logs into Loki
+#   alertmanager routes Prometheus alerts to Slack/email/webhook
+#   tempo        distributed tracing backend (OTel OTLP receiver)
+#   pgbouncer    transaction pooling between Django and Postgres
+#
+
+services:
+  loki:
+    image: grafana/loki:3.0.0
+    profiles: [observability]
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    ports:
+      - "${LOKI_HOST_PORT:-3100}:3100"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.0.0
+    profiles: [observability]
+    command: -config.file=/etc/promtail/promtail-config.yml
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - loki
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    profiles: [observability]
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ../prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "${ALERTMANAGER_HOST_PORT:-9093}:9093"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.6.1
+    profiles: [observability]
+    command: -config.file=/etc/tempo/tempo.yml
+    volumes:
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "${TEMPO_HOST_PORT:-3200}:3200"
+      - "${TEMPO_OTLP_GRPC:-4317}:4317"
+      - "${TEMPO_OTLP_HTTP:-4318}:4318"
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    restart: unless-stopped
+
+  pgbouncer:
+    image: edoburu/pgbouncer:1.23.1
+    profiles: [observability, prod]
+    environment:
+      DB_USER: ${POSTGRES_USER:-palp}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-palp_dev_password}
+      DB_HOST: db
+      DB_NAME: ${POSTGRES_DB:-palp}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 200
+      DEFAULT_POOL_SIZE: 25
+      AUTH_TYPE: scram-sha-256
+    ports:
+      - "${PGBOUNCER_HOST_PORT:-6432}:5432"
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+volumes:
+  loki_data:
+  alertmanager_data:
+  tempo_data:

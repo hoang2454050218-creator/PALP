@@ -1,10 +1,10 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 from .encryption import EncryptedCharField
 
 
-class ActiveUserManager(models.Manager):
+class ActiveUserManager(UserManager):
     def get_queryset(self):
         return super().get_queryset().filter(is_deleted=False)
 

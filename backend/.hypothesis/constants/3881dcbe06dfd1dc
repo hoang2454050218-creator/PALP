@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\models.py
+# hypothesis_version: 6.151.9
+
+[100, 200, 500, ' [LOCKED]', '-computed_at', '-created_at', '-generated_at', '-started_at', '-version', '1.0', 'Báo cáo cuối', 'Giảm', 'Mốc báo cáo', 'PilotReport', 'Thành công', 'Thất bại', 'Tuần', 'Tăng', 'absolute', 'baseline_value', 'code', 'current_version', 'decrease', 'description', 'failed', 'final', 'increase', 'kpi', 'lineage_logs', 'milestone', 'name', 'owned_kpis', 'owner_id', 'palp_etl_run', 'palp_kpi_definition', 'palp_kpi_lineage_log', 'palp_kpi_version', 'palp_pilot_report', 'query_function', 'query_sql', 'rolled_back', 'running', 'source_events', 'success', 'target_direction', 'target_value', 'unit', 'updated_at', 'version', 'versions', 'weekly', 'Đang chạy', 'Đã rollback', 'Đạt ngưỡng']

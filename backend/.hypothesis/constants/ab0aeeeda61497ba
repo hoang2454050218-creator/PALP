@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dashboard\admin.py
+# hypothesis_version: 6.151.9
+
+['action_type', 'created_at', 'follow_up_status', 'lecturer', 'severity', 'status', 'student', 'trigger_type']

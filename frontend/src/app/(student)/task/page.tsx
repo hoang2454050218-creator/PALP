@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Clock, CheckCircle2, XCircle, RotateCcw, ArrowRight, Lightbulb, Trophy, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,17 @@ import { api } from "@/lib/api";
 import { difficultyLabel, formatDuration } from "@/lib/utils";
 import { getMasteryLabel } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
-import type { MicroTask, TaskAttempt, PathwayAction } from "@/types";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
+import { useStudySessionPing } from "@/hooks/use-study-session-ping";
+import type { MicroTask, MicroTaskContent, TaskAttempt, PathwayAction } from "@/types";
 import Link from "next/link";
 
-const COURSE_ID = 1;
-
 export default function TaskPage() {
+  const router = useRouter();
+  useEnsureCourseContext("student");
+  useStudySessionPing(true);
+  const courseId = useCourseContext((s) => s.courseId);
+  const ctxLoading = useCourseContext((s) => s.loading);
   const [currentTask, setCurrentTask] = useState<MicroTask | null>(null);
   const [allCompleted, setAllCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -30,12 +36,12 @@ export default function TaskPage() {
   const [startTime, setStartTime] = useState(0);
   const [elapsed, setElapsed] = useState(0);
 
-  const fetchNextTask = useCallback(() => {
+  const fetchNextTask = useCallback((id: number) => {
     setLoading(true);
     setError(false);
-    api.get<MicroTask & { completed?: boolean }>(`/adaptive/next-task/${COURSE_ID}/`)
+    api.get<MicroTask & { completed?: boolean }>(`/adaptive/next-task/${id}/`)
       .then((data) => {
-        if ((data as any).completed) {
+        if ((data as MicroTask & { completed?: boolean }).completed) {
           setCurrentTask(null);
           setAllCompleted(true);
         } else {
@@ -53,8 +59,8 @@ export default function TaskPage() {
   }, []);
 
   useEffect(() => {
-    fetchNextTask();
-  }, [fetchNextTask]);
+    if (courseId != null) fetchNextTask(courseId);
+  }, [courseId, fetchNextTask]);
 
   useEffect(() => {
     if (!currentTask || result) return;
@@ -71,7 +77,7 @@ export default function TaskPage() {
     try {
       const res = await api.post<{
         attempt: TaskAttempt;
-        mastery: any;
+        mastery: unknown;
         pathway: PathwayAction;
       }>("/adaptive/submit/", {
         task_id: currentTask.id,
@@ -98,7 +104,7 @@ export default function TaskPage() {
   const nextTask = () => {
     setSelectedAnswer(null);
     setResult(null);
-    fetchNextTask();
+    if (courseId != null) fetchNextTask(courseId);
   };
 
   const retryTask = () => {
@@ -108,7 +114,7 @@ export default function TaskPage() {
     setElapsed(0);
   };
 
-  if (loading) {
+  if (loading || ctxLoading) {
     return (
       <div>
         <PageHeader title="Bài tập" />
@@ -126,8 +132,8 @@ export default function TaskPage() {
         <ErrorState
           title="Không thể tải bài tập"
           message="Vui lòng kiểm tra kết nối mạng hoặc hoàn thành đánh giá đầu vào trước."
-          onRetry={fetchNextTask}
-          onBack={() => window.location.href = "/dashboard"}
+          onRetry={() => courseId != null && fetchNextTask(courseId)}
+          onBack={() => router.push("/dashboard")}
         />
       </div>
     );
@@ -139,7 +145,7 @@ export default function TaskPage() {
         <PageHeader title="Bài tập" />
         <Card>
           <CardContent className="py-12 text-center">
-            <Trophy className="h-12 w-12 text-yellow-500 mx-auto mb-4" aria-hidden="true" />
+            <Trophy className="h-12 w-12 text-warning mx-auto mb-4" aria-hidden="true" />
             <p className="text-lg font-semibold mb-2">Hoàn thành tất cả bài tập!</p>
             <p className="text-muted-foreground mb-6">
               Bạn đã hoàn thành tất cả bài tập hiện có. Hãy quay lại sau để xem nội dung mới.
@@ -173,8 +179,9 @@ export default function TaskPage() {
     );
   }
 
-  const options = (currentTask.content as any)?.options || [];
-  const questionText = (currentTask.content as any)?.question || "Hoàn thành bài tập bên dưới.";
+  const taskContent = currentTask.content as MicroTaskContent | undefined;
+  const options = taskContent?.options ?? [];
+  const questionText = taskContent?.question ?? "Hoàn thành bài tập bên dưới.";
 
   return (
     <div>
@@ -186,7 +193,7 @@ export default function TaskPage() {
             <Badge variant="outline">{difficultyLabel(currentTask.difficulty)}</Badge>
             <Badge variant="secondary">{currentTask.estimated_minutes} phút</Badge>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="off" aria-atomic="true">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-atomic="true">
             <Clock className="h-4 w-4" aria-hidden="true" />
             <span aria-label={`Thời gian đã trôi qua: ${formatDuration(elapsed)}`}>
               {formatDuration(elapsed)}
@@ -236,15 +243,17 @@ export default function TaskPage() {
             ) : (
               <div className="space-y-6">
                 <div
-                  className={`flex items-center gap-4 rounded-lg p-5 ${
-                    result.attempt.is_correct ? "bg-green-50" : "bg-amber-50"
+                  className={`flex items-center gap-4 rounded-lg p-5 border ${
+                    result.attempt.is_correct
+                      ? "bg-success/10 border-success/30"
+                      : "bg-warning/10 border-warning/30"
                   }`}
                   role="status"
                 >
                   {result.attempt.is_correct ? (
-                    <CheckCircle2 className="h-8 w-8 text-green-600" aria-hidden="true" />
+                    <CheckCircle2 className="h-8 w-8 text-success" aria-hidden="true" />
                   ) : (
-                    <XCircle className="h-8 w-8 text-amber-600" aria-hidden="true" />
+                    <XCircle className="h-8 w-8 text-warning" aria-hidden="true" />
                   )}
                   <div>
                     <p className="font-semibold text-lg">
@@ -256,25 +265,25 @@ export default function TaskPage() {
                   </div>
                 </div>
 
-                <div className="rounded-lg bg-blue-50 p-4">
+                <div className="rounded-lg bg-info/10 border border-info/30 p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="h-4 w-4 text-blue-600" aria-hidden="true" />
-                    <span className="font-medium text-blue-900">Lộ trình tiếp theo</span>
+                    <Lightbulb className="h-4 w-4 text-info" aria-hidden="true" />
+                    <span className="font-medium text-info-foreground">Lộ trình tiếp theo</span>
                   </div>
-                  <p className="text-sm text-blue-800">{result.pathway.message}</p>
-                  <p className="text-xs text-blue-600 mt-1">
+                  <p className="text-sm text-info-foreground">{result.pathway.message}</p>
+                  <p className="text-xs text-info-foreground/80 mt-1">
                     Mức nắm vững: {(result.pathway.p_mastery * 100).toFixed(0)}% — {getMasteryLabel(result.pathway.p_mastery)}
                   </p>
                 </div>
 
                 {result.pathway.supplementary_content && (
-                  <Card className="border-orange-200 bg-orange-50">
+                  <Card className="border-warning/30 bg-warning/10">
                     <CardContent className="pt-4">
-                      <p className="font-medium text-orange-900 mb-2">
-                        Tài liệu bổ trợ: {(result.pathway.supplementary_content as any).title}
+                      <p className="font-medium text-warning-foreground mb-2">
+                        Tài liệu bổ trợ: {(result.pathway.supplementary_content as { title?: string }).title}
                       </p>
-                      <p className="text-sm text-orange-800">
-                        {(result.pathway.supplementary_content as any).body}
+                      <p className="text-sm text-warning-foreground/80">
+                        {(result.pathway.supplementary_content as { body?: string }).body}
                       </p>
                     </CardContent>
                   </Card>

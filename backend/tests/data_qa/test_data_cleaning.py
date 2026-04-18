@@ -255,18 +255,32 @@ class TestDC05Idempotency:
 
 
 class TestDC06QualityScore:
+    """``compute_quality_score`` lives in scripts/etl_academic.py at the
+    workspace root, not under the backend package. We add the workspace root
+    to sys.path before importing so the same helper is shared between
+    legacy ETL tests and these data quality assertions.
+    """
+
+    @staticmethod
+    def _import():
+        import os
+        import sys
+        scripts_dir = os.path.join(
+            os.path.dirname(__file__), "..", "..", "..", "scripts",
+        )
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        from etl_academic import compute_quality_score
+        return compute_quality_score
 
     def test_clean_data_high_score(self):
-        from scripts.etl_academic import compute_quality_score
-        score = compute_quality_score(100, 0, 0)
-        assert score >= 70
+        compute_quality_score = self._import()
+        assert compute_quality_score(100, 0, 0) >= 70
 
     def test_moderate_issues_still_passes(self):
-        from scripts.etl_academic import compute_quality_score
-        score = compute_quality_score(100, 5, 3)
-        assert score >= 70
+        compute_quality_score = self._import()
+        assert compute_quality_score(100, 5, 3) >= 70
 
     def test_heavy_issues_fails_threshold(self):
-        from scripts.etl_academic import compute_quality_score
-        score = compute_quality_score(100, 40, 20)
-        assert score < 70
+        compute_quality_score = self._import()
+        assert compute_quality_score(100, 40, 20) < 70

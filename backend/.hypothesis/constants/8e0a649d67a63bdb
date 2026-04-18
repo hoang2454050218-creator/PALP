@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\conftest.py
+# hypothesis_version: 6.151.9
+
+[0.09, 0.1, 0.25, 0.5, '10kN', '2025-2026', '20kN', '22KT0001', '22KT0002', '30kN', 'A', 'Admin', 'B', 'BD', 'Bai tap noi luc 1', 'Bai tap noi luc 2', 'Bai tap ung suat', 'Bien dang', 'Bieu do noi luc?', 'C', 'D', 'Entry Assessment', 'Giai thich noi luc', 'HTTP_IDEMPOTENCY_KEY', 'Le', 'M1: Co ban', 'M2: Nang cao', 'NL', 'Nguyen', 'Noi luc', 'Pham', 'SBVL', 'SBVL-01', 'Str0ngP@ss!', 'Suc ben vat lieu', 'Thi C', 'Tran', 'US', 'Ung suat', 'Ung suat phap?', 'User', 'Van A', 'Van B', 'Van D', 'correct_answer', 'current_concept', 'current_milestone', 'delete', 'gamma', 'options', 'order', 'other_lecturer', 'p_guess', 'p_mastery', 'p_slip', 'p_transit', 'patch', 'post', 'put', 'question', 'sigma', 'tau', 'test_admin', 'test_lecturer', 'test_student', 'test_student_b']

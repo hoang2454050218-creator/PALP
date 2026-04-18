@@ -22,8 +22,8 @@ export function StatCard({ title, value, subtitle, icon: Icon, trend, className 
             {subtitle && (
               <p className={cn(
                 "mt-1 text-xs",
-                trend === "up" && "text-green-600",
-                trend === "down" && "text-red-600",
+                trend === "up" && "text-success",
+                trend === "down" && "text-danger",
                 (!trend || trend === "neutral") && "text-muted-foreground",
               )}>
                 {subtitle}

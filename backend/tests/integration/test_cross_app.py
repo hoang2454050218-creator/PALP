@@ -61,8 +61,9 @@ class TestEarlyWarningToIntervention:
     ):
         EventLog.objects.create(
             actor=student,
+            actor_type=EventLog.ActorType.STUDENT,
             event_name=EventLog.EventName.SESSION_STARTED,
-            created_at=timezone.now() - timedelta(days=6),
+            timestamp_utc=timezone.now() - timedelta(days=6),
         )
 
         alerts = compute_early_warnings(class_with_members.pk)

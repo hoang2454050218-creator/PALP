@@ -42,36 +42,36 @@ describe('formatDate', () => {
 })
 
 describe('masteryColor', () => {
-  it('returns green for mastery >= 0.85', () => {
-    expect(masteryColor(0.85)).toBe('text-green-600')
-    expect(masteryColor(1.0)).toBe('text-green-600')
+  it('returns success for mastery >= 0.85', () => {
+    expect(masteryColor(0.85)).toBe('text-success')
+    expect(masteryColor(1.0)).toBe('text-success')
   })
 
-  it('returns yellow for mastery between 0.6 and 0.85', () => {
-    expect(masteryColor(0.6)).toBe('text-yellow-600')
-    expect(masteryColor(0.84)).toBe('text-yellow-600')
+  it('returns warning for mastery between 0.6 and 0.85', () => {
+    expect(masteryColor(0.6)).toBe('text-warning')
+    expect(masteryColor(0.84)).toBe('text-warning')
   })
 
-  it('returns red for mastery below 0.6', () => {
-    expect(masteryColor(0.59)).toBe('text-red-600')
-    expect(masteryColor(0)).toBe('text-red-600')
+  it('returns danger for mastery below 0.6', () => {
+    expect(masteryColor(0.59)).toBe('text-danger')
+    expect(masteryColor(0)).toBe('text-danger')
   })
 })
 
 describe('masteryBg', () => {
-  it('returns green bg for mastery >= 0.85', () => {
-    expect(masteryBg(0.85)).toBe('bg-green-500')
-    expect(masteryBg(1.0)).toBe('bg-green-500')
+  it('returns success bg for mastery >= 0.85', () => {
+    expect(masteryBg(0.85)).toBe('bg-success')
+    expect(masteryBg(1.0)).toBe('bg-success')
   })
 
-  it('returns yellow bg for mastery between 0.6 and 0.85', () => {
-    expect(masteryBg(0.6)).toBe('bg-yellow-500')
-    expect(masteryBg(0.84)).toBe('bg-yellow-500')
+  it('returns warning bg for mastery between 0.6 and 0.85', () => {
+    expect(masteryBg(0.6)).toBe('bg-warning')
+    expect(masteryBg(0.84)).toBe('bg-warning')
   })
 
-  it('returns red bg for mastery below 0.6', () => {
-    expect(masteryBg(0.59)).toBe('bg-red-500')
-    expect(masteryBg(0)).toBe('bg-red-500')
+  it('returns danger bg for mastery below 0.6', () => {
+    expect(masteryBg(0.59)).toBe('bg-danger')
+    expect(masteryBg(0)).toBe('bg-danger')
   })
 })
 

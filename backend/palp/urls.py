@@ -4,6 +4,7 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from accounts.permissions import IsAdminUser
+from palp.metrics_view import metrics_view
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -17,6 +18,10 @@ urlpatterns = [
     path("api/wellbeing/", include("wellbeing.urls")),
     path("api/privacy/", include("privacy.urls")),
     path("api/health/", include("analytics.health_urls")),
+    path("api/feature-flags/", include("featureflags.urls")),
+    path("api/experiments/", include("experiments.urls")),
+    path("metrics", metrics_view, name="prometheus-metrics"),
+    path("metrics/", metrics_view, name="prometheus-metrics-slash"),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,71 @@
+name: Uptime CI
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  repository_dispatch:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .upptimerc.yml
+      - .github/workflows/upptime.yml
+
+jobs:
+  uptime:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pages: write
+    steps:
+      - uses: upptime/uptime-monitor@master
+        with:
+          command: update
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+  response-time:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: upptime/uptime-monitor@master
+        with:
+          command: response-time
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+  graphs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: upptime/uptime-monitor@master
+        with:
+          command: graphs
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+  static-site:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+    steps:
+      - uses: upptime/uptime-monitor@master
+        with:
+          command: site
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+  summary:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: upptime/uptime-monitor@master
+        with:
+          command: readme
+        env:
+          GH_PAT: ${{ secrets.GITHUB_TOKEN }}

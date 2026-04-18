@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\adaptive\admin.py
+# hypothesis_version: 6.151.9
+
+['applied_at', 'attempt_count', 'attempt_number', 'concept', 'concept__course', 'correct_count', 'course', 'created_at', 'current_concept', 'current_difficulty', 'intervention_type', 'is_active', 'is_correct', 'last_updated', 'lecturer', 'override_type', 'p_mastery', 'p_mastery_at_trigger', 'score', 'source_rule', 'student', 'task', 'updated_at']

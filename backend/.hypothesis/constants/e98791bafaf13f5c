@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\palp\settings\test.py
+# hypothesis_version: 6.151.9
+
+['5432', 'BACKEND', 'CRITICAL', 'ENGINE', 'HOST', 'NAME', 'PASSWORD', 'PORT', 'TEST', 'TEST_POSTGRES_DB', 'TEST_POSTGRES_HOST', 'TEST_POSTGRES_PORT', 'TEST_POSTGRES_USER', 'USER', 'class', 'default', 'handlers', 'level', 'localhost', 'logging.NullHandler', 'null', 'palp', 'palp_dev_password', 'palp_test', 'root', 'version']

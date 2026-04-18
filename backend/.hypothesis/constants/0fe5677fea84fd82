@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\adaptive\models.py
+# hypothesis_version: 6.151.9
+
+[0.09, 0.1, 0.25, 0.3, 100, '-applied_at', '-created_at', '-last_updated', 'Chuyển concept', 'Giảm độ khó', 'Gợi ý retry', 'Hồi phục', 'MASTERY_HIGH', 'MASTERY_LOW', 'Nội dung bổ trợ', 'Tăng độ khó', 'Vững chắc', 'attempts', 'cancel_intervention', 'concept', 'course', 'current_students', 'curriculum.Concept', 'curriculum.Course', 'curriculum.MicroTask', 'curriculum.Milestone', 'developing', 'difficulty_down', 'difficulty_up', 'emerging', 'force_concept', 'force_main_flow', 'interventions', 'issued_overrides', 'mastery_states', 'override_difficulty', 'palp_mastery_state', 'palp_student_pathway', 'palp_task_attempt', 'pathway_overrides', 'pathways', 'recovery', 'retry_hint', 'solid', 'student', 'student_pathways', 'supplementary', 'task', 'task_attempts', 'v1.0', 'Đang tiến bộ', 'Đang tìm hiểu', 'Đưa về luồng chính', 'Đổi độ khó']

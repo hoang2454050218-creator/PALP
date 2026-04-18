@@ -1,0 +1,259 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {"type": "datasource", "uid": "grafana"},
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "PALP Pedagogy KPIs: BKT decisions, mastery distribution, intervention efficacy",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Adaptive decision distribution (advance / continue / supplement)",
+      "type": "piechart",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 1,
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "sum by (decision_type) (rate(palp_adaptive_decision_duration_seconds_count[1h]))",
+          "legendFormat": "{{decision_type}}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": {"displayMode": "table", "placement": "right", "values": ["value", "percent"]}
+      }
+    },
+    {
+      "title": "BKT decision latency (p50/p95/p99)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 2,
+      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(palp_adaptive_decision_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 0.5},
+              {"color": "red", "value": 1.5}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Alert generation by trigger type (24h)",
+      "type": "barchart",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 3,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "sum by (alert_type) (increase(palp_alert_generation_total[24h]))",
+          "legendFormat": "{{alert_type}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Event ingestion rate (created / deduplicated / error)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 4,
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(palp_event_ingestion_total[5m]))",
+          "legendFormat": "{{status}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Event completeness ratio (SLO 99.5%)",
+      "type": "stat",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 5,
+      "gridPos": {"h": 6, "w": 8, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "palp_event_completeness_ratio",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "yellow", "value": 0.99},
+              {"color": "green", "value": 0.995}
+            ]
+          }
+        }
+      },
+      "options": {
+        "graphMode": "area",
+        "colorMode": "background"
+      }
+    },
+    {
+      "title": "Event duplication ratio (SLO < 0.1%)",
+      "type": "stat",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 6,
+      "gridPos": {"h": 6, "w": 8, "x": 8, "y": 16},
+      "targets": [
+        {
+          "expr": "palp_event_duplication_ratio",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 0.001},
+              {"color": "red", "value": 0.005}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Data quality score by source",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 7,
+      "gridPos": {"h": 6, "w": 8, "x": 16, "y": 16},
+      "targets": [
+        {
+          "expr": "palp_data_quality_score",
+          "legendFormat": "{{source}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent"
+        }
+      }
+    },
+    {
+      "title": "Celery queue depth (events_high vs default)",
+      "type": "timeseries",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 8,
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 22},
+      "targets": [
+        {
+          "expr": "palp_celery_queue_depth",
+          "legendFormat": "{{queue}}",
+          "refId": "A"
+        }
+      ],
+      "alert": null,
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 50},
+              {"color": "red", "value": 200}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Backup freshness (hours since last backup)",
+      "type": "stat",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 9,
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 22},
+      "targets": [
+        {
+          "expr": "palp_backup_age_seconds / 3600",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "h",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 24},
+              {"color": "red", "value": 26}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "GDPR export / delete requests (30d)",
+      "type": "stat",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "id": 10,
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 22},
+      "targets": [
+        {
+          "expr": "sum by (request_type) (increase(palp_export_delete_requests_total[30d]))",
+          "legendFormat": "{{request_type}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["palp", "pedagogy", "edtech"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "PALP Pedagogy",
+  "uid": "palp-pedagogy",
+  "version": 1
+}

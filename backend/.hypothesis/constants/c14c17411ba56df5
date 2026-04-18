@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\curriculum\models.py
+# hypothesis_version: 6.151.9
+
+[100, 200, 'Bài tính', 'Công thức', 'Dễ', 'Giải thích', 'Hình ảnh', 'Khó', 'Kéo thả', 'Trung bình', 'Trả lời ngắn', 'Trắc nghiệm', 'Tình huống', 'Video', 'Ví dụ minh họa', 'accounts.User', 'calculation', 'code', 'concept', 'concepts', 'course', 'drag_drop', 'enrollments', 'example', 'formula', 'image', 'milestones', 'order', 'palp_concept', 'palp_course', 'palp_enrollment', 'palp_micro_task', 'palp_milestone', 'prerequisite', 'prerequisites', 'quiz', 'required_by', 'scenario', 'semester', 'short_answer', 'student', 'tasks', 'text', 'video']

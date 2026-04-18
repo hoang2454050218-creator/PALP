@@ -1,0 +1,68 @@
+owner: dau-palp
+repo: palp
+
+sites:
+  - name: PALP Frontend
+    url: https://palp.dau.edu.vn/
+    expectedStatusCodes: [200, 301, 302]
+
+  - name: PALP API Health
+    url: https://palp.dau.edu.vn/api/health/
+    expectedStatusCodes: [200]
+
+  - name: PALP API Readiness
+    url: https://palp.dau.edu.vn/api/health/ready/
+    expectedStatusCodes: [200]
+
+  - name: PALP Login Page
+    url: https://palp.dau.edu.vn/login
+    expectedStatusCodes: [200]
+
+  - name: PALP API Docs
+    url: https://palp.dau.edu.vn/api/docs/
+    expectedStatusCodes: [200, 401]
+
+status-website:
+  cname: status.palp.dau.edu.vn
+  name: PALP Status
+  introTitle: Trạng thái dịch vụ PALP
+  introMessage: |
+    Trang này hiển thị tình trạng các dịch vụ của Personalized Adaptive
+    Learning Platform tại Đại học Kiến trúc Đà Nẵng. Cập nhật mỗi 5 phút.
+  navbar:
+    - title: Status
+      href: /
+    - title: GitHub
+      href: https://github.com/dau-palp/palp
+  logoUrl: https://palp.dau.edu.vn/logo.png
+  theme: light
+
+i18n:
+  activeIncidents: Sự cố đang xử lý
+  allSystemsOperational: Tất cả dịch vụ hoạt động bình thường
+  degradedPerformance: Hiệu năng suy giảm
+  hoursAgo: giờ trước
+  daysAgo: ngày trước
+  partialOutage: Sự cố một phần
+  majorOutage: Sự cố nghiêm trọng
+  responseTime: Thời gian phản hồi
+  responseTimeMs: ms
+  uptime: Tính khả dụng
+  uptimePercentage: "%"
+
+assignees:
+  - palp-team
+
+notifications:
+  - type: slack
+    channel: "#palp-incidents"
+    severity: down
+    name: PALP Incident Bot
+
+commitMessages:
+  readmeContent: ":pencil: docs: cập nhật uptime"
+  commitAuthorName: Upptime Bot
+  commitAuthorEmail: bot@upptime.js.org
+  defaultStatusChange: "$EMOJI $SITE_NAME đã chuyển trạng thái: $STATUS ($RESPONSE_CODE trong $RESPONSE_TIMEms)"
+  statusChange: "$EMOJI $SITE_NAME chuyển sang $STATUS"
+  upDown: "$EMOJI $SITE_NAME đang $STATUS"

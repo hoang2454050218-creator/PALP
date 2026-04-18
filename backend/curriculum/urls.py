@@ -12,6 +12,11 @@ urlpatterns = [
     path("courses/<int:pk>/", views.CourseDetailView.as_view(), name="course-detail"),
     path("courses/<int:course_id>/concepts/", views.ConceptListView.as_view(), name="concept-list"),
     path("courses/<int:course_id>/milestones/", views.MilestoneListView.as_view(), name="milestone-list"),
+    path(
+        "courses/<int:course_id>/knowledge-graph/",
+        views.CourseKnowledgeGraphView.as_view(),
+        name="course-knowledge-graph",
+    ),
     path("milestones/<int:pk>/", views.MilestoneDetailView.as_view(), name="milestone-detail"),
     path("concepts/<int:concept_id>/content/", views.SupplementaryContentListView.as_view(), name="supplementary-list"),
     path("my-enrollments/", views.MyEnrollmentsView.as_view(), name="my-enrollments"),

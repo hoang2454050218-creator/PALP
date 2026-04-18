@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Shield } from "lucide-react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import type { ConsentStatus } from "@/types";
 
 interface ConsentModalProps {
@@ -13,6 +14,7 @@ interface ConsentModalProps {
 }
 
 export function ConsentModal({ onComplete }: ConsentModalProps) {
+  const { checkConsent } = useAuth();
   const [consents, setConsents] = useState<ConsentStatus[]>([]);
   const [decisions, setDecisions] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -34,6 +36,15 @@ export function ConsentModal({ onComplete }: ConsentModalProps) {
   }, []);
 
   const allDecided = consents.length > 0 && consents.every((c) => c.purpose in decisions);
+  const decidedCount = useMemo(
+    () => consents.reduce((n, c) => n + (c.purpose in decisions ? 1 : 0), 0),
+    [consents, decisions],
+  );
+  const totalCount = consents.length;
+  const declinedCount = useMemo(
+    () => Object.values(decisions).filter((v) => v === false).length,
+    [decisions],
+  );
 
   async function handleSubmit() {
     if (!allDecided) return;
@@ -48,6 +59,9 @@ export function ConsentModal({ onComplete }: ConsentModalProps) {
         })),
         version: "1.0",
       });
+      // Force a fresh check so the auth store reflects the new state
+      // immediately and the modal does not reappear on next navigation.
+      await checkConsent(true);
       onComplete();
     } catch {
       setError("Có lỗi khi lưu. Vui lòng thử lại.");
@@ -112,6 +126,18 @@ export function ConsentModal({ onComplete }: ConsentModalProps) {
 
               {error && (
                 <p className="text-sm text-destructive" role="alert">{error}</p>
+              )}
+
+              {!allDecided && consents.length > 0 && (
+                <p className="text-xs text-muted-foreground" role="status" aria-live="polite">
+                  Bạn đã quyết định {decidedCount}/{totalCount}. Hãy chọn cho từng mục để tiếp tục.
+                </p>
+              )}
+              {allDecided && declinedCount > 0 && (
+                <p className="text-xs text-warning-foreground" role="status" aria-live="polite">
+                  Lưu ý: bạn từ chối {declinedCount} mục. Một số tính năng cá nhân hóa
+                  sẽ bị hạn chế. Bạn có thể bật lại bất cứ lúc nào tại trang Quyền riêng tư.
+                </p>
               )}
 
               <Button

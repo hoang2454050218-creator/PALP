@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\curriculum\admin.py
+# hypothesis_version: 6.151.9
+
+['code', 'concept', 'content_type', 'course', 'credits', 'difficulty', 'difficulty_target', 'estimated_minutes', 'is_active', 'milestone', 'name', 'order', 'prerequisite', 'semester', 'student', 'target_week', 'task_type', 'title']

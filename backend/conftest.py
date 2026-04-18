@@ -1,7 +1,36 @@
+import uuid
+
 import pytest
 from rest_framework.test import APIClient
 
 from accounts.models import User, StudentClass, ClassMembership, LecturerClassAssignment
+
+
+class IdempotentAPIClient(APIClient):
+    """Auto-inject ``Idempotency-Key`` header on every write request.
+
+    Many endpoints (assessment start, adaptive submit, dashboard intervention,
+    etc.) declare ``@idempotent(required=True)`` and reject calls that omit
+    the header with HTTP 400. Tests that don't care about idempotency would
+    have to sprinkle ``HTTP_IDEMPOTENCY_KEY`` everywhere; this subclass
+    removes that boilerplate while still allowing explicit overrides.
+
+    Tests that intentionally exercise the "missing key" code path (contract
+    tests for ``@idempotent(required=True)`` enforcement) can opt out by
+    passing ``HTTP_IDEMPOTENCY_KEY=None`` or ``""``: an empty/None value is
+    forwarded as-is without the auto-fill kicking in.
+    """
+
+    _WRITE_METHODS = {"post", "put", "patch", "delete"}
+
+    def generic(self, method, path, *args, **extra):
+        if method.lower() in self._WRITE_METHODS:
+            if "HTTP_IDEMPOTENCY_KEY" not in extra:
+                extra["HTTP_IDEMPOTENCY_KEY"] = str(uuid.uuid4())
+            elif extra["HTTP_IDEMPOTENCY_KEY"] is None:
+                # ``None`` means "deliberately omit the header entirely"
+                extra.pop("HTTP_IDEMPOTENCY_KEY")
+        return super().generic(method, path, *args, **extra)
 from curriculum.models import (
     Course, Concept, ConceptPrerequisite, Milestone, MicroTask, SupplementaryContent,
 )
@@ -146,28 +175,28 @@ def assessment(course, concepts):
 
 @pytest.fixture
 def student_api(student):
-    client = APIClient()
+    client = IdempotentAPIClient()
     client.force_authenticate(user=student)
     return client
 
 
 @pytest.fixture
 def lecturer_api(lecturer):
-    client = APIClient()
+    client = IdempotentAPIClient()
     client.force_authenticate(user=lecturer)
     return client
 
 
 @pytest.fixture
 def admin_api(admin_user):
-    client = APIClient()
+    client = IdempotentAPIClient()
     client.force_authenticate(user=admin_user)
     return client
 
 
 @pytest.fixture
 def anon_api():
-    return APIClient()
+    return IdempotentAPIClient()
 
 
 # ---------------------------------------------------------------------------
@@ -228,7 +257,7 @@ def lecturer_other(db):
 
 @pytest.fixture
 def lecturer_other_api(lecturer_other):
-    client = APIClient()
+    client = IdempotentAPIClient()
     client.force_authenticate(user=lecturer_other)
     return client
 

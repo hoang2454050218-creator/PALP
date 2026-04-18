@@ -1,33 +1,76 @@
-## Ticket / issue
+# Mô tả
 
-- Closes: <!-- ví dụ #123 -->
-- Loại: <!-- feature | bugfix | chore | infra -->
+<!-- Mô tả ngắn (1-3 câu) thay đổi và lý do (tập trung vào "why" hơn "what") -->
 
-## Mô tả ngắn
+Closes #
 
-<!-- Mục đích thay đổi, phạm vi, rủi ro -->
+## Loại thay đổi
 
-## Definition of Done (PALP)
+- [ ] feat: tính năng mới
+- [ ] fix: bug fix
+- [ ] perf: cải thiện hiệu năng
+- [ ] refactor: refactor không thay đổi behavior
+- [ ] docs: chỉ tài liệu
+- [ ] test: chỉ thêm/sửa test
+- [ ] chore: maintenance, deps, config
+- [ ] BREAKING CHANGE (giải thích migration trong section dưới)
 
-> Mỗi dòng phải được tick `[x]` **hoặc** ghi `N/A — lý do` trước khi merge (trừ khi policy team khác).
+## Definition of Done — D1-D12
 
-- [ ] **D1** Code review: ít nhất 1 approval; comment bắt buộc đã resolve / có follow-up ID
-- [ ] **D2** Unit test pass (CI xanh cho phần thay đổi)
-- [ ] **D3** Integration test pass (nếu ticket chạm luồng đa lớp / DB / API)
-- [ ] **D4** Negative test (401/403/404/400, validation, RBAC sai — không chỉ happy path)
-- [ ] **D5** Analytics event đã gắn theo taxonomy — hoặc `N/A`
-- [ ] **D6** Audit log đã gắn nếu cần (PII / sensitive) — hoặc `N/A`
-- [ ] **D7** Copy/UI: empty / loading / error / success đầy đủ — hoặc `N/A` (backend-only)
-- [ ] **D8** Accessibility cơ bản — hoặc `N/A` (non-UI)
-- [ ] **D9** Monitoring hook (log `request_id` / Sentry / error boundary) phù hợp
-- [ ] **D10** Docs đã cập nhật (API / ARCHITECTURE / DATA_MODEL nếu đổi hợp đồng) — hoặc `N/A`
-- [ ] **D11** PO sign-off trên staging — hoặc `N/A` (theo policy)
-- [ ] **D12** QA sign-off — hoặc `N/A` (theo policy)
+(Đánh check khi xong, để trống nếu N/A nhưng giải thích lý do)
 
-### Exemptions (nếu có)
+- [ ] **D1 Code review**: ≥1 approve + 0 unresolved comment
+- [ ] **D2 Unit tests**: pass + coverage không giảm
+- [ ] **D3 Integration tests**: pass cho flow liên quan
+- [ ] **D4 Negative tests**: cho mọi input boundary
+- [ ] **D5 Analytics events**: emitted nếu thay đổi UX
+- [ ] **D6 Audit log**: cho action sensitive (PII, RBAC)
+- [ ] **D7 UI states**: loading + empty + error + success đầy đủ
+- [ ] **D8 Accessibility**: WCAG 2.1 AA min, AAA cho 3 page chính
+- [ ] **D9 Monitoring**: metric + alert nếu critical path
+- [ ] **D10 Documentation**: docstring + ADR nếu kiến trúc + README nếu cần
+- [ ] **D11 PO sign-off**: cho user-facing change
+- [ ] **D12 QA sign-off**: per `docs/QA_STANDARD.md`
 
-<!-- PO/Tech Lead: waive item nào, lý do, follow-up ticket -->
+## Test plan
 
-## Ghi chú reviewer
+<!-- Mô tả cách test PR này. Ví dụ:
+1. just dev
+2. Login với sv_test / testpass123
+3. Click ... → expect ...
+-->
 
-<!-- Điểm cần chú ý: migration, feature flag, rollback -->
+## Screenshots / GIFs
+
+<!-- Cho UI change, attach screenshot before/after hoặc GIF -->
+
+## Database migration
+
+- [ ] Có migration mới — đã `makemigrations --check` clean
+- [ ] Migration backward-compatible (đọc `docs/MIGRATION_RUNBOOK.md`)
+- [ ] Không drop column trong cùng release với code bỏ field
+
+## Security & Privacy
+
+- [ ] Không hardcode secret/key
+- [ ] PII xử lý qua Fernet field (không plaintext)
+- [ ] Authorization check ở backend (không chỉ frontend)
+- [ ] Audit log cho action sensitive
+
+## Breaking Changes
+
+<!-- Nếu BREAKING CHANGE, giải thích: -->
+<!-- - Field/endpoint nào bị remove/rename -->
+<!-- - Migration step cho consumer -->
+<!-- - Deprecation timeline nếu có -->
+
+## Checklist
+
+- [ ] Tựa đề PR tuân theo Conventional Commits format
+- [ ] Branch rebase với master
+- [ ] CI xanh (lint + tests + OpenAPI diff + security audit)
+- [ ] Self-review xong, không có comment debug
+
+## Additional notes
+
+<!-- Bất cứ thông tin gì cho reviewer -->

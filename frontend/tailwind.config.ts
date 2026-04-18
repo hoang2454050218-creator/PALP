@@ -1,7 +1,14 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
+  // Sync Tailwind's `dark:` variant with the runtime theme switcher in
+  // `use-preferences.ts` which sets `data-theme="dark"` on <html>. The
+  // `selector` strategy (Tailwind 3.4+) lets us target both dark and the
+  // optional high-contrast theme without forcing a `class` attribute.
+  darkMode: ["variant", [
+    '&:where([data-theme="dark"], [data-theme="dark"] *)',
+    '&:where([data-theme="high-contrast"], [data-theme="high-contrast"] *)',
+  ]],
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -40,12 +47,20 @@ const config: Config = {
           foreground: "hsl(var(--popover-foreground))",
         },
         warning: {
-          DEFAULT: "hsl(45 93% 47%)",
-          foreground: "hsl(26 90% 15%)",
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         success: {
-          DEFAULT: "hsl(142 71% 45%)",
-          foreground: "hsl(0 0% 100%)",
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        danger: {
+          DEFAULT: "hsl(var(--danger))",
+          foreground: "hsl(var(--danger-foreground))",
         },
       },
       borderRadius: {

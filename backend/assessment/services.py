@@ -181,7 +181,7 @@ def complete_assessment(session_id: int, student_id: int) -> LearnerProfile:
 
     audit_log(
         session.student,
-        EventLog.EventName.ASSESS_COMPLETE,
+        EventLog.EventName.ASSESSMENT_COMPLETED,
         {
             "session_id": session.id,
             "score": round(score_pct, 2),

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\wellbeing\models.py
+# hypothesis_version: 6.151.9
+
+['-created_at', 'Bỏ qua', 'Chấp nhận', 'Nhắc nghỉ giải lao', 'Nhắc uống nước', 'Nhắc vận động', 'accepted', 'break_reminder', 'dismissed', 'hydrate', 'palp_wellbeing_nudge', 'shown', 'stretch', 'student', 'wellbeing_nudges', 'Đã hiện']

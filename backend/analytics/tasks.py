@@ -1,18 +1,38 @@
+import json
 import logging
+import os
+import shutil
+import subprocess
+import tempfile
+import time
 from datetime import timedelta
+from pathlib import Path
+
 from celery import shared_task
 from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Count, Q, Max, Min
 from django.utils import timezone
+
 from accounts.models import StudentClass
 from dashboard.services import compute_early_warnings
 from events.metrics import (
+    BACKUP_AGE_SECONDS,
+    BACKUP_LAST_RESTORE_DRILL_UNIX,
+    CELERY_BEAT_LAST_PING_UNIX,
+    CELERY_QUEUE_DEPTH,
     CELERY_TASK_TOTAL,
+    DATA_QUALITY_SCORE,
     EVENT_COMPLETENESS,
     EVENT_DUPLICATION,
-    DATA_QUALITY_SCORE,
 )
 from events.models import EventLog
+
+from .constants import (
+    CELERY_DEFAULT_QUEUES,
+    CELERY_HEALTH_PING_CACHE_KEY,
+    CELERY_HEALTH_PING_TTL_SECONDS,
+)
 from .models import DataQualityLog, KPIDefinition, KPILineageLog, KPIVersion
 
 logger = logging.getLogger("palp")
@@ -64,22 +84,311 @@ def run_nightly_early_warnings():
     return total_alerts
 
 
-@shared_task
-def generate_weekly_report(class_id: int, week_number: int):
-    from .services import generate_pilot_report
+@shared_task(name="analytics.tasks.celery_health_ping")
+def celery_health_ping():
+    """Heartbeat written by Celery Beat so the deep health endpoint can verify
+    the scheduler is alive. Reads from `palp:celery:health_ping` cache key.
+    """
+    now_unix = time.time()
+    cache.set(CELERY_HEALTH_PING_CACHE_KEY, str(now_unix), CELERY_HEALTH_PING_TTL_SECONDS)
+    CELERY_BEAT_LAST_PING_UNIX.set(now_unix)
+    CELERY_TASK_TOTAL.labels(task_name="celery_health_ping", status="success").inc()
+    return {"timestamp": now_unix}
+
+
+@shared_task(name="analytics.tasks.check_queue_backlog")
+def check_queue_backlog():
+    """Sample the Celery broker queue depth and expose it via Prometheus gauge.
+
+    Uses the broker URL directly (Redis LLEN) for accuracy. Logs warnings when
+    crossing PALP_QUEUE_ALERT thresholds. Returns a dict mapping queue name to
+    pending task count.
+    """
     try:
-        report = generate_pilot_report(class_id, week_number)
+        import redis as redis_lib
+    except ImportError:
+        logger.warning("redis-py not available; skipping queue backlog check")
+        return {"status": "skipped", "reason": "redis_not_available"}
+
+    broker_url = getattr(settings, "CELERY_BROKER_URL", "redis://localhost:6379/1")
+    thresholds = getattr(settings, "PALP_QUEUE_ALERT", {})
+    warn = thresholds.get("WARN", 50)
+    critical = thresholds.get("CRITICAL", 200)
+
+    queue_names = getattr(settings, "PALP_CELERY_MONITORED_QUEUES", CELERY_DEFAULT_QUEUES)
+    depths = {}
+    try:
+        client = redis_lib.from_url(broker_url, socket_timeout=3)
+        for queue in queue_names:
+            depth = int(client.llen(queue) or 0)
+            depths[queue] = depth
+            CELERY_QUEUE_DEPTH.labels(queue=queue).set(depth)
+
+            if depth >= critical:
+                logger.error(
+                    "Celery queue %s critical: %d tasks pending (threshold %d)",
+                    queue, depth, critical,
+                )
+            elif depth >= warn:
+                logger.warning(
+                    "Celery queue %s elevated: %d tasks pending (threshold %d)",
+                    queue, depth, warn,
+                )
         CELERY_TASK_TOTAL.labels(
-            task_name="weekly_report", status="success"
+            task_name="check_queue_backlog", status="success",
         ).inc()
-        logger.info("Generated weekly report: %s", report.title)
-        return report.id
-    except Exception:
+    except Exception as exc:
+        logger.exception("Queue backlog check failed: %s", exc)
         CELERY_TASK_TOTAL.labels(
-            task_name="weekly_report", status="failure"
+            task_name="check_queue_backlog", status="failure",
         ).inc()
-        logger.exception("Weekly report failed for class %d", class_id)
-        raise
+        return {"status": "error", "error": str(exc)}
+
+    return {"status": "ok", "depths": depths}
+
+
+@shared_task(name="analytics.tasks.update_backup_age_metric")
+def update_backup_age_metric():
+    """Read sentinel file written by backup_db.sh and expose backup freshness.
+
+    The backup container shares the BACKUP_DIR volume; the Django process
+    needs read access to the same mount (configured in docker-compose.prod.yml).
+    """
+    backup_dir = Path(getattr(settings, "PALP_BACKUP_DIR", "/backups"))
+    sentinel = backup_dir / ".last_backup_unix"
+    if not sentinel.exists():
+        logger.warning("Backup sentinel %s missing; cannot compute age", sentinel)
+        return {"status": "missing", "sentinel": str(sentinel)}
+    try:
+        last_unix = float(sentinel.read_text().strip())
+    except (ValueError, OSError) as exc:
+        logger.error("Cannot read backup sentinel %s: %s", sentinel, exc)
+        return {"status": "error", "error": str(exc)}
+
+    age_seconds = time.time() - last_unix
+    BACKUP_AGE_SECONDS.set(age_seconds)
+    CELERY_TASK_TOTAL.labels(
+        task_name="update_backup_age_metric", status="success",
+    ).inc()
+    return {"status": "ok", "age_seconds": age_seconds}
+
+
+@shared_task(name="analytics.tasks.weekly_restore_drill")
+def weekly_restore_drill():
+    """Verify the latest backup is restorable end-to-end.
+
+    Steps:
+        1. Read latest backup metadata.
+        2. Decrypt with GPG passphrase if encrypted.
+        3. Create an ephemeral Postgres database.
+        4. Run psql to restore the dump.
+        5. Run sanity COUNT queries against critical tables.
+        6. Drop the ephemeral database, regardless of outcome.
+        7. Update Prometheus metric on success.
+
+    Designed to be safe to skip in non-production environments where the
+    backup volume is not mounted -- returns ``{"status": "skipped"}`` so it
+    never blocks Celery beat.
+    """
+    backup_dir = Path(getattr(settings, "PALP_BACKUP_DIR", "/backups"))
+    meta_file = backup_dir / ".last_backup_meta.json"
+    if not meta_file.exists():
+        logger.info("No backup metadata at %s; skipping restore drill", meta_file)
+        return {"status": "skipped", "reason": "no_backup_metadata"}
+
+    try:
+        meta = json.loads(meta_file.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.error("Cannot read backup metadata: %s", exc)
+        CELERY_TASK_TOTAL.labels(
+            task_name="weekly_restore_drill", status="failure",
+        ).inc()
+        return {"status": "error", "error": str(exc)}
+
+    artifact_path = Path(meta.get("artifact_path", ""))
+    if not artifact_path.exists():
+        logger.error("Backup artifact %s missing on disk", artifact_path)
+        CELERY_TASK_TOTAL.labels(
+            task_name="weekly_restore_drill", status="failure",
+        ).inc()
+        return {"status": "error", "reason": "artifact_missing", "path": str(artifact_path)}
+
+    pg_host = os.environ.get("POSTGRES_HOST", "db")
+    pg_port = os.environ.get("POSTGRES_PORT", "5432")
+    pg_user = os.environ.get("POSTGRES_USER", "palp")
+    pg_password = os.environ.get("POSTGRES_PASSWORD", "")
+    target_db = f"palp_restore_drill_{int(time.time())}"
+
+    work_dir = Path(tempfile.mkdtemp(prefix="palp-restore-"))
+    sql_file = work_dir / "dump.sql.gz"
+    drill_status = "started"
+    detail: dict = {}
+    env = os.environ.copy()
+    env["PGPASSWORD"] = pg_password
+
+    try:
+        if meta.get("encrypted"):
+            passphrase = os.environ.get("BACKUP_GPG_PASSPHRASE", "")
+            if not passphrase:
+                logger.warning("Encrypted backup but BACKUP_GPG_PASSPHRASE missing")
+                drill_status = "skipped"
+                detail = {"reason": "missing_gpg_passphrase"}
+                return {"status": drill_status, **detail}
+            # Pass the passphrase via stdin (--passphrase-fd 0) instead of as
+            # an argv flag so it never appears in `ps`/proc/cmdline or in
+            # CI/container logs that capture argv.
+            decrypt_proc = subprocess.run(
+                [
+                    "gpg", "--batch", "--yes", "--pinentry-mode", "loopback",
+                    "--passphrase-fd", "0",
+                    "--output", str(sql_file),
+                    "--decrypt", str(artifact_path),
+                ],
+                input=passphrase,
+                capture_output=True, text=True, timeout=600,
+            )
+            if decrypt_proc.returncode != 0:
+                drill_status = "failure"
+                detail = {"stage": "decrypt", "stderr": decrypt_proc.stderr[:500]}
+                return {"status": drill_status, **detail}
+        else:
+            shutil.copy(artifact_path, sql_file)
+
+        create_proc = subprocess.run(
+            [
+                "psql",
+                "-h", pg_host, "-p", pg_port, "-U", pg_user,
+                "-d", "postgres",
+                "-c", f'CREATE DATABASE "{target_db}" TEMPLATE template0',
+            ],
+            capture_output=True, text=True, env=env, timeout=60,
+        )
+        if create_proc.returncode != 0:
+            drill_status = "failure"
+            detail = {"stage": "create_db", "stderr": create_proc.stderr[:500]}
+            return {"status": drill_status, **detail}
+
+        restore_cmd = (
+            f"gunzip -c {sql_file} | "
+            f"psql -h {pg_host} -p {pg_port} -U {pg_user} -d {target_db}"
+        )
+        restore_proc = subprocess.run(
+            ["bash", "-c", restore_cmd],
+            capture_output=True, text=True, env=env, timeout=900,
+        )
+        if restore_proc.returncode != 0:
+            drill_status = "failure"
+            detail = {"stage": "restore", "stderr": restore_proc.stderr[:500]}
+            return {"status": drill_status, **detail}
+
+        sanity_sql = (
+            "SELECT 'accounts_user' AS t, COUNT(*) FROM accounts_user "
+            "UNION ALL SELECT 'palp_event_log', COUNT(*) FROM palp_event_log "
+            "UNION ALL SELECT 'palp_mastery_state', COUNT(*) FROM palp_mastery_state;"
+        )
+        sanity_proc = subprocess.run(
+            ["psql", "-h", pg_host, "-p", pg_port, "-U", pg_user,
+             "-d", target_db, "-At", "-F", "|", "-c", sanity_sql],
+            capture_output=True, text=True, env=env, timeout=60,
+        )
+        if sanity_proc.returncode != 0:
+            drill_status = "failure"
+            detail = {"stage": "sanity", "stderr": sanity_proc.stderr[:500]}
+            return {"status": drill_status, **detail}
+
+        row_counts = {}
+        for line in sanity_proc.stdout.strip().splitlines():
+            if "|" in line:
+                name, count_str = line.split("|", 1)
+                try:
+                    row_counts[name] = int(count_str)
+                except ValueError:
+                    pass
+
+        drill_status = "ok"
+        detail = {"row_counts": row_counts, "target_db": target_db}
+        BACKUP_LAST_RESTORE_DRILL_UNIX.set(time.time())
+        CELERY_TASK_TOTAL.labels(
+            task_name="weekly_restore_drill", status="success",
+        ).inc()
+
+        # Persist sentinel for release_gate auto-check.
+        sentinel = backup_dir / ".last_restore_drill_unix"
+        try:
+            sentinel.write_text(str(int(time.time())))
+        except OSError as exc:
+            logger.warning("Could not write restore drill sentinel: %s", exc)
+
+        DataQualityLog.objects.create(
+            source="weekly_restore_drill",
+            total_records=sum(row_counts.values()),
+            quality_score=100.0,
+            details={"row_counts": row_counts, "artifact": meta.get("artifact")},
+        )
+
+        return {"status": drill_status, **detail}
+
+    except subprocess.TimeoutExpired as exc:
+        drill_status = "failure"
+        detail = {"stage": exc.cmd[:60] if isinstance(exc.cmd, str) else "unknown",
+                  "reason": "timeout"}
+        return {"status": drill_status, **detail}
+    except Exception as exc:
+        logger.exception("Restore drill failed unexpectedly: %s", exc)
+        drill_status = "failure"
+        detail = {"stage": "unexpected", "error": str(exc)}
+        return {"status": drill_status, **detail}
+    finally:
+        if drill_status not in ("ok",):
+            CELERY_TASK_TOTAL.labels(
+                task_name="weekly_restore_drill", status="failure",
+            ).inc()
+        try:
+            subprocess.run(
+                ["psql", "-h", pg_host, "-p", pg_port, "-U", pg_user,
+                 "-d", "postgres",
+                 "-c", f'DROP DATABASE IF EXISTS "{target_db}"'],
+                capture_output=True, text=True, env=env, timeout=60,
+            )
+        except Exception:
+            logger.warning("Failed to drop temp DB %s", target_db)
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+@shared_task
+def generate_weekly_report(class_id=None, week_number: int = 1):
+    from accounts.models import StudentClass
+    from .services import generate_pilot_report
+
+    if class_id is not None:
+        try:
+            report = generate_pilot_report(class_id, week_number)
+            CELERY_TASK_TOTAL.labels(
+                task_name="weekly_report", status="success"
+            ).inc()
+            logger.info("Generated weekly report: %s", report.title)
+            return report.id
+        except Exception:
+            CELERY_TASK_TOTAL.labels(
+                task_name="weekly_report", status="failure"
+            ).inc()
+            logger.exception("Weekly report failed for class %d", class_id)
+            raise
+
+    report_ids = []
+    for sc in StudentClass.objects.all():
+        try:
+            report = generate_pilot_report(sc.id, week_number)
+            report_ids.append(report.id)
+            CELERY_TASK_TOTAL.labels(
+                task_name="weekly_report", status="success"
+            ).inc()
+        except Exception:
+            CELERY_TASK_TOTAL.labels(
+                task_name="weekly_report", status="failure"
+            ).inc()
+            logger.exception("Weekly report failed for class %d", sc.id)
+    return report_ids
 
 
 @shared_task

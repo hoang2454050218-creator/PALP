@@ -52,6 +52,10 @@ class Concept(models.Model):
                 fields=["course", "code"],
                 name="uq_concept_course_code",
             ),
+            models.UniqueConstraint(
+                fields=["course", "order"],
+                name="uq_concept_course_order",
+            ),
         ]
 
     def __str__(self):

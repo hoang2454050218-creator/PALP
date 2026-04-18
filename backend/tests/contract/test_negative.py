@@ -116,7 +116,7 @@ class TestAdaptiveNegative:
             "answer": "A",
             "duration_seconds": 30,
             "hints_used": 0,
-        }, format="json")
+        }, format="json", HTTP_IDEMPOTENCY_KEY=None)
         _assert_error_envelope(resp)
 
     def test_submit_invalid_idempotency_key(self, student_api, micro_tasks):
@@ -134,6 +134,7 @@ class TestAssessmentNegative:
     def test_start_missing_idempotency(self, student_api, assessment):
         resp = student_api.post(
             f"/api/assessment/{assessment.pk}/start/",
+            HTTP_IDEMPOTENCY_KEY=None,
         )
         _assert_error_envelope(resp)
 
@@ -168,6 +169,7 @@ class TestAssessmentNegative:
         session_id = start_resp.data["id"]
         resp = student_api.post(
             f"/api/assessment/sessions/{session_id}/complete/",
+            HTTP_IDEMPOTENCY_KEY=None,
         )
         _assert_error_envelope(resp)
 

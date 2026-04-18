@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dashboard\services.py
+# hypothesis_version: 6.151.9
+
+[0.3, 0.35, 100, 'ALERT_EXPIRY_DAYS', 'INACTIVITY_RED_DAYS', 'active_alerts', 'attempt_count', 'avg', 'avg_completion_pct', 'avg_mastery', 'completed', 'concept', 'concept_id', 'correct_count', 'data_sufficient', 'days_inactive', 'fail_count', 'id', 'last', 'last_active', 'needs_attention', 'needs_intervention', 'on_track', 'p_mastery', 'palp', 'student', 'task__concept__name', 'task__concept_id', 'timestamp_utc', 'total', 'total_students']

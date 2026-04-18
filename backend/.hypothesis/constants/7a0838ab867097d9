@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\constants.py
+# hypothesis_version: 6.151.9
+
+[600, 1800, 'celery', 'default', 'events_dlq', 'events_high']

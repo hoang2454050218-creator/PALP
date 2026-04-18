@@ -30,7 +30,10 @@ class TestCompleteLecturerWorkflow:
 
         dismiss_resp = lecturer_api.post(
             f"/api/dashboard/alerts/{alert.pk}/dismiss/",
-            {"dismiss_note": "SV bao nghi om"},
+            {
+                "dismiss_reason_code": Alert.DismissReason.STUDENT_LEAVE.value,
+                "dismiss_note": "SV bao nghi om",
+            },
             format="json",
         )
         assert dismiss_resp.status_code == 200

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\etl\outliers.py
+# hypothesis_version: 6.151.9
+
+[0.25, 0.75, 1.5, 3.0, '_outlier_flags', 'action', 'column', 'flagged_by', 'iqr', 'palp.etl', 'pending_review', 'row_index', 'student_id', 'value', 'z_score', 'zscore']

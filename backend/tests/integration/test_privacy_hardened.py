@@ -224,7 +224,7 @@ class TestPRG06NoPIILeak:
 class TestPRG07NoTierConfusion:
     """Deleting one tier must not affect other tiers."""
 
-    def test_delete_behavioral_preserves_inference(self, student, student_api):
+    def test_delete_behavioral_preserves_inference(self, student, student_api, concepts):
         from adaptive.models import MasteryState
 
         for purpose in ["academic", "behavioral", "inference"]:
@@ -235,7 +235,7 @@ class TestPRG07NoTierConfusion:
 
         MasteryState.objects.create(
             student=student,
-            concept_id=1,
+            concept=concepts[0],
             p_mastery=0.75,
         )
 
@@ -254,7 +254,7 @@ class TestPRG07NoTierConfusion:
             "Deleting behavioral tier should not delete inference (mastery) data"
         )
 
-    def test_delete_inference_preserves_pii(self, student, student_api):
+    def test_delete_inference_preserves_pii(self, student, student_api, concepts):
         from adaptive.models import MasteryState
 
         for purpose in ["academic", "behavioral", "inference"]:
@@ -262,7 +262,7 @@ class TestPRG07NoTierConfusion:
                 user=student, purpose=purpose, granted=True, version="1.0",
             )
 
-        MasteryState.objects.create(student=student, concept_id=1, p_mastery=0.5)
+        MasteryState.objects.create(student=student, concept=concepts[0], p_mastery=0.5)
 
         original_email = student.email
 

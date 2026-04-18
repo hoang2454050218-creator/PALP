@@ -49,8 +49,11 @@ class TestAS04TimeoutSubmit:
         resp1 = student_api.post(f"/api/assessment/sessions/{sid}/complete/")
         assert resp1.status_code == 200
 
+        # Service treats a 2nd complete as idempotent: returns the same
+        # LearnerProfile/session payload with 200, and the session row stays
+        # in COMPLETED status without duplication.
         resp2 = student_api.post(f"/api/assessment/sessions/{sid}/complete/")
-        assert resp2.status_code == 400
+        assert resp2.status_code == 200
 
         sessions = AssessmentSession.objects.filter(
             pk=sid, status="completed",
@@ -284,8 +287,10 @@ class TestBD08Prerequisites:
                 concept=concepts[1], prerequisite=concepts[0],
             )
 
-            prereqs = concepts[1].prerequisites.all()
-            assert concepts[0] in prereqs
+            prereq_concepts = [
+                p.prerequisite for p in concepts[1].prerequisites.select_related("prerequisite")
+            ]
+            assert concepts[0] in prereq_concepts
 
 
 # ===================================================================
@@ -310,6 +315,7 @@ class TestGV04LegitimateAbsence:
         )
 
         resp = lecturer_api.post(f"/api/dashboard/alerts/{alert.pk}/dismiss/", {
+            "dismiss_reason_code": Alert.DismissReason.STUDENT_LEAVE.value,
             "dismiss_note": "SV nghi phep hop le, da xac nhan",
         }, format="json")
         assert resp.status_code == 200

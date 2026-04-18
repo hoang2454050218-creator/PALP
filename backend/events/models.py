@@ -1,6 +1,7 @@
 import uuid
-from django.db import models
 from django.conf import settings
+from django.db import models
+from django.utils import timezone
 
 
 class EventLog(models.Model):
@@ -10,16 +11,25 @@ class EventLog(models.Model):
         SESSION_STARTED = "session_started", "Bắt đầu phiên"
         SESSION_ENDED = "session_ended", "Kết thúc phiên"
         ASSESSMENT_COMPLETED = "assessment_completed", "Hoàn thành assessment"
+        ASSESS_ANSWER = "assess_answer", "Trả lời câu hỏi assessment"
+        ASSESS_COMPLETE = "assess_complete", "Nộp bài assessment"
+        ASSESS_EXPIRED = "assess_expired", "Hết giờ assessment"
+        ASSESS_RESUMED = "assess_resumed", "Tiếp tục assessment"
         MICRO_TASK_COMPLETED = "micro_task_completed", "Hoàn thành micro-task"
         CONTENT_INTERVENTION = "content_intervention", "Can thiệp nội dung"
         RETRY_TRIGGERED = "retry_triggered", "Retry triggered"
         GV_DASHBOARD_VIEWED = "gv_dashboard_viewed", "GV xem dashboard"
         GV_ACTION_TAKEN = "gv_action_taken", "GV thực hiện can thiệp"
+        ALERT_DISMISSED = "alert_dismissed", "Bỏ qua cảnh báo"
+        INTERVENTION_CREATED = "intervention_created", "Tạo can thiệp"
         WELLBEING_NUDGE = "wellbeing_nudge", "Nhắc nghỉ"
         WELLBEING_NUDGE_SHOWN = "wellbeing_nudge_shown", "Hiện nhắc nghỉ"
         WELLBEING_NUDGE_ACCEPTED = "wellbeing_nudge_accepted", "Chấp nhận nghỉ"
         WELLBEING_NUDGE_DISMISSED = "wellbeing_nudge_dismissed", "Bỏ qua nhắc nghỉ"
         PAGE_VIEW = "page_view", "Xem trang"
+        ETL_STARTED = "etl_started", "ETL bắt đầu"
+        ETL_COMPLETED = "etl_completed", "ETL hoàn thành"
+        ETL_FAILED = "etl_failed", "ETL thất bại"
 
     class ActorType(models.TextChoices):
         STUDENT = "student", "Sinh viên"
@@ -42,7 +52,7 @@ class EventLog(models.Model):
 
     event_name = models.CharField(max_length=50, choices=EventName.choices, db_index=True)
     event_version = models.CharField(max_length=10, default=CURRENT_VERSION)
-    timestamp_utc = models.DateTimeField(db_index=True)
+    timestamp_utc = models.DateTimeField(default=timezone.now, db_index=True)
     client_timestamp = models.DateTimeField(null=True, blank=True)
 
     actor_type = models.CharField(max_length=15, choices=ActorType.choices, db_index=True)
@@ -108,6 +118,12 @@ class EventLog(models.Model):
             models.Index(fields=["course", "event_name"]),
             models.Index(fields=["actor", "event_name", "timestamp_utc"]),
             models.Index(fields=["session_id", "timestamp_utc"]),
+            # Hot-path index for early warning's "last activity per actor"
+            # GROUP BY query in dashboard.services.compute_early_warnings.
+            models.Index(
+                fields=["actor", "-timestamp_utc"],
+                name="palp_event_actor_ts_desc",
+            ),
         ]
 
     def __str__(self):

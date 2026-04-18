@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="consentrecord",
-            index=models.Index(fields=["user", "purpose", "-created_at"]),
+            index=models.Index(fields=["user", "purpose", "-created_at"], name="palp_consent_user_purpose_idx"),
         ),
         migrations.CreateModel(
             name="AuditLog",
@@ -53,15 +53,15 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="auditlog",
-            index=models.Index(fields=["actor", "-created_at"]),
+            index=models.Index(fields=["actor", "-created_at"], name="palp_audit_actor_idx"),
         ),
         migrations.AddIndex(
             model_name="auditlog",
-            index=models.Index(fields=["target_user", "-created_at"]),
+            index=models.Index(fields=["target_user", "-created_at"], name="palp_audit_target_idx"),
         ),
         migrations.AddIndex(
             model_name="auditlog",
-            index=models.Index(fields=["action", "-created_at"]),
+            index=models.Index(fields=["action", "-created_at"], name="palp_audit_action_idx"),
         ),
         migrations.CreateModel(
             name="PrivacyIncident",

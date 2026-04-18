@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\events\emitter.py
+# hypothesis_version: 6.151.9
+
+[300, 'admin', 'clock_skew_detected', 'clock_skew_seconds', 'confirmed_at', 'created', 'deduplicated', 'error', 'id', 'lecturer', 'palp.events', 'role', 'student']

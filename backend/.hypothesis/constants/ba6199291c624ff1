@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\adaptive\engine.py
+# hypothesis_version: 6.151.9
+
+[0.01, 0.99, 300, 'MASTERY_HIGH', 'MASTERY_LOW', 'P_GUESS', 'P_L0', 'P_SLIP', 'P_TRANSIT', 'action', 'advance', 'bkt_high_mastery', 'bkt_low_mastery', 'body', 'content_type', 'continue', 'id', 'intervention_id', 'intervention_type', 'media_url', 'message', 'next_concept_id', 'order', 'p_guess', 'p_mastery', 'p_slip', 'p_transit', 'palp', 'supplement', 'supplementary', 'title']

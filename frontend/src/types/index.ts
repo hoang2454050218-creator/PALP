@@ -28,6 +28,24 @@ export interface Course {
   milestone_count: number;
 }
 
+export interface StudentClass {
+  id: number;
+  name: string;
+  academic_year: string;
+  student_count?: number;
+  created_at?: string;
+}
+
+export interface Enrollment {
+  id: number;
+  student: number;
+  course: Course;
+  student_class: number | null;
+  semester: string;
+  enrolled_at: string;
+  is_active: boolean;
+}
+
 export interface Concept {
   id: number;
   code: string;
@@ -46,6 +64,19 @@ export interface Milestone {
   task_count: number;
 }
 
+export interface MilestoneDetail extends Milestone {
+  course: number;
+  concept_ids: number[];
+  tasks: MicroTask[];
+}
+
+export interface MicroTaskContent {
+  question?: string;
+  options?: string[];
+  answer?: string;
+  explanation?: string;
+}
+
 export interface MicroTask {
   id: number;
   milestone: number;
@@ -56,7 +87,7 @@ export interface MicroTask {
   task_type: string;
   difficulty: number;
   estimated_minutes: number;
-  content: Record<string, unknown>;
+  content: MicroTaskContent | Record<string, unknown>;
   max_score: number;
   order: number;
 }
@@ -231,6 +262,24 @@ export interface DeletionRequest {
   result_summary: Record<string, unknown>;
   requested_at: string;
   completed_at: string | null;
+}
+
+export type WellbeingNudgeType = "break_reminder" | "stretch" | "hydrate";
+export type WellbeingNudgeResponse = "shown" | "accepted" | "dismissed";
+
+export interface WellbeingNudge {
+  id: number;
+  nudge_type: WellbeingNudgeType;
+  response: WellbeingNudgeResponse;
+  continuous_minutes: number;
+  created_at: string;
+  responded_at: string | null;
+}
+
+export interface WellbeingCheckResponse {
+  should_nudge: boolean;
+  nudge?: WellbeingNudge;
+  message?: string;
 }
 
 export interface DataExportResponse {

@@ -2,28 +2,40 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, BookOpen, Route, ClipboardCheck,
   AlertTriangle, History, LogOut, GraduationCap,
-  Shield, X,
+  Shield, Network, Settings, X, Heart,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, displayName } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { useCourseContext } from "@/hooks/use-course-context";
 import { Button } from "@/components/ui/button";
+import { CourseSelector } from "@/components/shared/course-selector";
+
+const ROLE_LABELS: Record<string, string> = {
+  student: "Sinh viên",
+  lecturer: "Giảng viên",
+  admin: "Quản trị viên",
+};
 
 const studentNav = [
   { href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/assessment", label: "Đánh giá đầu vào", icon: ClipboardCheck },
   { href: "/pathway", label: "Lộ trình học", icon: Route },
   { href: "/task", label: "Bài tập", icon: BookOpen },
+  { href: "/wellbeing", label: "Sức khỏe học tập", icon: Heart },
+  { href: "/preferences", label: "Tùy chỉnh", icon: Settings },
   { href: "/privacy", label: "Quyền riêng tư", icon: Shield },
 ];
 
 const lecturerNav = [
   { href: "/overview", label: "Tổng quan lớp", icon: LayoutDashboard },
   { href: "/alerts", label: "Cảnh báo", icon: AlertTriangle },
+  { href: "/knowledge-graph", label: "Đồ thị kiến thức", icon: Network },
   { href: "/history", label: "Lịch sử can thiệp", icon: History },
+  { href: "/preferences", label: "Tùy chỉnh", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -33,11 +45,19 @@ interface SidebarProps {
 
 export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
+  const resetCourseContext = useCourseContext((s) => s.reset);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const navItems = user?.role === "lecturer" ? lecturerNav : studentNav;
+  const navItems = user?.role === "lecturer" || user?.role === "admin" ? lecturerNav : studentNav;
+
+  const handleLogout = async () => {
+    await logout();
+    resetCourseContext();
+    router.replace("/login");
+  };
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -97,6 +117,10 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
         )}
       </div>
 
+      <div className="border-b px-4 py-3">
+        <CourseSelector />
+      </div>
+
       <nav className="flex-1 space-y-1 p-4" aria-label="Điều hướng chính">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
@@ -123,16 +147,18 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
       <div className="border-t p-4">
         <div className="mb-3 flex items-center gap-3 px-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-semibold" aria-hidden="true">
-            {user?.first_name?.[0] || "U"}
+            {(user?.first_name?.[0] || user?.username?.[0] || "U").toUpperCase()}
           </div>
           <div className="flex-1 truncate">
             <p className="text-sm font-medium truncate">
-              {user?.last_name} {user?.first_name}
+              {displayName(user, "Khách")}
             </p>
-            <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+            <p className="text-xs text-muted-foreground">
+              {user?.role ? ROLE_LABELS[user.role] ?? user.role : ""}
+            </p>
           </div>
         </div>
-        <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={logout}>
+        <Button variant="ghost" size="sm" className="w-full justify-start gap-2" onClick={handleLogout}>
           <LogOut className="h-4 w-4" aria-hidden="true" />
           Đăng xuất
         </Button>

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dashboard\models.py
+# hypothesis_version: 6.151.9
+
+['-created_at', 'Báo nhầm', 'Chậm tiến độ', 'Chờ phản hồi', 'Cần can thiệp', 'Cần chú ý', 'Gợi ý bài tập', 'Gửi tin nhắn', 'Hết hạn', 'Khác', 'Không hoạt động', 'Không phản hồi', 'Mastery thấp', 'On-track', 'SV nghỉ phép', 'SV đã phản hồi', 'Thất bại nhiều lần', 'Xử lý ngoài hệ thống', 'actions', 'active', 'alerts', 'concept', 'curriculum.Concept', 'curriculum.Milestone', 'dismissed', 'dismissed_alerts', 'expired', 'false_positive', 'green', 'inactivity', 'intervention_actions', 'low_mastery', 'milestone_lag', 'no_response', 'other', 'palp_alert', 'pending', 'red', 'resolved', 'resolved_offline', 'retry_failure', 'schedule_meeting', 'send_message', 'severity', 'status', 'student', 'student_class', 'student_leave', 'student_responded', 'suggest_task', 'trigger_type', 'yellow', 'Đang mở', 'Đã bỏ qua', 'Đã xử lý', 'Đặt lịch gặp']

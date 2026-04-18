@@ -13,9 +13,13 @@ import { api } from "@/lib/api";
 import { SEVERITY_CONFIG, TRIGGER_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
 import type { Alert } from "@/types";
 
 export default function AlertsPage() {
+  useEnsureCourseContext("lecturer");
+  const classId = useCourseContext((s) => s.classId);
+  const ctxLoading = useCourseContext((s) => s.loading);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -25,13 +29,15 @@ export default function AlertsPage() {
 
   useEffect(() => {
     loadAlerts();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [classId]);
 
   const loadAlerts = async () => {
     setLoading(true);
     setError(false);
     try {
-      const data = await api.get<any>("/dashboard/alerts/?status=active");
+      const qs = classId ? `?class_id=${classId}&status=active` : "?status=active";
+      const data = await api.get<Alert[] | { results: Alert[] }>(`/dashboard/alerts/${qs}`);
       const list = Array.isArray(data) ? data : data.results || [];
       setAlerts(list);
     } catch {
@@ -126,7 +132,7 @@ export default function AlertsPage() {
       </div>
 
       <div className="space-y-4" aria-live="polite">
-        {loading ? (
+        {loading || ctxLoading ? (
           <>
             <AlertCardSkeleton />
             <AlertCardSkeleton />
@@ -137,11 +143,11 @@ export default function AlertsPage() {
             const config = SEVERITY_CONFIG[alert.severity];
             const SeverityIcon = config.icon;
             return (
-              <Card key={alert.id} className={alert.severity === "red" ? "border-red-200" : ""}>
+              <Card key={alert.id} className={alert.severity === "red" ? "border-danger/40" : ""}>
                 <CardContent className="pt-6">
                   <div className="flex items-start gap-4">
                     <div className="mt-0.5 shrink-0" aria-hidden="true">
-                      <SeverityIcon className={`h-5 w-5 ${alert.severity === "red" ? "text-red-600" : alert.severity === "yellow" ? "text-yellow-600" : "text-green-600"}`} />
+                      <SeverityIcon className={`h-5 w-5 ${alert.severity === "red" ? "text-danger" : alert.severity === "yellow" ? "text-warning" : "text-success"}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -156,9 +162,9 @@ export default function AlertsPage() {
                         <p className="text-xs text-muted-foreground">Concept: {alert.concept_name}</p>
                       )}
                       {alert.suggested_action && (
-                        <div className="mt-3 rounded-md bg-blue-50 p-3">
-                          <p className="text-xs font-medium text-blue-900">Hành động gợi ý:</p>
-                          <p className="text-xs text-blue-700 mt-1">{alert.suggested_action}</p>
+                        <div className="mt-3 rounded-md bg-info/10 border border-info/30 p-3">
+                          <p className="text-xs font-medium text-info-foreground">Hành động gợi ý:</p>
+                          <p className="text-xs text-info-foreground/80 mt-1">{alert.suggested_action}</p>
                         </div>
                       )}
 
@@ -222,7 +228,7 @@ export default function AlertsPage() {
         ) : (
           <Card>
             <CardContent className="py-12 text-center">
-              <CheckCircle2 className="mx-auto h-12 w-12 text-green-500/60 mb-4" aria-hidden="true" />
+              <CheckCircle2 className="mx-auto h-12 w-12 text-success/60 mb-4" aria-hidden="true" />
               <p className="font-medium text-lg mb-1">Tất cả sinh viên đang ổn định</p>
               <p className="text-sm text-muted-foreground">
                 {filter !== "all"

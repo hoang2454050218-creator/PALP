@@ -12,13 +12,13 @@ describe('Mastery thresholds alignment with BKT rules', () => {
   const MID = [0.6, 0.7, 0.84]
   const HIGH = [0.85, 0.9, 1.0]
 
-  describe('PATH-001: P < 0.60 -> supplement (red/low)', () => {
-    it.each(LOW)('mastery %f -> red color', (p) => {
-      expect(masteryColor(p)).toBe('text-red-600')
+  describe('PATH-001: P < 0.60 -> supplement (danger/low)', () => {
+    it.each(LOW)('mastery %f -> danger color', (p) => {
+      expect(masteryColor(p)).toBe('text-danger')
     })
 
-    it.each(LOW)('mastery %f -> red bg', (p) => {
-      expect(masteryBg(p)).toBe('bg-red-500')
+    it.each(LOW)('mastery %f -> danger bg', (p) => {
+      expect(masteryBg(p)).toBe('bg-danger')
     })
 
     it.each(LOW)('mastery %f -> "Cần bổ sung" label', (p) => {
@@ -26,13 +26,13 @@ describe('Mastery thresholds alignment with BKT rules', () => {
     })
   })
 
-  describe('PATH-002: 0.60 <= P <= 0.85 -> continue (yellow/medium)', () => {
-    it.each(MID)('mastery %f -> yellow color', (p) => {
-      expect(masteryColor(p)).toBe('text-yellow-600')
+  describe('PATH-002: 0.60 <= P <= 0.85 -> continue (warning/medium)', () => {
+    it.each(MID)('mastery %f -> warning color', (p) => {
+      expect(masteryColor(p)).toBe('text-warning')
     })
 
-    it.each(MID)('mastery %f -> yellow bg', (p) => {
-      expect(masteryBg(p)).toBe('bg-yellow-500')
+    it.each(MID)('mastery %f -> warning bg', (p) => {
+      expect(masteryBg(p)).toBe('bg-warning')
     })
 
     it.each(MID)('mastery %f -> "Đang tiến bộ" label', (p) => {
@@ -40,13 +40,13 @@ describe('Mastery thresholds alignment with BKT rules', () => {
     })
   })
 
-  describe('PATH-003: P > 0.85 -> advance (green/high)', () => {
-    it.each(HIGH)('mastery %f -> green color', (p) => {
-      expect(masteryColor(p)).toBe('text-green-600')
+  describe('PATH-003: P > 0.85 -> advance (success/high)', () => {
+    it.each(HIGH)('mastery %f -> success color', (p) => {
+      expect(masteryColor(p)).toBe('text-success')
     })
 
-    it.each(HIGH)('mastery %f -> green bg', (p) => {
-      expect(masteryBg(p)).toBe('bg-green-500')
+    it.each(HIGH)('mastery %f -> success bg', (p) => {
+      expect(masteryBg(p)).toBe('bg-success')
     })
 
     it.each(HIGH)('mastery %f -> "Đã nắm vững" label', (p) => {
@@ -55,22 +55,22 @@ describe('Mastery thresholds alignment with BKT rules', () => {
   })
 
   describe('Boundary exactness', () => {
-    it('0.60 is yellow (not red)', () => {
-      expect(masteryColor(0.6)).toBe('text-yellow-600')
+    it('0.60 is warning (not danger)', () => {
+      expect(masteryColor(0.6)).toBe('text-warning')
       expect(getMasteryLabel(0.6)).toBe('Đang tiến bộ')
     })
 
-    it('0.85 is green (not yellow)', () => {
-      expect(masteryColor(0.85)).toBe('text-green-600')
+    it('0.85 is success (not warning)', () => {
+      expect(masteryColor(0.85)).toBe('text-success')
       expect(getMasteryLabel(0.85)).toBe('Đã nắm vững')
     })
 
-    it('0.5999 is red', () => {
-      expect(masteryColor(0.5999)).toBe('text-red-600')
+    it('0.5999 is danger', () => {
+      expect(masteryColor(0.5999)).toBe('text-danger')
     })
 
-    it('0.8499 is yellow', () => {
-      expect(masteryColor(0.8499)).toBe('text-yellow-600')
+    it('0.8499 is warning', () => {
+      expect(masteryColor(0.8499)).toBe('text-warning')
     })
   })
 })

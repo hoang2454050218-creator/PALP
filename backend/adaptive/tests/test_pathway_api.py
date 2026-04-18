@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from adaptive.models import MasteryState, TaskAttempt
@@ -5,6 +7,10 @@ from adaptive.models import MasteryState, TaskAttempt
 pytestmark = pytest.mark.django_db
 
 URL = "/api/adaptive/"
+
+
+def _idem():
+    return {"HTTP_IDEMPOTENCY_KEY": str(uuid.uuid4())}
 
 
 class TestMyMastery:
@@ -28,7 +34,7 @@ class TestSubmitTaskAttempt:
                 "duration_seconds": 30,
                 "hints_used": 0,
             },
-            format="json",
+            format="json", **_idem(),
         )
         assert resp.status_code == 200
         assert resp.data["attempt"]["is_correct"] is True
@@ -43,7 +49,7 @@ class TestSubmitTaskAttempt:
                 "duration_seconds": 30,
                 "hints_used": 0,
             },
-            format="json",
+            format="json", **_idem(),
         )
         mastery = MasteryState.objects.get(
             student=student, concept=task.concept,
@@ -60,7 +66,7 @@ class TestSubmitTaskAttempt:
                 "duration_seconds": 15,
                 "hints_used": 0,
             },
-            format="json",
+            format="json", **_idem(),
         )
         assert resp.status_code == 200
         assert resp.data["attempt"]["is_correct"] is False
@@ -74,8 +80,8 @@ class TestSubmitTaskAttempt:
             "hints_used": 0,
         }
 
-        r1 = student_api.post(f"{URL}submit/", payload, format="json")
-        r2 = student_api.post(f"{URL}submit/", payload, format="json")
+        r1 = student_api.post(f"{URL}submit/", payload, format="json", **_idem())
+        r2 = student_api.post(f"{URL}submit/", payload, format="json", **_idem())
 
         assert r1.data["attempt"]["attempt_number"] == 1
         assert r2.data["attempt"]["attempt_number"] == 2

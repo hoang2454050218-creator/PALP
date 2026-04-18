@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django_celery_beat",
     "drf_spectacular",
     "django_prometheus",
+    "axes",
     # Local apps
     "accounts",
     "assessment",
@@ -33,10 +34,14 @@ INSTALLED_APPS = [
     "events",
     "wellbeing",
     "privacy",
+    "featureflags",
+    "experiments",
 ]
 
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "palp.middleware.RequestIDMiddleware",
+    "palp.middleware.RequestIDLoggingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -44,7 +49,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "palp.middleware.RequestIDMiddleware",
+    "accounts.middleware.AuthAuditMiddleware",
     "palp.middleware.RequestTimingMiddleware",
     "palp.middleware.RequestMetricsMiddleware",
     "palp.metrics_middleware.PrometheusMetricsMiddleware",
@@ -52,7 +57,15 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "privacy.middleware.ConsentGateMiddleware",
     "privacy.middleware.AuditMiddleware",
+    # Axes must be the LAST middleware so it sees authentication results.
+    "axes.middleware.AxesMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+]
+
+AUTHENTICATION_BACKENDS = [
+    # Axes must be FIRST so it can short-circuit locked-out attempts.
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 ROOT_URLCONF = "palp.urls"
@@ -164,7 +177,10 @@ SPECTACULAR_SETTINGS = {
 
 # Celery
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/1")
-CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get(
+    "CELERY_RESULT_BACKEND",
+    os.environ.get("REDIS_URL", "redis://localhost:6379/2"),
+)
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
@@ -173,6 +189,20 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 300
 CELERY_TASK_SOFT_TIME_LIMIT = 240
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 500
+
+# Per-task routing -- hot-path event emission goes to a high-priority queue
+# with retries + DLQ so SubmitTaskAttempt etc. don't block on event writes.
+CELERY_TASK_ROUTES = {
+    "events.tasks.emit_event_task": {"queue": "events_high"},
+    "events.tasks.dead_letter_event": {"queue": "events_dlq"},
+}
+CELERY_TASK_QUEUES_DEFAULT = ("celery", "default", "events_high", "events_dlq")
+
+# Toggle async event emission. OFF by default for local dev / tests so the
+# stack stays predictable; production compose flips it ON.
+PALP_ASYNC_EVENTS = os.environ.get("PALP_ASYNC_EVENTS", "false").lower() in (
+    "true", "1", "yes",
+)
 
 from celery.schedules import crontab  # noqa: E402
 
@@ -192,6 +222,14 @@ CELERY_BEAT_SCHEDULE = {
     "queue-backlog-check": {
         "task": "analytics.tasks.check_queue_backlog",
         "schedule": crontab(minute="*/3"),
+    },
+    "backup-age-metric": {
+        "task": "analytics.tasks.update_backup_age_metric",
+        "schedule": crontab(minute="*/15"),
+    },
+    "weekly-restore-drill": {
+        "task": "analytics.tasks.weekly_restore_drill",
+        "schedule": crontab(hour=3, minute=0, day_of_week="sunday"),
     },
     "privacy-retention-enforcement": {
         "task": "privacy.enforce_retention",
@@ -214,6 +252,7 @@ PALP_BKT_DEFAULTS = {
 PALP_ADAPTIVE_THRESHOLDS = {
     "MASTERY_LOW": 0.60,
     "MASTERY_HIGH": 0.85,
+    "MIN_ATTEMPTS_FOR_ADVANCE": 3,
 }
 
 PALP_WELLBEING = {
@@ -253,6 +292,40 @@ PALP_EVENTS_REQUIRING_CONFIRMATION = [
 
 PROMETHEUS_METRICS_EXPORT_PORT_RANGE = range(8001, 8050)
 PROMETHEUS_METRICS_EXPORT_ADDRESS = ""
+
+# Networks allowed to scrape /metrics. Override via env in production if the
+# scraper sits outside the standard private ranges (e.g. dedicated monitoring VPC).
+_metrics_networks_raw = os.environ.get("PALP_METRICS_ALLOWED_NETWORKS", "")
+if _metrics_networks_raw:
+    PALP_METRICS_ALLOWED_NETWORKS = tuple(
+        n.strip() for n in _metrics_networks_raw.split(",") if n.strip()
+    )
+else:
+    PALP_METRICS_ALLOWED_NETWORKS = (
+        "127.0.0.0/8",
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "::1/128",
+        "fc00::/7",
+    )
+
+# Celery monitored queues (used by check_queue_backlog + deep health view).
+# Sourced from analytics.constants so the canonical list lives in one place.
+from analytics.constants import CELERY_DEFAULT_QUEUES as _CELERY_DEFAULT_QUEUES  # noqa: E402
+
+PALP_CELERY_MONITORED_QUEUES = _CELERY_DEFAULT_QUEUES
+
+# Backup volume mount path (shared between backup container and Django).
+PALP_BACKUP_DIR = os.environ.get("PALP_BACKUP_DIR", "/backups")
+
+# Restore drill freshness threshold for release gate (default 14 days).
+PALP_RESTORE_DRILL_MAX_AGE_DAYS = int(
+    os.environ.get("PALP_RESTORE_DRILL_MAX_AGE_DAYS", 14)
+)
+PALP_BACKUP_MAX_AGE_HOURS = int(
+    os.environ.get("PALP_BACKUP_MAX_AGE_HOURS", 26)
+)
 
 LOGGING = {
     "version": 1,
@@ -324,6 +397,33 @@ PALP_PRIVACY = {
 
 # Security: PII encryption key (Fernet-compatible, 32-byte base64-encoded)
 PII_ENCRYPTION_KEY = os.environ.get("PII_ENCRYPTION_KEY", "")
+
+# django-axes brute-force protection
+AXES_FAILURE_LIMIT = int(os.environ.get("AXES_FAILURE_LIMIT", 10))
+AXES_COOLOFF_TIME = timedelta(
+    minutes=int(os.environ.get("AXES_COOLOFF_MINUTES", 30))
+)
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+# Default DB handler -- swap to AxesCacheHandler in production after we
+# enable a Redis cache namespace dedicated to axes (Sprint 5 Vault work).
+AXES_HANDLER = "axes.handlers.database.AxesDatabaseHandler"
+AXES_VERBOSE = False
+AXES_RESET_COOL_OFF_ON_FAILURE_DURING_LOCKOUT = False
+# hCaptcha kicks in earlier than the lockout to provide a self-serve recovery
+# instead of forcing the user to wait the full cool-off.
+AXES_CAPTCHA_TRIGGER_FAILURES = int(
+    os.environ.get("AXES_CAPTCHA_TRIGGER_FAILURES", 3)
+)
+
+# hCaptcha (https://www.hcaptcha.com/). Test keys are safe in dev: any answer
+# verifies. Override with real keys via env in production.
+HCAPTCHA_SITE_KEY = os.environ.get(
+    "HCAPTCHA_SITE_KEY", "10000000-ffff-ffff-ffff-000000000001"
+)
+HCAPTCHA_SECRET_KEY = os.environ.get(
+    "HCAPTCHA_SECRET_KEY", "0x0000000000000000000000000000000000000000"
+)
 
 # Audit log: paths that trigger logging
 AUDIT_SENSITIVE_PREFIXES = [

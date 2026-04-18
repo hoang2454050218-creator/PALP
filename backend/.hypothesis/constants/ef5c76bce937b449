@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\experiments\models.py
+# hypothesis_version: 6.151.9
+
+['-created_at', 'Nháp', "Số (Welch's t-test)", 'Tạm dừng', 'assignments', 'binary', 'draft', 'ended', 'experiment', 'name', 'numeric', 'palp_experiment', 'paused', 'running', 'user', 'variant', 'variants', 'Đang chạy', 'Đã kết thúc']

@@ -99,6 +99,9 @@ class LogoutView(APIView):
 class TokenRefreshCookieView(APIView):
     """Refresh using the HttpOnly cookie instead of request body."""
 
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         refresh_token = (
             request.data.get("refresh")

@@ -12,22 +12,26 @@ import { ErrorState } from "@/components/shared/error-state";
 import { StatCardSkeleton, CardSkeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { SEVERITY_CONFIG } from "@/lib/constants";
+import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
 import type { ClassOverview, Alert } from "@/types";
 import Link from "next/link";
 
 export default function LecturerOverview() {
+  useEnsureCourseContext("lecturer");
+  const classId = useCourseContext((s) => s.classId);
+  const ctxLoading = useCourseContext((s) => s.loading);
   const [overview, setOverview] = useState<ClassOverview | null>(null);
   const [recentAlerts, setRecentAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  async function load() {
+  async function load(id: number) {
     setLoading(true);
     setError(false);
     try {
       const [ov, alerts] = await Promise.all([
-        api.get<ClassOverview>("/dashboard/class/1/overview/"),
-        api.get<any>("/dashboard/alerts/?class_id=1&status=active"),
+        api.get<ClassOverview>(`/dashboard/class/${id}/overview/`),
+        api.get<Alert[] | { results: Alert[] }>(`/dashboard/alerts/?class_id=${id}&status=active`),
       ]);
       setOverview(ov);
       const alertList = Array.isArray(alerts) ? alerts : alerts.results || [];
@@ -40,8 +44,8 @@ export default function LecturerOverview() {
   }
 
   useEffect(() => {
-    load();
-  }, []);
+    if (classId != null) load(classId);
+  }, [classId]);
 
   if (error) {
     return (
@@ -50,13 +54,13 @@ export default function LecturerOverview() {
         <ErrorState
           title="Không thể tải dữ liệu lớp học"
           message="Vui lòng kiểm tra kết nối mạng và thử lại."
-          onRetry={load}
+          onRetry={() => classId != null && load(classId)}
         />
       </div>
     );
   }
 
-  if (loading) {
+  if (loading || ctxLoading) {
     return (
       <div>
         <PageHeader title="Tổng quan lớp học" description="Dashboard giảng viên — Sức Bền Vật Liệu" />
@@ -140,25 +144,25 @@ export default function LecturerOverview() {
                   </div>
                   <Progress
                     value={overview.avg_completion_pct}
-                    indicatorClassName="bg-green-500"
+                    indicatorClassName="bg-success"
                     aria-label={`Hoàn thành trung bình: ${overview.avg_completion_pct.toFixed(0)}%`}
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-4 pt-2">
-                  <div className="text-center rounded-lg bg-green-50 p-3">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mx-auto mb-1" aria-hidden="true" />
-                    <p className="text-2xl font-bold text-green-700">{overview.on_track}</p>
-                    <p className="text-xs text-green-600">Ổn định</p>
+                  <div className="text-center rounded-lg bg-success/10 border border-success/30 p-3">
+                    <CheckCircle2 className="h-4 w-4 text-success mx-auto mb-1" aria-hidden="true" />
+                    <p className="text-2xl font-bold text-success-foreground">{overview.on_track}</p>
+                    <p className="text-xs text-success-foreground/80">Ổn định</p>
                   </div>
-                  <div className="text-center rounded-lg bg-yellow-50 p-3">
-                    <AlertCircle className="h-4 w-4 text-yellow-600 mx-auto mb-1" aria-hidden="true" />
-                    <p className="text-2xl font-bold text-yellow-700">{overview.needs_attention}</p>
-                    <p className="text-xs text-yellow-600">Theo dõi</p>
+                  <div className="text-center rounded-lg bg-warning/10 border border-warning/30 p-3">
+                    <AlertCircle className="h-4 w-4 text-warning mx-auto mb-1" aria-hidden="true" />
+                    <p className="text-2xl font-bold text-warning-foreground">{overview.needs_attention}</p>
+                    <p className="text-xs text-warning-foreground/80">Theo dõi</p>
                   </div>
-                  <div className="text-center rounded-lg bg-red-50 p-3">
-                    <AlertTriangle className="h-4 w-4 text-red-600 mx-auto mb-1" aria-hidden="true" />
-                    <p className="text-2xl font-bold text-red-700">{overview.needs_intervention}</p>
-                    <p className="text-xs text-red-600">Can thiệp</p>
+                  <div className="text-center rounded-lg bg-danger/10 border border-danger/30 p-3">
+                    <AlertTriangle className="h-4 w-4 text-danger mx-auto mb-1" aria-hidden="true" />
+                    <p className="text-2xl font-bold text-danger-foreground">{overview.needs_intervention}</p>
+                    <p className="text-xs text-danger-foreground/80">Can thiệp</p>
                   </div>
                 </div>
               </div>
@@ -192,8 +196,8 @@ export default function LecturerOverview() {
                     <div key={alert.id} className="flex items-start gap-3 rounded-lg border p-3">
                       <SeverityIcon
                         className={`h-4 w-4 mt-0.5 shrink-0 ${
-                          alert.severity === "red" ? "text-red-600" :
-                          alert.severity === "yellow" ? "text-yellow-600" : "text-green-600"
+                          alert.severity === "red" ? "text-danger" :
+                          alert.severity === "yellow" ? "text-warning" : "text-success"
                         }`}
                         aria-hidden="true"
                       />
@@ -210,7 +214,7 @@ export default function LecturerOverview() {
               </div>
             ) : (
               <div className="text-center py-6">
-                <CheckCircle2 className="h-10 w-10 text-green-500/60 mx-auto mb-3" aria-hidden="true" />
+                <CheckCircle2 className="h-10 w-10 text-success/60 mx-auto mb-3" aria-hidden="true" />
                 <p className="font-medium mb-1">Không có cảnh báo mới</p>
                 <p className="text-sm text-muted-foreground">
                   Tất cả sinh viên đang tiến triển bình thường.

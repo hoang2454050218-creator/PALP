@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\analytics\monitoring.py
+# hypothesis_version: 6.151.9
+
+[86400, 'Task FAILED: %s — %s', 'error', 'failure', 'failures', 'last_success', 'palp.celery', 'reason', 'retries', 'retry', 'runtime', 'status', 'success', 'successes', 'task', 'unknown']

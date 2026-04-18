@@ -254,7 +254,10 @@ class TestAdminPermissions:
 
     def test_can_access_deep_health(self, admin_api):
         resp = admin_api.get("/api/health/deep/")
-        assert resp.status_code == 200
+        # 200 when every subsystem is up, 503 when one is degraded (Celery
+        # worker not running in unit-test env). Both prove the admin reached
+        # the endpoint -- a permission failure would surface as 401/403.
+        assert resp.status_code in (200, 503)
 
     def test_can_create_privacy_incident(self, admin_api):
         resp = admin_api.post("/api/privacy/incidents/", {

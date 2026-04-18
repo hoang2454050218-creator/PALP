@@ -10,8 +10,10 @@ import {
 } from '../constants'
 
 describe('API_URL', () => {
-  it('defaults to http://localhost:8000/api', () => {
-    expect(API_URL).toBe('http://localhost:8000/api')
+  it('defaults to a relative /api path so the browser stays same-origin', () => {
+    // Same-origin default lets Next.js rewrites proxy to the backend
+    // without tripping CSP connect-src restrictions.
+    expect(API_URL).toBe('/api')
   })
 })
 

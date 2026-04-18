@@ -1,6 +1,9 @@
 import { AlertTriangle, AlertCircle, CheckCircle2, type LucideIcon } from "lucide-react";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+// Relative URL by default so the browser stays same-origin and Next.js
+// rewrites (configured in next.config.js) proxy /api/* to the backend
+// container. Explicit absolute URL only used when NEXT_PUBLIC_API_URL is set.
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "PALP";
 
 export const DIFFICULTY_LABELS: Record<number, string> = {
@@ -20,22 +23,22 @@ interface SeverityInfo {
 export const SEVERITY_CONFIG: Record<string, SeverityInfo> = {
   green: {
     label: "Ổn định",
-    color: "bg-green-100 text-green-800",
-    dot: "bg-green-500",
+    color: "bg-success/15 text-success-foreground border border-success/30",
+    dot: "bg-success",
     icon: CheckCircle2,
     description: "Sinh viên đang tiến triển tốt, không cần can thiệp",
   },
   yellow: {
     label: "Cần theo dõi",
-    color: "bg-yellow-100 text-yellow-800",
-    dot: "bg-yellow-500",
+    color: "bg-warning/15 text-warning-foreground border border-warning/30",
+    dot: "bg-warning",
     icon: AlertCircle,
     description: "Có dấu hiệu cần chú ý, nên theo dõi thêm",
   },
   red: {
     label: "Cần can thiệp",
-    color: "bg-red-100 text-red-800",
-    dot: "bg-red-500",
+    color: "bg-danger/15 text-danger-foreground border border-danger/30",
+    dot: "bg-danger",
     icon: AlertTriangle,
     description: "Cần hành động ngay để hỗ trợ sinh viên",
   },

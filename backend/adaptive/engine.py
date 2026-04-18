@@ -135,7 +135,7 @@ def decide_pathway_action(student_id: int, concept_id: int) -> dict:
         }
         decision_type = "supplement"
 
-    elif p > THRESHOLDS["MASTERY_HIGH"]:
+    elif p > THRESHOLDS["MASTERY_HIGH"] and state.attempt_count >= THRESHOLDS.get("MIN_ATTEMPTS_FOR_ADVANCE", 0):
         next_concept = _find_next_concept(concept_id)
         _log_intervention(
             student_id, concept_id,

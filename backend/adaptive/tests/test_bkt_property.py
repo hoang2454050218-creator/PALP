@@ -1,5 +1,5 @@
 import pytest
-from hypothesis import given, settings as hyp_settings, strategies as st
+from hypothesis import HealthCheck, given, settings as hyp_settings, strategies as st
 
 from adaptive.engine import update_mastery, get_mastery_state
 
@@ -14,7 +14,14 @@ def _apply_sequence(student_id, concept_id, answers):
 
 class TestMasteryBounds:
     @given(answers=st.lists(st.booleans(), min_size=1, max_size=30))
-    @hyp_settings(max_examples=50, deadline=None)
+    @hyp_settings(
+        max_examples=50,
+        deadline=None,
+        # Function-scoped pytest fixtures aren't reset between Hypothesis
+        # examples; we accept that here because the test itself resets the
+        # MasteryState rows it touches before yielding control back.
+        suppress_health_check=[HealthCheck.function_scoped_fixture],
+    )
     def test_mastery_stays_in_bounds(self, answers, student, concepts):
         state = _apply_sequence(student.id, concepts[0].id, answers)
         assert 0.01 <= state.p_mastery <= 0.99

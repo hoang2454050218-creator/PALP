@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\assessment\services.py
+# hypothesis_version: 6.151.9
+
+[0.5, 0.7, 100, 'P_GUESS', 'P_SLIP', 'P_TRANSIT', 'answer', 'assessment', 'assessment_id', 'assessment_session', 'code', 'correct', 'current_concept', 'current_milestone', 'detail', 'initial_mastery', 'is_correct', 'order', 'overall_score', 'p_guess', 'p_mastery', 'p_slip', 'p_transit', 'palp', 'question__concept', 'question_count', 'question_id', 'score', 'session_expired', 'session_id', 'session_not_active', 'status', 'strengths', 'time_taken_seconds', 'total', 'total_time_seconds', 'version', 'version_conflict', 'weaknesses']

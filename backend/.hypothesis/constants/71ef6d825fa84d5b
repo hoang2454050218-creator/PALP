@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\experiments\admin.py
+# hypothesis_version: 6.151.9
+
+['assigned_at', 'experiment', 'hypothesis', 'metric_kind', 'name', 'primary_metric', 'started_at', 'status', 'user', 'user__username', 'variant']

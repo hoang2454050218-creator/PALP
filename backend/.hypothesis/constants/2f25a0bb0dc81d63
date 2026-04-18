@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\events\admin.py
+# hypothesis_version: 6.151.9
+
+['actor', 'actor__username', 'actor_type', 'attempt_number', 'client_timestamp', 'concept', 'confirmed_at', 'course', 'device_type', 'difficulty_level', 'event_name', 'event_version', 'idempotency_key', 'intervention_reason', 'mastery_after', 'mastery_before', 'properties', 'request_id', 'session_id', 'source_page', 'student_class', 'task', 'timestamp_utc']

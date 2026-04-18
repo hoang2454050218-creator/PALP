@@ -64,8 +64,11 @@ class TestBDR02NoStackTrace:
     """Error responses must never contain Traceback or internal paths."""
 
     def test_404_no_trace(self, student_api):
-        resp = student_api.get("/api/assessment/999999/")
-        content = str(resp.data)
+        resp = student_api.get("/api/assessment/999999/questions/")
+        content = (
+            str(resp.data) if hasattr(resp, "data") and resp.data is not None
+            else resp.content.decode("utf-8", errors="ignore")
+        )
         assert "Traceback" not in content
         assert "File \"" not in content
         assert "line " not in content or "at line" not in content
@@ -108,7 +111,12 @@ class TestBDR03ActionableErrors:
     def test_auth_error_clear_message(self, anon_api):
         resp = anon_api.get("/api/auth/profile/")
         assert resp.status_code == 401
-        assert "detail" in resp.data or "message" in resp.data
+        # The standardised error envelope used across PALP nests user-facing
+        # text under ``error.message``; legacy DRF responses put it at the
+        # top level as ``detail``. Accept either shape.
+        data = resp.data or {}
+        nested = data.get("error", {}) if isinstance(data, dict) else {}
+        assert "detail" in data or "message" in data or "message" in nested
 
 
 # ---------------------------------------------------------------------------

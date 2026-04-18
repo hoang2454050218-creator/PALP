@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\assessment\admin.py
+# hypothesis_version: 6.151.9
+
+['assessment', 'course', 'created_at', 'is_active', 'overall_score', 'started_at', 'status', 'student', 'time_limit_minutes', 'title', 'total_score']

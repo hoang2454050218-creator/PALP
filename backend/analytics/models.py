@@ -30,7 +30,7 @@ class KPIDefinition(models.Model):
     target_direction = models.CharField(
         max_length=10, choices=TargetDirection.choices,
     )
-    source_events = models.JSONField(default=list)
+    source_events = models.JSONField(default=list, blank=True)
     query_function = models.CharField(max_length=200)
     query_sql = models.TextField(blank=True)
     baseline_value = models.FloatField(null=True, blank=True)
