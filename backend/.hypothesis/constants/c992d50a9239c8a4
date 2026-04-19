@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dkt\services.py
+# hypothesis_version: 6.151.9
+
+['0.1.0', 'attention', 'concept_id', 'confidence', 'explanation', 'family', 'hyperparameters', 'id', 'is_correct', 'occurred_at', 'p_correct_next', 'sakt-numpy', 'sequence_length', 'status']

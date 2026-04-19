@@ -1,0 +1,4 @@
+# file: /app/fairness/apps.py
+# hypothesis_version: 6.152.1
+
+['Fairness Audit', 'fairness']

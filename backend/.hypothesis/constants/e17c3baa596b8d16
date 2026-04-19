@@ -1,0 +1,4 @@
+# file: /app/device_sessions/linker.py
+# hypothesis_version: 6.152.1
+
+['%Y-%m', '-last_event_at', 'PALP_DEVICE_SESSIONS', 'canonical_session', 'consent_given', 'last_event_at', 'last_seen_at', 'palp', 'user_agent_family']

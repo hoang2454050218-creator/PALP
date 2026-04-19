@@ -167,6 +167,24 @@ docs-build:
 storybook:
     cd frontend && npm run storybook
 
+# === AI Agent Rules (Ruler) ===
+
+# Sync .ruler/ -> all 32 AI agent configs (CLAUDE.md, AGENTS.md, .cursor/, .codex/, ...)
+ruler-apply:
+    npx -y @intellectronica/ruler apply --verbose
+
+# Preview ruler changes without writing files
+ruler-check:
+    npx -y @intellectronica/ruler apply --dry-run --verbose
+
+# Undo all ruler-generated files (restores .bak backups when present)
+ruler-revert:
+    npx -y @intellectronica/ruler revert
+
+# Validate .ruler/ structure (ruler.toml syntax + SKILL.md frontmatter)
+ruler-lint:
+    python scripts/validate_ruler.py
+
 # === Health checks ===
 
 # Quick health check on all services

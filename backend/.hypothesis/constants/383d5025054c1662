@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dkt\admin.py
+# hypothesis_version: 6.151.9
+
+['computed_at', 'concept', 'confidence', 'created_at', 'family', 'hint_count', 'id', 'is_correct', 'model_version', 'name', 'occurred_at', 'p_correct_next', 'promoted_at', 'semver', 'sequence_length', 'status', 'student']

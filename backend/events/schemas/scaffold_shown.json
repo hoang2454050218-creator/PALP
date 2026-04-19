@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "scaffold_shown properties",
+  "type": "object",
+  "required": ["scaffold_type", "concept_id"],
+  "properties": {
+    "scaffold_type": {
+      "type": "string",
+      "enum": ["worked_example", "hint_chain", "video", "peer_explanation"]
+    },
+    "concept_id": {"type": "integer"},
+    "task_id": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": true
+}

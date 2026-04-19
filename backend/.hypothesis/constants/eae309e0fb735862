@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\explainability\admin.py
+# hypothesis_version: 6.151.9
+
+['contribution', 'created_at', 'current_value', 'expected_delta', 'explanation', 'feasibility', 'feature_key', 'id', 'kind', 'method', 'rank', 'subject', 'summary', 'target_value']

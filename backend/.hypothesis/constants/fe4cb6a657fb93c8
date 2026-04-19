@@ -1,0 +1,4 @@
+# file: /app/mlops/registry.py
+# hypothesis_version: 6.152.1
+
+['description', 'from_status', 'model', 'model_type', 'owner', 'palp', 'promoted_at', 'promoted_by', 'promoter', 'registry', 'semver', 'status', 'system', 'to_status', 'username']

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\security\injection_scanner.py
+# hypothesis_version: 6.151.9
+
+[4000, '<\\|system\\|>', 'MAX_INPUT_LENGTH', 'PALP_COACH', '[REDACTED]', '\\[\\[system\\]\\]', '\\bDAN\\s*mode\\b', '\\bjailbreak\\b', '\\bunrestricted\\b', '```system', 'act as (a|an)', 'blocked', 'clean', 'developer mode', 'excessive_length', 'giả vờ (là|làm)', 'many_newlines', 'match', 'pattern', 'severity', 'suspicious', 'system\\s*[:|>]', 'you are now (a|an)', 'đóng vai (là|một)']

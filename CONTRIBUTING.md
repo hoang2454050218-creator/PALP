@@ -123,6 +123,89 @@ Mỗi PR phải đạt 12 tiêu chí:
 * Branch không quá 200 LOC nếu được; PR lớn split thành nhiều PR nhỏ.
 * Rebase với `master` trước khi PR ready.
 
+## AI Agent Rules (Ruler)
+
+Tất cả rules cho AI coding agents (Cursor, Claude Code, GitHub Copilot, OpenAI
+Codex, Gemini CLI, Aider, Windsurf, Warp, Junie, ...~30 agents) được quản lý
+tập trung tại `.ruler/`. Đây là **single source of truth** — không edit trực
+tiếp `.cursor/rules/`, `CLAUDE.md`, `AGENTS.md`, `.aider.conf.yml`, ... vì
+chúng được Ruler sinh tự động.
+
+### Cấu trúc
+
+```
+.ruler/
+├── AGENTS.md                       # Executive summary cho agent mới vào dự án
+├── ruler.toml                      # Master config (agents, MCP, skills)
+├── 01..08-*.md                     # 8 file rules theo chủ đề
+└── skills/
+    ├── bkt-engine/SKILL.md
+    ├── privacy-gate/SKILL.md
+    ├── release-gate/SKILL.md
+    ├── event-taxonomy/SKILL.md
+    └── migration-runbook/SKILL.md
+```
+
+### Workflow
+
+```bash
+# 1. Edit file trong .ruler/
+vim .ruler/02-django-backend.md
+
+# 2. Sync sang ~30 agent configs
+npm run ruler:apply
+
+# 3. Preview thay đổi mà không ghi file
+npm run ruler:check
+
+# 4. Khôi phục state ban đầu
+npm run ruler:revert
+```
+
+Pre-commit hook `ruler-apply` tự chạy khi bạn commit file `.ruler/*` —
+không cần nhớ chạy tay.
+
+CI workflow `.github/workflows/ruler-check.yml` fail PR nếu phát hiện drift
+giữa `.ruler/` và file agent đã commit.
+
+### Thêm rule mới
+
+1. Tạo `.ruler/0X-tên-rule.md` (đánh số tiếp tục).
+2. Cập nhật bảng "File trong thư mục này" trong `.ruler/AGENTS.md`.
+3. `npm run ruler:apply`.
+4. Commit cả `.ruler/*` và file Ruler sinh (phần lớn đã trong `.gitignore`).
+
+### Thêm skill mới
+
+```bash
+mkdir -p .ruler/skills/my-skill
+cat > .ruler/skills/my-skill/SKILL.md <<'EOF'
+---
+name: my-skill
+description: Khi nào dùng skill này.
+---
+
+# My Skill
+
+Nội dung playbook.
+EOF
+npm run ruler:apply
+```
+
+Skill tự được copy sang `.cursor/skills/`, `.claude/skills/`, `.codex/skills/`,
+`.gemini/skills/`, `.opencode/skills/`, ...
+
+### Thêm/sửa MCP server
+
+Edit `[mcp_servers.<name>]` trong `.ruler/ruler.toml`. Server stdio chỉ cần
+`command` + `args`, server remote chỉ cần `url` + `headers`. **Không
+hard-code secret** — dùng `${ENV_VAR}` syntax (ví dụ
+`postgresql://palp:${POSTGRES_PASSWORD}@localhost:5432/palp_dev`).
+
+Sau khi sync, cấu hình được phân phối tới `.cursor/mcp.json`,
+`.vscode/mcp.json`, `.gemini/settings.json`, `.codex/config.toml`,
+`.windsurf/mcp_config.json`, v.v.
+
 ## Reporting Security Issues
 
 Vui lòng KHÔNG mở public issue cho lỗ hổng bảo mật. Liên hệ qua

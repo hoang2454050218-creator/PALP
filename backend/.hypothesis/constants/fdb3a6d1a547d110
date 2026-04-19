@@ -1,0 +1,4 @@
+# file: /app/device_sessions/models.py
+# hypothesis_version: 6.152.1
+
+[120, '%Y-%m', '-created_at', '-last_seen_at', '-started_at', 'canonical_session', 'canonical_sessions', 'device_fingerprints', 'device_hash', 'links', 'palp_session_link', 'raw_session_id', 'salt_month', 'session_links', 'user', 'utf-8']

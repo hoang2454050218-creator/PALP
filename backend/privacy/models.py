@@ -7,15 +7,35 @@ class ConsentRecord(models.Model):
         ACADEMIC = "academic", "Dữ liệu học vụ lịch sử"
         BEHAVIORAL = "behavioral", "Dữ liệu hành vi học tập"
         INFERENCE = "inference", "Dữ liệu suy luận (mastery, risk)"
+        # v3 roadmap — Phase 1
+        BEHAVIORAL_SIGNALS = "behavioral_signals", "Tín hiệu hành vi chi tiết"
+        COGNITIVE_CALIBRATION = "cognitive_calibration", "Tự đánh giá độ tự tin"
+        # v3 roadmap — Phase 3 (Peer Engine)
+        PEER_COMPARISON = "peer_comparison", "So sánh ẩn danh trong cohort"
+        PEER_TEACHING = "peer_teaching", "Ghép cặp dạy nhau (reciprocal)"
+        # v3 roadmap — Phase 4 (AI Coach + Emergency Pipeline)
+        AI_COACH_LOCAL = "ai_coach_local", "Trợ lý AI nội bộ"
+        AI_COACH_CLOUD = "ai_coach_cloud", "Trợ lý AI bên ngoài"
+        EMERGENCY_CONTACT = "emergency_contact", "Liên hệ khẩn cấp"
+        # v3 roadmap — Phase 5 (Agentic memory)
+        AGENTIC_MEMORY = "agentic_memory", "Trí nhớ cá nhân hoá của coach"
+        # v3 roadmap — Phase 6 (XAI + Differential Privacy)
+        XAI_TELEMETRY = "xai_telemetry", "Đóng góp dữ liệu giải thích"
+        DP_AGGREGATE_ANALYTICS = "dp_aggregate_analytics", "Phân tích tổng hợp DP"
+        # v3 roadmap — Phase 7 (Academic layer)
+        RESEARCH_PARTICIPATION = "research_participation", "Tham gia nghiên cứu"
+        AFFECT_SIGNALS = "affect_signals", "Tín hiệu cảm xúc đa phương thức"
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="consent_records",
     )
-    purpose = models.CharField(max_length=20, choices=Purpose.choices)
+    # Widened to 40 in v3 roadmap Phase 1G to accommodate ``cognitive_calibration``
+    # (21 chars) and future longer purpose keys (e.g., ``ai_coach_local``).
+    purpose = models.CharField(max_length=40, choices=Purpose.choices)
     granted = models.BooleanField()
-    version = models.CharField(max_length=20, default="1.0")
+    version = models.CharField(max_length=20, default="1.6")
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,0 +1,4 @@
+# file: /app/device_sessions/apps.py
+# hypothesis_version: 6.152.1
+
+['device_sessions']

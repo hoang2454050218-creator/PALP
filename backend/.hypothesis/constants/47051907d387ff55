@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\bandit\models.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 160, 255, '-decided_at', 'Tạm dừng', 'active', 'archived', 'arm', 'arms', 'bandit_decisions', 'context_key', 'decisions', 'default', 'experiment', 'key', 'linucb_states', 'palp_bandit_arm', 'palp_bandit_decision', 'palp_bandit_reward', 'paused', 'posteriors', 'reward', 'user', 'Đang chạy', 'Đã lưu trữ']

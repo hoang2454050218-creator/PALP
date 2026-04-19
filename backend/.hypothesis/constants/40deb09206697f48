@@ -1,0 +1,4 @@
+# file: /app/causal/cuped.py
+# hypothesis_version: 6.152.1
+
+[0.0, 1.0, 'reduction_pct', 'theta', 'var_y', 'var_y_adj']

@@ -1,0 +1,14 @@
+{
+  "name": "palp-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Project-root tooling for PALP. Frontend lives in frontend/. Backend lives in backend/.",
+  "scripts": {
+    "ruler:apply": "npx -y @intellectronica/ruler apply --verbose",
+    "ruler:check": "npx -y @intellectronica/ruler apply --dry-run --verbose",
+    "ruler:revert": "npx -y @intellectronica/ruler revert"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}

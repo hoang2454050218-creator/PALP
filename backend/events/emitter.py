@@ -18,6 +18,7 @@ from django.db import IntegrityError
 from django.utils import timezone
 
 from .models import EventLog
+from .schemas import SchemaValidationError, validate_properties
 
 logger = logging.getLogger("palp.events")
 
@@ -75,6 +76,17 @@ def emit_event(
         event_properties["clock_skew_seconds"] = round(
             (ts_utc - client_timestamp).total_seconds(), 1
         )
+
+    # Schema validation for events that have a registered contract.
+    # Schemaless events (legacy or freeform) pass through unchanged.
+    try:
+        validate_properties(event_name, event_properties)
+    except SchemaValidationError as exc:
+        EVENT_INGESTION_TOTAL.labels(
+            event_name=event_name, status="schema_invalid"
+        ).inc()
+        logger.warning("Rejecting event %s: %s", event_name, exc)
+        raise
 
     if idempotency_key:
         existing = EventLog.objects.filter(idempotency_key=idempotency_key).first()

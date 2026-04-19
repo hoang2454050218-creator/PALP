@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\spacedrep\admin.py
+# hypothesis_version: 6.151.9
+
+['concept', 'difficulty', 'due_at', 'id', 'interval_days', 'item', 'lapse_count', 'post_difficulty', 'post_stability', 'rating', 'review_count', 'reviewed_at', 'stability', 'state', 'student']

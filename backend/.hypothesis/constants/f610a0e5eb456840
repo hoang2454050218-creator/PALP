@@ -1,0 +1,4 @@
+# file: /app/causal/admin.py
+# hypothesis_version: 6.152.1
+
+['Audit', 'Compliance', 'Design', 'Lock', 'Outcomes', 'amendments_log', 'ate', 'created_at', 'cuped_covariate', 'estimator', 'expected_effect_size', 'experiment', 'experiment__name', 'fairness_audit_id', 'fields', 'irb_reference', 'is_locked', 'locked_at', 'locked_by', 'n_control', 'n_treatment', 'outcome_kind', 'p_value', 'pre_registration', 'randomization_unit', 'secondary_outcomes', 'updated_at']

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\security\refusals.py
+# hypothesis_version: 6.151.9
+
+['(sex|porn|18\\+|nude)', 'academic_dishonesty', 'consent_missing', 'cooldown_active', 'grade_manipulation', 'injection_blocked', 'jailbreak', 'other_student_pii', 'out_of_scope_advice', 'rate_limit']

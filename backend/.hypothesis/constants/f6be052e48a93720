@@ -1,0 +1,4 @@
+# file: /app/device_sessions/admin.py
+# hypothesis_version: 6.152.1
+
+['Device hash', 'canonical_id', 'canonical_session', 'consent_given', 'created_at', 'device_hash', 'device_hash_short', 'fingerprint', 'first_seen_at', 'last_event_at', 'last_seen_at', 'raw_session_id', 'salt_month', 'started_at', 'user', 'user__username', 'user_agent_family']

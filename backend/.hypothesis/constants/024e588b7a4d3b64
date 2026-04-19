@@ -1,0 +1,4 @@
+# file: /app/signals/services.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.5, 1.0, 1000.0, 60000.0, '+00:00', 'ACCEPTED_EVENT_NAMES', 'WINDOW_MINUTES', 'Z', 'accepted', 'avg_focus_score', 'bad_timestamp', 'canonical_session_id', 'client_timestamp', 'compute_idle_minutes', 'duplicates', 'event_name', 'focus_duration_ms', 'idempotency_key', 'idle_duration_ms', 'ingest_events', 'ingest_failed', 'intensity', 'last_event_at', 'not_accepted', 'palp.events', 'properties', 'reason', 'rejected', 'rollup_day', 'rollups_touched', 'sessions_count', 'total_focus_minutes', 'total_give_up_count', 'total_hint_count', 'total_idle_minutes', 'total_struggle_count', 'total_tab_switches', 'window_end']

@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "give_up_signal properties",
+  "type": "object",
+  "required": ["task_id", "trigger"],
+  "properties": {
+    "task_id": {"type": "integer"},
+    "trigger": {
+      "type": "string",
+      "enum": ["leave_no_submit", "explicit_skip", "navigation_away"]
+    },
+    "time_on_task_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": true
+}

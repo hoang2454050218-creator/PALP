@@ -64,11 +64,17 @@ Closes #
 <!-- - Migration step cho consumer -->
 <!-- - Deprecation timeline nếu có -->
 
+## AI Agent Rules (Ruler)
+
+- [ ] Không sửa convention/architecture; HOẶC đã update `.ruler/*.md` tương ứng
+- [ ] `npm run ruler:apply` đã chạy nếu sửa `.ruler/*` (CI `ruler-check.yml` enforce)
+- [ ] Không sửa rule cấu trúc tuyệt đối (BKT params, Audit prefix, RBAC matrix) trừ khi có ADR
+
 ## Checklist
 
 - [ ] Tựa đề PR tuân theo Conventional Commits format
 - [ ] Branch rebase với master
-- [ ] CI xanh (lint + tests + OpenAPI diff + security audit)
+- [ ] CI xanh (lint + tests + OpenAPI diff + security audit + ruler-check)
 - [ ] Self-review xong, không có comment debug
 
 ## Additional notes

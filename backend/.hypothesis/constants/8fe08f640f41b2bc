@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\knowledge_graph\admin.py
+# hypothesis_version: 6.151.9
+
+['computed_at', 'confidence', 'dependency_type', 'edge', 'id', 'strength', 'student', 'target_concept', 'updated_at', 'weakest_prerequisite']

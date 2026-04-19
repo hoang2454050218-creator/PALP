@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "frustration_signal properties",
+  "type": "object",
+  "required": ["pattern", "intensity"],
+  "properties": {
+    "pattern": {
+      "type": "string",
+      "enum": ["rapid_click", "ragequit", "repeat_wrong", "rapid_backspace"]
+    },
+    "intensity": {"type": "number", "minimum": 0, "maximum": 1},
+    "task_id": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": true
+}

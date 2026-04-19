@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\instructor_copilot\admin.py
+# hypothesis_version: 6.151.9
+
+['concept', 'course', 'created_at', 'difficulty', 'id', 'requested_by', 'sent_at', 'status', 'student', 'template_key', 'title', 'week_start']

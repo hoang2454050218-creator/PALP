@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\affect\services.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 'DEFAULT_LANG', 'MIN_SAMPLE_TEXT_LEN', 'PALP_AFFECT', 'arousal', 'combined', 'components', 'confidence', 'features', 'insufficient_sample', 'label', 'valence', 'vi']

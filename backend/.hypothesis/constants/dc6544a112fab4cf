@@ -1,0 +1,4 @@
+# file: /app/goals/admin.py
+# hypothesis_version: 6.152.1
+
+['actual_minutes', 'category', 'concept', 'course', 'course__code', 'created_at', 'drift_pct_last_check', 'estimate_error_pct', 'finalised_at', 'horizon_months', 'is_active', 'label', 'mastery_delta', 'mastery_target', 'predicted_minutes', 'rating', 'semester', 'started_at', 'status', 'strategy', 'strategy_plan', 'student', 'student__username', 'submitted_at', 'target_minutes', 'updated_at', 'week_start', 'weekly_goal', 'will_repeat']

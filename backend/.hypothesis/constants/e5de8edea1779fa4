@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\benchmarks\evaluator.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1e-06, 0.0001, 0.001, 0.1, 0.5, 0.8, 1.0, 2.0, 200, 'accuracy', 'auc', 'baseline_global', 'baseline_per_concept', 'logistic_per_concept', 'mergesort', 'palp_dkt', 'rmse']

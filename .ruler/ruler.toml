@@ -1,0 +1,91 @@
+# PALP Ruler configuration
+# Single source of truth for AI agent rules, MCP servers, and skills.
+# Run `npm run ruler:apply` after editing this file.
+
+default_agents = [
+  "agentsmd",
+  "copilot",
+  "claude",
+  "codex",
+  "cursor",
+  "windsurf",
+  "cline",
+  "crush",
+  "amp",
+  "antigravity",
+  "amazonqcli",
+  "aider",
+  "firebase",
+  "openhands",
+  "gemini-cli",
+  "junie",
+  "augmentcode",
+  "kilocode",
+  "opencode",
+  "goose",
+  "qwen",
+  "roo",
+  "zed",
+  "trae",
+  "warp",
+  "kiro",
+  "firebender",
+  "factory",
+  "mistral",
+  "jetbrains-ai",
+  "jules",
+  "pi",
+]
+
+nested = false
+
+[mcp]
+enabled = true
+merge_strategy = "merge"
+
+[gitignore]
+enabled = true
+local = false
+
+[skills]
+enabled = true
+
+# ---------------------------------------------------------------------------
+# Project-scoped MCP servers
+# ---------------------------------------------------------------------------
+# These are propagated to Cursor (.cursor/mcp.json), Claude Code (.mcp.json),
+# Gemini CLI (.gemini/settings.json), Codex (.codex/config.toml), VSCode
+# Copilot (.vscode/mcp.json), Windsurf (.windsurf/mcp_config.json), and others
+# that support MCP.
+#
+# All servers below use stdio (npx) and do not require any API key checked into
+# the repo. The `postgres` server reads `POSTGRES_PASSWORD` from the shell
+# environment so secrets never live in version control.
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "."]
+
+[mcp_servers.git]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-git", "--repository", "."]
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+
+[mcp_servers.memory]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-memory"]
+
+[mcp_servers.fetch]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-fetch"]
+
+[mcp_servers.postgres]
+command = "npx"
+args = [
+  "-y",
+  "@modelcontextprotocol/server-postgres",
+  "postgresql://palp:${POSTGRES_PASSWORD}@localhost:5432/palp_dev",
+]

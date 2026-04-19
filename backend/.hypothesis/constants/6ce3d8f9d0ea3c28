@@ -1,0 +1,4 @@
+# file: /app/mlops/feature_store.py
+# hypothesis_version: 6.152.1
+
+[300, 'description', 'entity', 'features_json', 'name', 'online_store_enabled', 'palp', 'palp:fs:online', 'source_table']

@@ -1,0 +1,4 @@
+# file: /app/fairness/audit_clustering.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.5, 0.7, 'CLUSTER_MIN_BASELINE', 'PALP_FAIRNESS', 'attr', 'baseline', 'baseline_pct', 'cluster', 'cluster_pct', 'threshold', 'value']

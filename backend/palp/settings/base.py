@@ -36,6 +36,37 @@ INSTALLED_APPS = [
     "privacy",
     "featureflags",
     "experiments",
+    # Phase 0 — Foundation Science (v3 roadmap)
+    "mlops",
+    "fairness",
+    "causal",
+    "device_sessions",
+    # Phase 1 — Sensing + RiskScore + Metacognitive (v3 roadmap)
+    "signals",
+    "risk",
+    # Phase 2 — Direction Engine + SRL (v3 roadmap)
+    "goals",
+    # Phase 3 — Peer Engine, anti-herd, reciprocal teaching (v3 roadmap)
+    "peer",
+    # Phase 4 — Hybrid AI Coach + Emergency Pipeline + Notifications (v3 roadmap)
+    "coach",
+    "emergency",
+    "notifications",
+    # Phase 5 — Intelligence Upgrade: DKT + KG + Bandit + Agentic Memory (v3 roadmap)
+    "dkt",
+    "knowledge_graph",
+    "bandit",
+    "coach_memory",
+    # Phase 6 — XAI + FSRS + Differential Privacy + Instructor Co-pilot (v3 roadmap)
+    "explainability",
+    "spacedrep",
+    "privacy_dp",
+    "instructor_copilot",
+    # Phase 7 — Academic layer: Benchmarks + IRB + Publication + Affect (v3 roadmap)
+    "benchmarks",
+    "research",
+    "publication",
+    "affect",
 ]
 
 MIDDLEWARE = [
@@ -239,6 +270,32 @@ CELERY_BEAT_SCHEDULE = {
         "task": "privacy.check_incident_sla",
         "schedule": crontab(minute="*/60"),
     },
+    # v3 roadmap — Phase 2 Direction Engine
+    "goals-detect-drift-periodic": {
+        "task": "goals.detect_drift_periodic",
+        "schedule": crontab(minute=0, hour="*/6"),
+    },
+    "goals-open-weekly-reflections": {
+        "task": "goals.open_weekly_reflections",
+        # Saturday 18:00 Asia/Ho_Chi_Minh
+        "schedule": crontab(hour=18, minute=0, day_of_week="saturday"),
+    },
+    # v3 roadmap — Phase 3 (Peer Engine)
+    "peer-weekly-recompute-cohorts": {
+        "task": "peer.weekly_recompute_cohorts",
+        # Sunday 03:00 ICT — recompute ability cohorts weekly
+        "schedule": crontab(hour=3, minute=0, day_of_week="sunday"),
+    },
+    "peer-daily-detect-herds": {
+        "task": "peer.daily_detect_herds",
+        # 04:00 ICT daily after the early-warning batch settles
+        "schedule": crontab(hour=4, minute=0),
+    },
+    "peer-prompt-optin-after-4w": {
+        "task": "peer.prompt_optin_after_4w",
+        # Mondays 09:00 ICT — surface 4-week opt-in prompts
+        "schedule": crontab(hour=9, minute=0, day_of_week="monday"),
+    },
 }
 
 # PALP-specific config
@@ -263,6 +320,263 @@ PALP_EARLY_WARNING = {
     "INACTIVITY_YELLOW_DAYS": 3,
     "INACTIVITY_RED_DAYS": 5,
     "RETRY_FAILURE_THRESHOLD": 3,
+}
+
+# v3 roadmap — Phase 0 Foundation Science
+PALP_FAIRNESS = {
+    "DISPARATE_IMPACT_THRESHOLD": float(os.environ.get("PALP_FAIRNESS_DI", 0.8)),
+    "EQUALIZED_ODDS_TOLERANCE": float(os.environ.get("PALP_FAIRNESS_EOD", 0.1)),
+    "CALIBRATION_TOLERANCE": float(os.environ.get("PALP_FAIRNESS_CAL", 0.05)),
+    "CLUSTER_CONCENTRATION_MAX": float(os.environ.get("PALP_FAIRNESS_CLUSTER_MAX", 0.7)),
+    "CLUSTER_MIN_BASELINE": float(os.environ.get("PALP_FAIRNESS_CLUSTER_MIN_BASE", 0.5)),
+}
+PALP_CAUSAL = {
+    "MIN_SAMPLE_SIZE": int(os.environ.get("PALP_CAUSAL_MIN_N", 100)),
+    "DEFAULT_ALPHA": float(os.environ.get("PALP_CAUSAL_ALPHA", 0.05)),
+    "DEFAULT_POWER": float(os.environ.get("PALP_CAUSAL_POWER", 0.80)),
+    "CUPED_ENABLED": os.environ.get("PALP_CAUSAL_CUPED", "true").lower() in ("true", "1", "yes"),
+}
+PALP_MLOPS = {
+    "FEATURE_STORE_TTL_SECONDS": int(os.environ.get("PALP_MLOPS_FS_TTL", 300)),
+    "MLFLOW_TRACKING_URI": os.environ.get("MLFLOW_TRACKING_URI", ""),
+    "DRIFT_MIN_SAMPLE": int(os.environ.get("PALP_MLOPS_DRIFT_MIN_N", 50)),
+}
+PALP_DEVICE_SESSIONS = {
+    "LINK_PROXIMITY_SECONDS": int(os.environ.get("PALP_DEVSESS_PROXIMITY_S", 300)),
+    "FINGERPRINT_RETENTION_DAYS": int(os.environ.get("PALP_DEVSESS_RETENTION_D", 30)),
+}
+PALP_DP = {
+    "EPSILON_BUDGET_PER_RUN": float(os.environ.get("PALP_DP_EPSILON_PER_RUN", 1.0)),
+    "EPSILON_BUDGET_PER_STUDENT_YEAR": float(os.environ.get("PALP_DP_EPSILON_PER_YEAR", 5.0)),
+    "DELTA": float(os.environ.get("PALP_DP_DELTA", 1e-5)),
+    "NOISE_MULTIPLIER": float(os.environ.get("PALP_DP_NOISE_MULT", 1.1)),
+    "MAX_GRAD_NORM": float(os.environ.get("PALP_DP_MAX_GRAD_NORM", 1.0)),
+    "COHORT_MIN_SIZE_FOR_DP": int(os.environ.get("PALP_DP_COHORT_MIN", 10)),
+}
+PALP_FINOPS = {
+    "MONTHLY_COST_BUDGET_USD": int(os.environ.get("PALP_FINOPS_BUDGET_USD", 5000)),
+    "DAILY_TOKEN_LIMIT_PER_USER": int(os.environ.get("PALP_FINOPS_DAILY_TOKENS_USER", 50_000)),
+    "DAILY_TOKEN_ALERT_PER_CLASS": int(os.environ.get("PALP_FINOPS_DAILY_TOKENS_CLASS", 500_000)),
+}
+
+# v3 roadmap — Phase 1F RiskScore weights. CI test asserts these sum to
+# 1.0; per-component contribution is bounded by the dimension weight so a
+# single noisy signal can never drive the composite above its dimension's
+# share.
+PALP_RISK_WEIGHTS = {
+    "academic": float(os.environ.get("PALP_RISK_W_ACADEMIC", 0.30)),
+    "behavioral": float(os.environ.get("PALP_RISK_W_BEHAVIORAL", 0.25)),
+    "engagement": float(os.environ.get("PALP_RISK_W_ENGAGEMENT", 0.20)),
+    "psychological": float(os.environ.get("PALP_RISK_W_PSYCH", 0.10)),
+    "metacognitive": float(os.environ.get("PALP_RISK_W_METACOG", 0.15)),
+}
+PALP_RISK_THRESHOLDS = {
+    "ALERT_YELLOW": float(os.environ.get("PALP_RISK_ALERT_YELLOW", 60.0)),
+    "ALERT_RED": float(os.environ.get("PALP_RISK_ALERT_RED", 80.0)),
+    "INACTIVITY_DAYS_HARD_RED": int(os.environ.get("PALP_RISK_INACTIVITY_HARD_RED", 14)),
+}
+
+# v3 roadmap — Phase 2 Direction Engine
+PALP_GOALS = {
+    "DRIFT_THRESHOLD_PCT": float(os.environ.get("PALP_GOALS_DRIFT_PCT", 0.40)),
+    "DAILY_PLAN_MAX_ITEMS": int(os.environ.get("PALP_GOALS_DAILY_MAX", 3)),
+    "REFLECTION_OPEN_HOUR_LOCAL": int(os.environ.get("PALP_GOALS_REFLECTION_HOUR", 18)),
+    "REFLECTION_OPEN_DOW": os.environ.get("PALP_GOALS_REFLECTION_DOW", "saturday"),
+}
+
+# Phase 4 — Hybrid AI Coach + Emergency Pipeline + Notifications (v3 roadmap).
+# Tunable via env so a release can flip provider or thresholds without
+# code changes. The defaults match the safety playbook ("never trust the
+# vendor; always run the safety pipeline locally first").
+PALP_COACH = {
+    # LLM routing & providers
+    # ``DEFAULT_PROVIDER`` is the safety net — used when neither cloud nor
+    # local is reachable. We keep it as ``echo`` so a fresh dev install
+    # works without any key. Operators upgrade by setting the two block
+    # keys below + flipping CLOUD_PROVIDER to ``openai_compat``.
+    "DEFAULT_PROVIDER": os.environ.get("PALP_COACH_DEFAULT_PROVIDER", "echo"),
+    "CLOUD_PROVIDER": os.environ.get("PALP_COACH_CLOUD_PROVIDER", "echo"),
+    "LOCAL_PROVIDER": os.environ.get("PALP_COACH_LOCAL_PROVIDER", "echo"),
+    # OpenAI-compatible cloud client (works with OpenAI direct, key4u.shop,
+    # OpenRouter, Azure shim, vLLM, etc.). Picked up by
+    # ``coach.llm.client._make_openai_compat`` when CLOUD_PROVIDER is
+    # set to ``openai_compat``.
+    "OPENAI_COMPAT": {
+        "API_KEY": os.environ.get("OPENAI_COMPAT_API_KEY", ""),
+        "BASE_URL": os.environ.get(
+            "OPENAI_COMPAT_BASE_URL", "https://api.openai.com/v1",
+        ),
+        "MODEL": os.environ.get("OPENAI_COMPAT_MODEL", "gpt-4o-mini"),
+        "PROVIDER_LABEL": os.environ.get(
+            "OPENAI_COMPAT_PROVIDER_LABEL", "openai_compat",
+        ),
+        "TIMEOUT_SECONDS": float(
+            os.environ.get("OPENAI_COMPAT_TIMEOUT_SECONDS", 30.0)
+        ),
+        "MAX_OUTPUT_TOKENS": int(
+            os.environ.get("OPENAI_COMPAT_MAX_OUTPUT_TOKENS", 1024)
+        ),
+        "TEMPERATURE": float(os.environ.get("OPENAI_COMPAT_TEMPERATURE", 0.4)),
+    },
+    # Local Ollama daemon for PII-sensitive intents.
+    "OLLAMA": {
+        "BASE_URL": os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434"),
+        "MODEL": os.environ.get("OLLAMA_MODEL", "qwen2.5:7b"),
+        "TIMEOUT_SECONDS": float(os.environ.get("OLLAMA_TIMEOUT_SECONDS", 60.0)),
+        "TEMPERATURE": float(os.environ.get("OLLAMA_TEMPERATURE", 0.4)),
+        "NUM_PREDICT": int(os.environ.get("OLLAMA_NUM_PREDICT", 1024)),
+    },
+    # Cost & rate-limit
+    "DAILY_TOKEN_LIMIT_PER_USER": int(
+        os.environ.get("PALP_COACH_DAILY_TOKEN_LIMIT", 50_000)
+    ),
+    "DAILY_TOKEN_ALERT_PER_CLASS": int(
+        os.environ.get("PALP_COACH_DAILY_CLASS_ALERT", 1_000_000)
+    ),
+    "MAX_TURNS_PER_CONVERSATION": int(
+        os.environ.get("PALP_COACH_MAX_TURNS_PER_CONV", 40)
+    ),
+    "MAX_INPUT_LENGTH": int(os.environ.get("PALP_COACH_MAX_INPUT_LEN", 4000)),
+    # Safety
+    "JAILBREAK_THRESHOLD": float(os.environ.get("PALP_COACH_JAILBREAK_THRESHOLD", 0.7)),
+    "JAILBREAK_COOLDOWN_HOURS": int(
+        os.environ.get("PALP_COACH_JAILBREAK_COOLDOWN_HOURS", 24)
+    ),
+    "JAILBREAK_ATTEMPTS_BEFORE_COOLDOWN": int(
+        os.environ.get("PALP_COACH_JAILBREAK_ATTEMPTS", 3)
+    ),
+}
+
+PALP_EMERGENCY = {
+    "SLA_MINUTES": int(os.environ.get("PALP_EMERGENCY_SLA_MINUTES", 15)),
+    "FOLLOW_UP_HOURS": [24, 48, 72],
+}
+
+# Phase 5 — Intelligence upgrade tuning blocks (v3 roadmap).
+PALP_DKT = {
+    "EMBED_DIM": int(os.environ.get("PALP_DKT_EMBED_DIM", 16)),
+    "MAX_HISTORY": int(os.environ.get("PALP_DKT_MAX_HISTORY", 64)),
+    "TEMPERATURE": float(os.environ.get("PALP_DKT_TEMPERATURE", 1.0)),
+    "SEED": int(os.environ.get("PALP_DKT_SEED", 42)),
+    "TOP_K_DEFAULT": int(os.environ.get("PALP_DKT_TOP_K", 10)),
+}
+PALP_KG = {
+    "MAX_DEPTH": int(os.environ.get("PALP_KG_MAX_DEPTH", 4)),
+    "DEFAULT_EDGE_STRENGTH": float(os.environ.get("PALP_KG_DEFAULT_STRENGTH", 0.7)),
+}
+PALP_BANDIT = {
+    "DEFAULT_REWARD_WINDOW_MIN": int(
+        os.environ.get("PALP_BANDIT_REWARD_WINDOW_MIN", 24 * 60)
+    ),
+    "DEFAULT_SEED": int(os.environ.get("PALP_BANDIT_SEED", 42)),
+}
+PALP_MEMORY = {
+    "MAX_RECALL_EPISODIC": int(os.environ.get("PALP_MEMORY_MAX_EPISODIC", 5)),
+    "MAX_RECALL_SEMANTIC": int(os.environ.get("PALP_MEMORY_MAX_SEMANTIC", 5)),
+    "MAX_RECALL_PROCEDURAL": int(os.environ.get("PALP_MEMORY_MAX_PROCEDURAL", 3)),
+}
+
+# Phase 6 — XAI + FSRS + DP + Co-pilot tuning blocks (v3 roadmap).
+PALP_XAI = {
+    "TARGET_DELTA": float(os.environ.get("PALP_XAI_TARGET_DELTA", 10.0)),
+    "MAX_COUNTERFACTUALS": int(os.environ.get("PALP_XAI_MAX_CF", 5)),
+}
+PALP_SPACEDREP = {
+    "TARGET_RETENTION": float(os.environ.get("PALP_FSRS_TARGET_RETENTION", 0.9)),
+    # 17 default FSRS-4.5 weights from the open-source community.
+    # Override only when a fitter has produced per-deployment values.
+    "WEIGHTS": None,
+    "DEFAULT_NEW_PER_DAY": int(os.environ.get("PALP_FSRS_NEW_PER_DAY", 5)),
+}
+PALP_DP = {
+    "DEFAULT_SCOPE": os.environ.get("PALP_DP_DEFAULT_SCOPE", "global:weekly"),
+    "DEFAULT_PERIOD_DAYS": int(os.environ.get("PALP_DP_PERIOD_DAYS", 7)),
+    "DEFAULT_EPSILON_TOTAL": float(
+        os.environ.get("PALP_DP_DEFAULT_EPSILON", 1.0)
+    ),
+}
+PALP_COPILOT = {
+    "MAX_DRAFTS_PER_DAY": int(os.environ.get("PALP_COPILOT_MAX_DRAFTS", 50)),
+}
+
+# Phase 7 — Academic layer tuning blocks (v3 roadmap).
+PALP_BENCHMARKS = {
+    "DEFAULT_SAMPLE_SIZE": int(os.environ.get("PALP_BENCH_SAMPLE", 200)),
+    "DEFAULT_SEED": int(os.environ.get("PALP_BENCH_SEED", 42)),
+    # Loaders are dotted import paths -> callables. We default to the
+    # built-in synthetic loaders so the test suite + offline dev never
+    # breaks. Operators override via env to point at the real datasets.
+    "LOADERS": {
+        "ednet": os.environ.get(
+            "PALP_BENCH_LOADER_EDNET",
+            "benchmarks.loaders.ednet_synthetic",
+        ),
+        "assistments_2009": os.environ.get(
+            "PALP_BENCH_LOADER_AS2009",
+            "benchmarks.loaders.assistments_2009_synthetic",
+        ),
+    },
+}
+PALP_RESEARCH = {
+    "K_ANONYMITY_K": int(os.environ.get("PALP_RESEARCH_K", 5)),
+    "DEFAULT_PROTOCOL_RETENTION_MONTHS": int(
+        os.environ.get("PALP_RESEARCH_RETENTION", 12)
+    ),
+    # Salt for hashing student ids in anonymized exports. Operators MUST
+    # rotate this in production; the dev default is intentionally
+    # non-secret so the test suite is reproducible.
+    "ID_HASH_SALT": os.environ.get(
+        "PALP_RESEARCH_HASH_SALT", "palp-research-dev-salt"
+    ),
+    "SUPPRESS_QUASI_IDENTIFIERS": [
+        "first_name", "last_name", "email", "phone", "student_id",
+    ],
+}
+PALP_PUBLICATION = {
+    "AUTHORS_DEFAULT": [
+        {"name": "PALP Team", "role": "Engineering"},
+    ],
+    "LICENCE_DEFAULT": "CC-BY-4.0",
+}
+PALP_AFFECT = {
+    "MIN_SAMPLE_KEYSTROKES": int(os.environ.get("PALP_AFFECT_MIN_KS", 10)),
+    "MIN_SAMPLE_TEXT_LEN": int(os.environ.get("PALP_AFFECT_MIN_TEXT", 8)),
+    "DEFAULT_LANG": os.environ.get("PALP_AFFECT_DEFAULT_LANG", "vi"),
+}
+
+# Phase 3 — Peer Engine, anti-herd, reciprocal teaching (v3 roadmap).
+# Tuning lives here so a release can change thresholds without code
+# changes. The defaults match the design document and are intentionally
+# conservative — anti-herd thresholds err on the side of caution
+# because false positives lecturer-side are recoverable, false negatives
+# are not.
+PALP_PEER = {
+    # Cohort
+    "COHORT_TARGET_SIZE": int(os.environ.get("PALP_PEER_COHORT_TARGET", 25)),
+    "COHORT_MIN_SIZE": int(os.environ.get("PALP_PEER_COHORT_MIN", 10)),
+    "COHORT_RECLUSTER_DAYS": int(os.environ.get("PALP_PEER_RECLUSTER_DAYS", 7)),
+    "COHORT_KMEANS_SEED": int(os.environ.get("PALP_PEER_KMEANS_SEED", 42)),
+    # Benchmark
+    "BENCHMARK_DEFAULT": False,
+    "BENCHMARK_MIN_DAYS_AFTER_JOIN": int(
+        os.environ.get("PALP_PEER_BENCHMARK_MIN_DAYS", 28)
+    ),
+    # Reciprocal matching
+    "BUDDY_STRONG_WEAK_THRESHOLD": float(
+        os.environ.get("PALP_PEER_BUDDY_THRESHOLD", 0.30)
+    ),
+    "BUDDY_REMATCH_DAYS": int(os.environ.get("PALP_PEER_REMATCH_DAYS", 14)),
+    # Herd cluster detection (DBSCAN)
+    "HERD_EPS": float(os.environ.get("PALP_PEER_HERD_EPS", 0.6)),
+    "HERD_MIN_SAMPLES": int(os.environ.get("PALP_PEER_HERD_MIN_SAMPLES", 3)),
+    "HERD_RISK_THRESHOLD": float(os.environ.get("PALP_PEER_HERD_RISK", 60.0)),
+    "HERD_BEHAVIOR_WINDOW_DAYS": int(
+        os.environ.get("PALP_PEER_HERD_WINDOW_DAYS", 14)
+    ),
+    # Frontier
+    "FRONTIER_LOOKBACK_DAYS": int(
+        os.environ.get("PALP_PEER_FRONTIER_LOOKBACK", 28)
+    ),
 }
 
 PALP_SLO = {
@@ -392,7 +706,9 @@ LOGGING = {
 # Privacy
 PALP_PRIVACY = {
     "SLA_HOURS": 48,
-    "CONSENT_VERSION": "1.0",
+    # NOTE: keep in sync with backend/privacy/constants.py::CONSENT_VERSION.
+    # Bumped to 1.1 in v3 roadmap Phase 1 (behavioral_signals + cognitive_calibration).
+    "CONSENT_VERSION": "1.1",
 }
 
 # Security: PII encryption key (Fernet-compatible, 32-byte base64-encoded)
@@ -435,4 +751,35 @@ AUDIT_SENSITIVE_PREFIXES = [
     "/api/events/student/",
     "/api/auth/classes/",
     "/api/auth/export/",
+    # v3 roadmap — Phase 0 (sensitive infra surfaces)
+    "/api/sessions/",
+    "/api/causal/",
+    "/api/fairness/",
+    "/api/mlops/",
+    # v3 roadmap — Phase 1
+    "/api/signals/",
+    "/api/risk/",
+    "/api/adaptive/calibration/",
+    # v3 roadmap — Phase 2
+    "/api/goals/",
+    # v3 roadmap — Phase 3
+    "/api/peer/",
+    # v3 roadmap — Phase 4
+    "/api/coach/",
+    "/api/emergency/",
+    "/api/notifications/",
+    # v3 roadmap — Phase 5
+    "/api/dkt/",
+    "/api/knowledge-graph/",
+    "/api/bandit/",
+    # v3 roadmap — Phase 6
+    "/api/explain/",
+    "/api/spacedrep/",
+    "/api/privacy-dp/",
+    "/api/copilot/",
+    # v3 roadmap — Phase 7
+    "/api/benchmarks/",
+    "/api/research/",
+    "/api/publication/",
+    "/api/affect/",
 ]

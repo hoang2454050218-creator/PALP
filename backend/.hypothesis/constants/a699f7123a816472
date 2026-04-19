@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\explainability\models.py
+# hypothesis_version: 6.151.9
+
+[0.5, 240, 255, '-created_at', '-expected_delta', 'Attention weights', 'Bandit arm choice', 'Composite risk', 'Counterfactual', 'DKT next-correct', 'FSRS interval', 'Khác', 'Rule trace', 'SHAP-lite (additive)', 'attention', 'bandit_decision', 'contributions', 'counterfactual', 'counterfactuals', 'dkt_prediction', 'explanation', 'explanations', 'fsrs_review', 'kind', 'method', 'other', 'palp_xai_explanation', 'rank', 'risk_score', 'rule_trace', 'shap_lite', 'subject']

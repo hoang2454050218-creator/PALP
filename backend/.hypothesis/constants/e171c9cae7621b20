@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\spacedrep\models.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 5.0, '-reviewed_at', 'Dễ', 'Học lại', 'Mới', 'Quên hẳn', 'Tạm dừng', 'Tốt', 'Vất vả', 'concept', 'curriculum.Concept', 'due_at', 'item', 'learning', 'logs', 'new', 'palp_spacedrep_item', 'palp_spacedrep_log', 'relearning', 'review', 'review_items', 'reviewed_at', 'state', 'student', 'suspended', 'Đang học', 'Đang ôn']

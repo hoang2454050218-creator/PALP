@@ -1,0 +1,77 @@
+# Django Backend Standards
+
+Applies to: `backend/**/*.py`
+
+## Project Layout
+
+Settings split: `palp.settings.base` -> `development` / `production` / `test`.
+Custom user model: `accounts.User` with `Role` enum (STUDENT, LECTURER, ADMIN).
+
+## Models
+
+- Inherit `models.Model` directly; add timestamps via fields (`created_at`, `updated_at`) with `auto_now_add`/`auto_now`
+- Use `BigAutoField` (project default)
+- Validate at model level with `clean()` when business rules apply
+- ForeignKey: always set `on_delete` explicitly, prefer `related_name`
+- JSONField for flexible content (e.g. `MicroTask.content`, assessment options)
+
+## Serializers
+
+- Use `ModelSerializer` for standard CRUD
+- Explicit `fields` list — never use `"__all__"`
+- Validate cross-field logic in `validate()` method
+- Use `SerializerMethodField` sparingly — prefer annotations on queryset
+
+## Views
+
+- Prefer `ModelViewSet` for full CRUD, `APIView` for custom endpoints
+- Set `permission_classes` per view, not just globally
+- Use `@action(detail=True/False)` for non-CRUD operations on ViewSets
+- Filter with `django_filters.FilterSet`, search with `SearchFilter`, order with `OrderingFilter`
+- Throttle sensitive endpoints: `login` (10/min), `register` (5/min), `assessment_submit` (30/min), `export` (5/min)
+
+## Celery Tasks
+
+- Decorate with `@shared_task(bind=True)` for retry access
+- Make tasks idempotent — safe to re-run
+- Use `autoretry_for`, `retry_backoff=True`, `max_retries=3`
+- Respect `CELERY_TASK_SOFT_TIME_LIMIT` (240s) and `CELERY_TASK_TIME_LIMIT` (300s)
+- Log task start/completion with structured logger
+
+```python
+@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, max_retries=3)
+def process_something(self, item_id):
+    logger.info("Processing item", extra={"item_id": item_id})
+    item = Item.objects.get(pk=item_id)
+    # ... idempotent logic ...
+```
+
+## Error Handling
+
+- Use DRF exceptions (`ValidationError`, `NotFound`, `PermissionDenied`)
+- Custom exception handler: `privacy.exception_handler.privacy_exception_handler`
+- Never expose stack traces or internal details in API responses
+
+## Imports Order
+
+1. stdlib
+2. third-party (django, rest_framework, celery)
+3. local apps (accounts, assessment, adaptive, etc.)
+
+## Database
+
+- PostgreSQL via `django_prometheus.db.backends.postgresql`
+- Statement timeout: 30s
+- Use `select_related` / `prefetch_related` to avoid N+1
+- Use `F()` expressions and `annotate()` for computed fields
+- Wrap multi-step writes in `transaction.atomic()`
+
+## Logging
+
+Use named loggers: `palp`, `palp.events`, `palp.performance`, `palp.health`, `palp.celery`, `palp.privacy`.
+Include `request_id` via middleware. PII scrub filter is active.
+
+```python
+import logging
+logger = logging.getLogger("palp")
+```

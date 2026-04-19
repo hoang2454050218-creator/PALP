@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\tools\registry.py
+# hypothesis_version: 6.151.9
+
+['-created_at', '-p_mastery', 'attempts', 'calibration_error', 'completed_concepts', 'completed_milestones', 'composite', 'concept', 'concept_id', 'concept_name', 'concepts', 'current_concept', 'current_difficulty', 'current_milestone', 'detail', 'dimensions', 'drift_pct', 'error', 'get_mastery', 'get_pathway', 'get_risk_score', 'get_weekly_goal', 'invalid_args', 'judgments', 'name', 'object', 'p_mastery', 'pathway', 'predicted_confidence', 'properties', 'rbac_denied', 'result', 'severity', 'status', 'student_id', 'target_minutes', 'task_id', 'tool_not_allowed', 'type', 'was_correct', 'weekly_goal']

@@ -1,0 +1,68 @@
+# Docker & Infrastructure
+
+Applies to: `Dockerfile*`, `docker-compose*.yml`, `infra/**`, `nginx/**`
+
+## Service Architecture
+
+```
+docker-compose.yml (dev)          docker-compose.prod.yml (production)
+├── db (postgres:16-alpine)       ├── db + resource limits
+├── redis (redis:7-alpine)        ├── redis + persistence + maxmemory
+├── backend (runserver)           ├── backend (gunicorn)
+├── celery (worker)               ├── celery (worker + concurrency)
+├── celery-beat                   ├── celery-beat
+├── frontend (next dev)           ├── frontend (next start, Dockerfile.prod)
+└── db-backup (pg_dump loop)      ├── nginx (reverse proxy, TLS)
+                                  └── backup (scripts/backup_db.sh)
+```
+
+## Key Differences: Dev vs Prod
+
+| Aspect | Dev | Prod |
+|--------|-----|------|
+| Backend | `runserver` | Gunicorn (workers/threads from env) |
+| Settings | `palp.settings.development` | `palp.settings.production` |
+| Frontend | next dev (hot reload) | next build + start |
+| Proxy | Direct port access | Nginx reverse proxy |
+| Resources | Unlimited | Memory/CPU limits per service |
+| Redis | No persistence | AOF + save, maxmemory 256MB LRU |
+| Secrets | Default dev passwords | Env vars required (no defaults) |
+
+## Dockerfile Guidelines
+
+- Use Alpine-based images where possible
+- Multi-stage builds for frontend production image
+- Pin base image versions (postgres:16-alpine, not postgres:latest)
+- Copy requirements/package files first for layer caching
+- Run as non-root user in production
+
+## Monitoring Stack
+
+- Prometheus scrapes `backend:8000/metrics` (django_prometheus)
+- Grafana dashboards provisioned via `infra/grafana/provisioning/`
+- Datasource: Prometheus at `http://prometheus:9090`
+- Health endpoint: `/api/health/` (must respond within 30s after deploy)
+
+## Backup Strategy
+
+- Dev: `pg_dump -Fc` every 6 hours, retain last 7 dumps
+- Prod: daily via `scripts/backup_db.sh`, retention configurable via `BACKUP_RETENTION_DAYS`
+- Backup verification: must be tested as part of release checklist
+
+## Environment Variables
+
+All config via `.env` file (see `.env.example`). Critical prod vars that must be set:
+- `DJANGO_SECRET_KEY`, `POSTGRES_PASSWORD`, `PII_ENCRYPTION_KEY`
+- `DJANGO_SETTINGS_MODULE=palp.settings.production`
+- `DJANGO_DEBUG=False`
+
+## Health Checks
+
+Every service must have a healthcheck:
+- PostgreSQL: `pg_isready`
+- Redis: `redis-cli ping`
+- Backend: `/api/health/` HTTP check
+- Celery: `celery inspect ping`
+- Nginx: `/nginx-health`
+
+Services use `depends_on.condition: service_healthy` for ordered startup.

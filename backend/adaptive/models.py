@@ -12,6 +12,12 @@ class MasteryState(models.Model):
     attempt_count = models.PositiveIntegerField(default=0)
     correct_count = models.PositiveIntegerField(default=0)
     version = models.PositiveIntegerField(default=1)
+    # Phase 1D — context-aware BKT v2 mastery posterior. Null until the
+    # v2 engine has seen at least one attempt for this row, then updated
+    # every submission alongside ``p_mastery``. Promotion to default
+    # consumer happens after shadow deployment (mlops.shadow) shows the
+    # v2 estimator beats v1 by the gate threshold.
+    p_mastery_v2 = models.FloatField(null=True, blank=True)
     last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -162,6 +168,99 @@ class StudentPathway(models.Model):
             return 0.0
         pct = (completed / total) * 100
         return max(0.0, min(100.0, round(pct, 2)))
+
+
+class MetacognitiveJudgment(models.Model):
+    """Confidence rating recorded immediately before submitting a task.
+
+    Phase 1E of the v3 roadmap. Compares the student's pre-submission
+    confidence (1-5 Likert) against the actual correctness of the
+    attempt. The resulting ``calibration_error`` becomes the metacognitive
+    dimension of the RiskScore composite (Phase 1F) and feeds the weekly
+    "you tend to over/under-confident on this kind of task" coach
+    feedback prompt.
+
+    Grounded in:
+      - Dunlosky & Metcalfe (2009) "Metacognition" (judgment of learning)
+      - Hacker et al. (2008) "Test prediction and performance"
+    """
+
+    class JudgmentType(models.TextChoices):
+        JOL = "JOL", "Judgment of Learning (sau học, trước test)"
+        FOK = "FOK", "Feeling of Knowing (trước recall)"
+        EOL = "EOL", "Ease of Learning (trước nhiệm vụ mới)"
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="metacognitive_judgments",
+    )
+    task_attempt = models.OneToOneField(
+        TaskAttempt,
+        on_delete=models.CASCADE,
+        related_name="metacognitive_judgment",
+        null=True,
+        blank=True,
+        help_text="Linked once the attempt is recorded; nullable so judgments "
+                  "made before submit can still be persisted optimistically.",
+    )
+    task = models.ForeignKey(
+        "curriculum.MicroTask",
+        on_delete=models.CASCADE,
+        related_name="metacognitive_judgments",
+    )
+    confidence_pre = models.PositiveSmallIntegerField(
+        help_text="Likert 1 (very unsure) to 5 (very sure) recorded before submit.",
+    )
+    actual_correct = models.BooleanField(null=True, blank=True)
+    calibration_error = models.FloatField(
+        null=True, blank=True,
+        help_text="|normalised(confidence) - actual_correct| in [0,1]. "
+                  "0 = perfectly calibrated.",
+    )
+    judgment_type = models.CharField(
+        max_length=5,
+        choices=JudgmentType.choices,
+        default=JudgmentType.JOL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "palp_metacog_judgment"
+        ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(confidence_pre__gte=1) & models.Q(confidence_pre__lte=5),
+                name="ck_metacog_confidence_1_5",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(calibration_error__isnull=True)
+                | (models.Q(calibration_error__gte=0) & models.Q(calibration_error__lte=1)),
+                name="ck_metacog_calibration_0_1",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["student", "-created_at"], name="idx_metacog_student"),
+            models.Index(fields=["task", "judgment_type"], name="idx_metacog_task_type"),
+        ]
+
+    def __str__(self) -> str:
+        verdict = "?" if self.actual_correct is None else ("✓" if self.actual_correct else "✗")
+        return f"{self.student_id}@{self.task_id} confidence={self.confidence_pre} actual={verdict}"
+
+    def compute_calibration_error(self) -> float | None:
+        """Refresh + persist calibration_error from current fields.
+
+        Confidence is normalised to [0,1] via (k-1)/4 so a 5-Likert maps to 1.0
+        and 1-Likert maps to 0.0. Then the error is the absolute distance to
+        the binary outcome.
+        """
+        if self.actual_correct is None:
+            return None
+        normalised = (self.confidence_pre - 1) / 4.0
+        actual = 1.0 if self.actual_correct else 0.0
+        self.calibration_error = round(abs(normalised - actual), 4)
+        return self.calibration_error
 
 
 class PathwayOverride(models.Model):

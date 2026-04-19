@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\affect\admin.py
+# hypothesis_version: 6.151.9
+
+['arousal', 'arousal_weight', 'confidence', 'created_at', 'id', 'label', 'language', 'modality', 'occurred_at', 'polarity', 'student', 'student__username', 'term', 'updated_at', 'valence', 'valence_weight']

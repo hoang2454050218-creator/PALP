@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\notifications\models.py
+# hypothesis_version: 6.151.9
+
+[160, 255, '-created_at', 'Cảnh báo', 'Email', 'Khẩn', 'Push', 'Thông tin', 'Trong ứng dụng', 'category', 'email', 'in_app', 'info', 'notifications', 'palp_notification', 'push', 'read_at', 'urgent', 'user', 'warning']

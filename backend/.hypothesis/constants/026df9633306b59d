@@ -1,0 +1,4 @@
+# file: /app/mlops/models.py
+# hypothesis_version: 6.152.1
+
+[0.0, 300, 500, '-created_at', 'Affect Fusion', 'Archived', 'Classifier (other)', 'Clustering', 'Contextual Bandit', 'Deprecated', 'Drift nhẹ', 'Drift đáng kể', 'Dropout Survival', 'Embedding', 'Không drift', 'Production', 'Risk Score Composite', 'Shadow (eval only)', 'Staging (internal)', 'Training', 'affect', 'archived', 'bandit', 'bkt', 'candidate_version', 'classifier_other', 'clustering', 'critical', 'deprecated', 'dkt', 'drift_reports', 'embedding', 'major', 'minor', 'model_version', 'name', 'none', 'owned_models', 'palp_mlops_registry', 'palp_mlops_version', 'production', 'registry', 'risk_score', 'semver', 'severity', 'shadow', 'staging', 'status', 'survival', 'training', 'versions']

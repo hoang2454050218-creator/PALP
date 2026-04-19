@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\peer\services\benchmark.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1e-09, 0.5, 100.0, '-created_at', 'COHORT_MIN_SIZE', 'above_median', 'below_median', 'building_phase', 'cohort_not_assigned', 'cohort_too_small', 'consolidation', 'growth_invitation', 'next_step_focus', 'p_mastery', 'teach_back', 'top_25_pct']

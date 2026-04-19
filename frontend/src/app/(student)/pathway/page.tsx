@@ -14,6 +14,15 @@ import { api } from "@/lib/api";
 import { difficultyLabel } from "@/lib/utils";
 import { useCourseContext, useEnsureCourseContext } from "@/hooks/use-course-context";
 import type { StudentPathway, Milestone, MilestoneDetail, Concept } from "@/types";
+import { DKTPanel } from "@/components/intelligence/dkt-panel";
+import { RootCausePanel } from "@/components/intelligence/root-cause-panel";
+import type {
+  DKTPrediction,
+  DKTPredictionsResponse,
+  RootCausePayload,
+} from "@/components/intelligence/types";
+import { XaiPanel } from "@/components/phase6/xai-panel";
+import type { RiskExplanation } from "@/components/phase6/types";
 import Link from "next/link";
 
 export default function PathwayPage() {
@@ -27,6 +36,12 @@ export default function PathwayPage() {
   const [milestoneConceptMap, setMilestoneConceptMap] = useState<Record<number, number[]>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [dktPredictions, setDktPredictions] = useState<DKTPrediction[]>([]);
+  const [dktLoading, setDktLoading] = useState(false);
+  const [rootCause, setRootCause] = useState<RootCausePayload | null>(null);
+  const [rootCauseLoading, setRootCauseLoading] = useState(false);
+  const [xaiData, setXaiData] = useState<RiskExplanation | null>(null);
+  const [xaiLoading, setXaiLoading] = useState(false);
 
   async function load(id: number) {
     setLoading(true);
@@ -65,6 +80,57 @@ export default function PathwayPage() {
   useEffect(() => {
     if (courseId != null) load(courseId);
   }, [courseId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDktLoading(true);
+    api
+      .get<DKTPredictionsResponse>("/dkt/me/?top_k=5")
+      .then((data) => {
+        if (cancelled) return;
+        setDktPredictions(data.predictions);
+        const weakest = data.predictions[0];
+        if (weakest) {
+          setRootCauseLoading(true);
+          api
+            .get<RootCausePayload>(
+              `/knowledge-graph/me/root-cause/${weakest.concept}/`,
+            )
+            .then((rc) => {
+              if (!cancelled) setRootCause(rc);
+            })
+            .catch(() => {
+              if (!cancelled) setRootCause(null);
+            })
+            .finally(() => {
+              if (!cancelled) setRootCauseLoading(false);
+            });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDktPredictions([]);
+      })
+      .finally(() => {
+        if (!cancelled) setDktLoading(false);
+      });
+
+    setXaiLoading(true);
+    api
+      .get<RiskExplanation>("/explain/risk/me/")
+      .then((rx) => {
+        if (!cancelled) setXaiData(rx);
+      })
+      .catch(() => {
+        if (!cancelled) setXaiData(null);
+      })
+      .finally(() => {
+        if (!cancelled) setXaiLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (error) {
     return (
@@ -210,6 +276,17 @@ export default function PathwayPage() {
           );
         })}
       </div>
+
+      <section
+        aria-label="Phân tích thông minh: DKT + Root-cause + XAI"
+        className="mt-10 grid gap-6 lg:grid-cols-2 items-start"
+      >
+        <DKTPanel predictions={dktPredictions} loading={dktLoading} />
+        <RootCausePanel data={rootCause} loading={rootCauseLoading} />
+        <div className="lg:col-span-2">
+          <XaiPanel data={xaiData} loading={xaiLoading} />
+        </div>
+      </section>
     </div>
   );
 }

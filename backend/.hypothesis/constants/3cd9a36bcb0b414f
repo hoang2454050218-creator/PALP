@@ -1,0 +1,4 @@
+# file: /app/fairness/audit_classifier.py
+# hypothesis_version: 6.152.1
+
+[0.05, 0.1, 0.8, 'PALP_FAIRNESS', 'attr', 'calibration', 'demographic_parity', 'difference', 'equalized_odds', 'max_minus_min', 'metric', 'note', 'observed', 'ratio', 'selection_rates', 'single_group', 'threshold']

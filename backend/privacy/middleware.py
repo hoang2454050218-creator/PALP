@@ -15,6 +15,36 @@ CONSENT_REQUIRED_PATHS = {
     r"^/api/adaptive/pathway": "inference",
     r"^/api/adaptive/interventions": "inference",
     r"^/api/wellbeing/": "behavioral",
+    # v3 roadmap — Phase 1
+    r"^/api/signals/": "behavioral_signals",
+    r"^/api/adaptive/calibration": "cognitive_calibration",
+    r"^/api/risk/me": "inference",
+    # v3 roadmap — Phase 3 (Peer Engine)
+    # ``frontier`` and ``consent`` are intentionally NOT gated — frontier
+    # is past-self only and consent must always be reachable so the
+    # student can opt out of any peer feature without consenting to it
+    # first (which would be self-defeating).
+    r"^/api/peer/benchmark": "peer_comparison",
+    r"^/api/peer/buddy": "peer_teaching",
+    r"^/api/peer/teaching-session": "peer_teaching",
+    # v3 roadmap — Phase 4 (AI Coach + Emergency Pipeline)
+    # ``coach/consent`` and ``coach/conversations`` (read-only history)
+    # are intentionally NOT gated so the student can disable the coach
+    # and still review past conversations. Sending a new message is
+    # gated below.
+    r"^/api/coach/message": "ai_coach_local",
+    # v3 roadmap — Phase 5 (Agentic memory)
+    # ``GET memory/me/`` is gated so the panel does not surface memory
+    # the student never agreed to populate. ``DELETE`` is intentionally
+    # NOT path-gated so users can always revoke + clear memory even
+    # without consent.
+    r"^/api/coach/memory/me/$": "agentic_memory",
+    # v3 roadmap — Phase 7 (Academic layer)
+    # The opt-in/consent endpoints themselves are intentionally NOT
+    # gated so a student can always set or revoke participation. We
+    # only gate the actual ingestion paths.
+    r"^/api/affect/ingest": "affect_signals",
+    r"^/api/affect/me": "affect_signals",
 }
 
 AUDITED_PATH_PATTERNS = [
@@ -99,6 +129,13 @@ class PIIScrubLogFilter(logging.Filter):
         (re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"), "[EMAIL]"),
         (re.compile(r"\b0\d{9,10}\b"), "[PHONE]"),
         (re.compile(r"\b\d{8,10}\b"), "[STUDENT_ID]"),
+        # Defense-in-depth: scrub OpenAI/Anthropic/key4u-style secrets so a
+        # stray log statement in coach/llm/* never persists a key. The
+        # patterns are intentionally broad — false positives are fine,
+        # leaked keys are not.
+        (re.compile(r"sk-[A-Za-z0-9_\-]{20,}"), "[API_KEY]"),
+        (re.compile(r"sk-ant-[A-Za-z0-9_\-]{20,}"), "[API_KEY]"),
+        (re.compile(r"Bearer\s+[A-Za-z0-9_\-\.]{20,}"), "Bearer [REDACTED]"),
     ]
 
     def filter(self, record):

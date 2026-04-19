@@ -1,0 +1,4 @@
+# file: /app/adaptive/calibration.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.3, 'actual_correct', 'calibration_error', 'confidence_pre', 'insufficient_data', 'judgment_type', 'label', 'n', 'overconfidence_rate', 'overconfident', 'palp', 'task_attempt', 'task_id', 'underconfidence_rate', 'underconfident', 'well_calibrated']

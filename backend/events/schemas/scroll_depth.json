@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "scroll_depth properties",
+  "type": "object",
+  "required": ["depth_pct", "page_type"],
+  "properties": {
+    "depth_pct": {"type": "integer", "enum": [25, 50, 75, 100]},
+    "page_type": {
+      "type": "string",
+      "enum": ["task", "concept", "explanation", "north_star"]
+    }
+  },
+  "additionalProperties": true
+}

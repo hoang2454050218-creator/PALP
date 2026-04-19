@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\bandit\admin.py
+# hypothesis_version: 6.151.9
+
+['alpha', 'arm', 'beta', 'context_key', 'decided_at', 'decision', 'dimension', 'experiment', 'id', 'is_enabled', 'key', 'last_pulled_at', 'last_rewarded_at', 'pulls', 'recorded_at', 'rewards_sum', 'sampled_value', 'seed', 'status', 'title', 'updated_at', 'user', 'value']

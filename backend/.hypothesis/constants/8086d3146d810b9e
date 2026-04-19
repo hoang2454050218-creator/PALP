@@ -1,0 +1,4 @@
+# file: /app/fairness/metrics.py
+# hypothesis_version: 6.152.1
+
+[0.0, 1e-09, 1.0, 'baseline', 'cluster', 'concentration', 'difference', 'fpr', 'fpr_difference', 'max_minus_min', 'note', 'per_group', 'rates', 'ratio', 'single_group', 'tpr', 'tpr_difference']

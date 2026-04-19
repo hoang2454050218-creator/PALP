@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\peer\admin.py
+# hypothesis_version: 6.151.9
+
+['a_rating_by_b', 'ability_band_label', 'b_rating_by_a', 'cohort', 'compatibility_score', 'concept_a_to_b', 'concept_b_to_a', 'created_at', 'current_round', 'detected_at', 'ended_at', 'fairness_audit', 'flagged_for_review', 'frontier_mode', 'id', 'is_active', 'is_resolved', 'match', 'mean_risk_score', 'members', 'members_count', 'peer_comparison', 'peer_teaching', 'prompt_shown_at', 'reviewed_by', 'severity', 'started_at', 'status', 'student', 'student__email', 'student__username', 'student_a', 'student_b', 'student_class', 'student_class__name', 'updated_at']

@@ -1,0 +1,4 @@
+# file: /app/privacy/models.py
+# hypothesis_version: 6.152.1
+
+[200, 300, 500, '-created_at', '-requested_at', '1.1', 'Cao', 'Chờ xử lý', 'Hoàn thành', 'Nghiêm trọng', 'Sự cố bảo mật', 'Thay đổi đồng thuận', 'Thấp', 'Thất bại', 'Trung bình', 'Xem dữ liệu', 'Xuất dữ liệu', 'Xóa dữ liệu', 'academic', 'action', 'actor', 'anonymize', 'audit_actions', 'audit_targets', 'behavioral', 'behavioral_signals', 'closed', 'completed', 'consent_change', 'consent_records', 'critical', 'delete', 'deleted', 'deletion_requests', 'export', 'failed', 'granted', 'high', 'incident', 'inference', 'investigating', 'low', 'medium', 'n/a', 'open', 'palp_audit_log', 'palp_consent_record', 'pending', 'processing', 'purpose', 'reported_incidents', 'resolved', 'revoked', 'system', 'target_user', 'user', 'view', 'Đang mở', 'Đang xử lý', 'Đang điều tra', 'Đã xử lý', 'Đóng', 'Ẩn danh hóa']

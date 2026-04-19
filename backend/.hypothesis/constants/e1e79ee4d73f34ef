@@ -1,0 +1,4 @@
+# file: /app/fairness/admin.py
+# hypothesis_version: 6.152.1
+
+['created_at', 'kind', 'notes', 'passed', 'reviewed_by', 'sample_size', 'target_name']

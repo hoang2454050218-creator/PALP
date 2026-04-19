@@ -1,0 +1,4 @@
+# file: /app/risk/scoring.py
+# hypothesis_version: 6.152.1
+
+[0.0, 1e-06, 0.01, 0.4, 0.9, 1.0, 5.0, 10.0, 100.0, 100, 'RiskBreakdown', 'academic', 'behavioral', 'contribution_pct', 'dimension', 'dimension_score', 'dismissed', 'engagement', 'focus_avg', 'focus_minutes', 'focus_risk', 'frustration_avg', 'frustration_score', 'give_up_count', 'give_up_total', 'hint', 'inactivity_days', 'insufficient_data', 'label', 'latest', 'low_mastery_pct', 'metacognitive', 'milestone_lag_pct', 'milestones_completed', 'normalised', 'overconfident', 'palp', 'psychological', 'retry_failure_count', 'session_quality_inv', 'timestamp_utc', 'underconfident', 'value', 'well_calibrated']

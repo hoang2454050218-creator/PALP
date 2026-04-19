@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\privacy_dp\admin.py
+# hypothesis_version: 6.151.9
+
+['Remaining ε', 'actor', 'budget', 'created_at', 'description', 'epsilon_spent', 'epsilon_total', 'id', 'mechanism', 'noisy_value', 'period_end', 'period_start', 'query_kind', 'raw_value', 'remaining_display', 'scope', 'sensitivity']

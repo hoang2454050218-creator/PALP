@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\palp\middleware.py
+# hypothesis_version: 6.151.9
+
+[0.0, 60.0, 1000, 2000, '%Y-%m-%d', '-', 'HTTP_X_REQUEST_ID', 'X-Request-ID', 'X-Response-Time-Ms', '_request_id_token', '_start_time', 'duration_ms', 'method', 'palp', 'palp.metrics', 'palp.performance', 'palp_request_id', 'path', 'request_id', 'slo_threshold_ms', 'status_class', 'status_code', 'total']

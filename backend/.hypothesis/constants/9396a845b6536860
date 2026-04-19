@@ -1,0 +1,4 @@
+# file: /app/causal/estimators.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.5, 1.96, 'ate', 'ate_ci_high', 'ate_ci_low', 'cuped_naive', 'doubly_robust', 'empty_arm', 'estimator', 'ipw', 'n', 'n_control', 'n_treatment', 'note', 'p_value', 'se', 'variance_reduction']

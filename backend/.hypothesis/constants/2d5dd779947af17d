@@ -1,0 +1,4 @@
+# file: /app/adaptive/engine_v2.py
+# hypothesis_version: 6.152.1
+
+[0.0, 1e-06, 0.01, 0.25, 0.4, 0.8, 0.99, 1.0, 2.0, 4.0, 'P_GUESS', 'P_SLIP', 'concept_id', 'is_correct', 'last_updated', 'n_high_total', 'n_low_total', 'p_guess', 'p_mastery', 'p_mastery_v2', 'p_slip', 'palp', 'prior_p_guess', 'prior_p_slip', 'student_id', 'task__concept_id']

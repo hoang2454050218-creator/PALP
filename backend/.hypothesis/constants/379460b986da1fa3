@@ -1,0 +1,4 @@
+# file: /app/mlops/shadow.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.05, 5000, 'all_nan', 'candidate_id', 'edges', 'empty_window', 'histogram', 'nan', 'palp', 'tolerance']

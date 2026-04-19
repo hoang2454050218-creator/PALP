@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "hint_requested properties",
+  "type": "object",
+  "required": ["task_id", "hint_index"],
+  "properties": {
+    "task_id": {"type": "integer"},
+    "hint_index": {"type": "integer", "minimum": 1},
+    "time_since_task_start_ms": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": true
+}

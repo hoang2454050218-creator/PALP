@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\benchmarks\services.py
+# hypothesis_version: 6.151.9
+
+[0.8, 200, '-started_at', '.', 'DEFAULT_SAMPLE_SIZE', 'DEFAULT_SEED', 'LOADERS', 'PALP_BENCHMARKS', '_', 'concepts', 'dataset', 'description', 'ednet-kt1-synth', 'finished_at', 'interactions', 'key', 'license', 'loader_path', 'notes', 'palp.benchmarks', 'predictor', 'source', 'status', 'students', 'synthetic', 'title', 'train_ratio']

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "focus_lost properties",
+  "type": "object",
+  "required": ["focus_duration_ms", "trigger"],
+  "properties": {
+    "focus_duration_ms": {"type": "integer", "minimum": 0},
+    "trigger": {
+      "type": "string",
+      "enum": ["visibility_hidden", "window_blur", "tab_switch"]
+    },
+    "url_path": {"type": "string"},
+    "task_id": {"type": ["integer", "null"]}
+  },
+  "additionalProperties": true
+}

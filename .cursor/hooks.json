@@ -7,6 +7,12 @@
         "matcher": "\\.py$",
         "failClosed": false,
         "timeout": 15
+      },
+      {
+        "command": ".cursor/hooks/ruler-apply.sh",
+        "matcher": "^\\.ruler[/\\\\].*\\.(md|toml)$",
+        "failClosed": false,
+        "timeout": 30
       }
     ]
   }

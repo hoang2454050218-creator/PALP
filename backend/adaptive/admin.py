@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import MasteryState, TaskAttempt, ContentIntervention, StudentPathway, PathwayOverride
+from .models import (
+    ContentIntervention,
+    MasteryState,
+    MetacognitiveJudgment,
+    PathwayOverride,
+    StudentPathway,
+    TaskAttempt,
+)
 
 
 @admin.register(MasteryState)
@@ -29,3 +36,19 @@ class StudentPathwayAdmin(admin.ModelAdmin):
 class PathwayOverrideAdmin(admin.ModelAdmin):
     list_display = ("student", "course", "lecturer", "override_type", "is_active", "applied_at")
     list_filter = ("override_type", "is_active")
+
+
+@admin.register(MetacognitiveJudgment)
+class MetacognitiveJudgmentAdmin(admin.ModelAdmin):
+    list_display = (
+        "student",
+        "task",
+        "confidence_pre",
+        "actual_correct",
+        "calibration_error",
+        "judgment_type",
+        "created_at",
+    )
+    list_filter = ("judgment_type", "actual_correct")
+    search_fields = ("student__username", "task__title")
+    readonly_fields = ("created_at", "calibration_error")

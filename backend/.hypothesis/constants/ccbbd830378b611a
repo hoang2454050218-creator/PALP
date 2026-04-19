@@ -1,0 +1,4 @@
+# file: /app/signals/models.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.001, 0.2, 1.0, 120, '-day', '-window_start', 'behavior_scores', 'canonical_session_id', 'day', 'palp_behavior_score', 'palp_signal_session', 'raw_session_id', 'signal_sessions', 'student', 'window_start']

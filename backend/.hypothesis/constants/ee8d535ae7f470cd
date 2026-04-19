@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\instructor_copilot\models.py
+# hypothesis_version: 6.151.9
+
+[200, '-created_at', '-week_start', 'Bản nháp', 'Dễ', 'Khó', 'Trung bình', 'approved', 'archived', 'concept', 'course', 'curriculum.Concept', 'curriculum.Course', 'draft', 'generated_exercises', 'published', 'rejected', 'requested_by', 'reviewed', 'sent', 'status', 'student', 'week_start', 'Đã duyệt', 'Đã gửi', 'Đã lưu trữ', 'Đã review', 'Đã từ chối', 'Đã xuất bản']

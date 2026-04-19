@@ -184,7 +184,8 @@ class TestConsentFlow:
         resp = student_api.get("/api/privacy/consent/")
         assert resp.status_code == 200
         purposes = {item["purpose"] for item in resp.data}
-        assert purposes == {"academic", "behavioral", "inference"}
+        # Original Phase 0 contract is preserved; v3 Phase 1 added two new purposes.
+        assert {"academic", "behavioral", "inference"}.issubset(purposes)
 
     def test_consent_sync_to_user_flag(self, student):
         _grant_all_consents(student)

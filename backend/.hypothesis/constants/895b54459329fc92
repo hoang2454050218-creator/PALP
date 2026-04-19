@@ -1,0 +1,4 @@
+# file: /app/fairness/models.py
+# hypothesis_version: 6.152.1
+
+[120, '-created_at', 'FAIL', 'PASS', 'classifier', 'clustering', 'palp_fairness_audit', 'passed', 'regression', 'target_name']

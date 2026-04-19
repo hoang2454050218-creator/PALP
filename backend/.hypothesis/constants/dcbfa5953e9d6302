@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\peer\services\cohort_builder.py
+# hypothesis_version: 6.151.9
+
+[0.0, 'COHORT_KMEANS_SEED', 'COHORT_MIN_SIZE', 'COHORT_TARGET_SIZE', 'concept_id', 'economic_band', 'fairness_audit', 'gender', 'id', 'p_mastery', 'palp.peer.cohort', 'region', 'student', 'unknown']

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\notifications\admin.py
+# hypothesis_version: 6.151.9
+
+['body', 'category', 'channel', 'created_at', 'email_enabled', 'id', 'in_app_enabled', 'push_enabled', 'quiet_hours_end', 'quiet_hours_start', 'read_at', 'severity', 'title', 'user']

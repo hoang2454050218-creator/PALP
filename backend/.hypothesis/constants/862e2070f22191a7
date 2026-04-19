@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\research\models.py
+# hypothesis_version: 6.151.9
+
+[160, 240, 255, '-created_at', '-decided_at', 'Bản nháp', 'active', 'anonymized_exports', 'approved', 'closed', 'declined', 'draft', 'exports', 'opted_in', 'participations', 'protocol', 'state', 'student', 'withdrawn', 'Đang chạy', 'Đã phê duyệt', 'Đã rút', 'Đã tham gia', 'Đã từ chối', 'Đã đóng']

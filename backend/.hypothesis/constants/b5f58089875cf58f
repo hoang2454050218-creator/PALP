@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\publication\admin.py
+# hypothesis_version: 6.151.9
+
+['benchmark_run_id', 'commit_hash', 'created_at', 'dataset_key', 'datasheet', 'licence', 'model_card', 'model_label', 'published_at', 'status', 'title', 'updated_at']

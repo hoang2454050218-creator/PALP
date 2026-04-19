@@ -1,0 +1,60 @@
+name: Ruler Sync Check
+
+on:
+  pull_request:
+    paths:
+      - '.ruler/**'
+      - '.cursor/rules/**'
+      - '.cursor/mcp.json'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.github/workflows/ruler-check.yml'
+  push:
+    branches: [main, develop]
+    paths:
+      - '.ruler/**'
+
+concurrency:
+  group: ruler-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruler-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Ruler
+        run: npm install -g @intellectronica/ruler
+
+      - name: Ruler version
+        run: ruler --version
+
+      - name: Validate .ruler/ structure (toml + skill frontmatter)
+        run: python scripts/validate_ruler.py
+
+      - name: Apply Ruler config (no gitignore mutation, no .bak files)
+        run: ruler apply --no-gitignore --no-backup --verbose
+
+      - name: Detect drift
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "::error::Ruler config drift detected. Run 'npm run ruler:apply' locally and commit the changes."
+            echo ""
+            echo "Files that changed after 'ruler apply':"
+            git status --short
+            echo ""
+            echo "Diff:"
+            git --no-pager diff --stat
+            git --no-pager diff
+            exit 1
+          fi
+          echo "Ruler configs in sync."

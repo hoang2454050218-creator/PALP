@@ -94,12 +94,10 @@ def _serialize_qs(queryset, fields=None):
 
 
 def export_user_data(user):
-    result = {
-        "pii": {},
-        "academic": {},
-        "behavioral": {},
-        "inference": {},
-    }
+    # Build the tier scaffolding dynamically so adding a new tier in
+    # ``constants.DATA_TIERS`` (e.g. v3 roadmap behavioral_signals) doesn't
+    # require remembering to update the hard-coded keys here.
+    result: dict = {tier_key: {} for tier_key in DATA_TIERS}
 
     result["pii"]["user"] = {
         "id": user.id,

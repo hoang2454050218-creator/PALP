@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\research\admin.py
+# hypothesis_version: 6.151.9
+
+['code', 'consent_text_version', 'created_at', 'dataset_key', 'decided_at', 'id', 'irb_number', 'k_anonymity_passed', 'k_anonymity_value', 'participant_count', 'pi_email', 'pi_name', 'protocol', 'protocol__code', 'record_count', 'retention_months', 'salt_id', 'state', 'status', 'student', 'student__email', 'student__username', 'suppressed_columns', 'title', 'updated_at', 'withdrawn_at']

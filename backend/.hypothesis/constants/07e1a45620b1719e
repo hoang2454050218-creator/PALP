@@ -1,0 +1,4 @@
+# file: /app/risk/admin.py
+# hypothesis_version: 6.152.1
+
+['components', 'composite', 'computed_at', 'course', 'dimensions', 'explanation', 'sample_window_days', 'severity', 'student', 'student__username', 'weights_used']

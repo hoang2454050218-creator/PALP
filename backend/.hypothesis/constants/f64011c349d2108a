@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\affect\engines\linguistic.py
+# hypothesis_version: 6.151.9
+
+[-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, 0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 1.0, 5.0, 200.0, '!', '?', 'NFC', "[\\w']+|[!?]", 'angry', 'anxious', 'buồn', 'bỏ cuộc', 'bực', 'bực mình', 'calm', 'chán', 'chưa', 'chẳng', 'confident', 'confused', 'căng thẳng', 'excited', 'exclam', 'frustrated', 'ghét', 'give up', 'good', 'great', 'happy', 'hate', 'hiểu rồi', 'hạnh phúc', 'hứng thú', 'insufficient_sample', 'khó hiểu', 'không', 'không hiểu', 'kiệt sức', 'lo lắng', 'matched_terms', 'mệt', 'negative', 'neutral', 'never', 'no', 'not', 'nản', 'nản chí', 'ok', 'positive', 'question', 'sad', 'stressed', 'sợ', 'text_length', 'thích', 'tired', 'tốt', 'tức', 'tự tin', 'upper_ratio', 'vi', 'vui', 'vui vẻ', 'yêu thích', 'đâu có', 'ổn']

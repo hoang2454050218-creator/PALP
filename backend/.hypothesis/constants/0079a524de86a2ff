@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\llm\intent.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.7, 'explain_concept', 'family', 'feedback_request', 'frustration', 'give_up', 'homework_help', 'mental_health', 'navigation_help', 'personal_struggle', 'self_harm', 'small_talk', 'stress', 'suicidal_ideation', 'summary_request', 'wellbeing']

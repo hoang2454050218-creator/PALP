@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\benchmarks\admin.py
+# hypothesis_version: 6.151.9
+
+['concepts', 'created_at', 'dataset', 'dataset__key', 'dataset__source', 'finished_at', 'id', 'interactions', 'key', 'license', 'metric_key', 'model_family', 'model_label', 'notes', 'requested_by', 'run', 'sample_size', 'source', 'started_at', 'status', 'students', 'title', 'updated_at', 'value']

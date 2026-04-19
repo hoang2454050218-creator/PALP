@@ -44,3 +44,29 @@ django-axes>=6.5,<7.0
 
 scipy>=1.13,<2.0
 
+# v3 roadmap — Phase 4 (AI Coach) cloud + local LLM transports.
+# We deliberately avoid the provider-specific SDKs (anthropic, openai)
+# because the OpenAICompatClient + OllamaClient only need plain HTTP +
+# JSON. ``httpx`` already ships transitively for ``django-axes`` →
+# ``requests`` substitutes; we pin it explicitly so a future axes
+# upgrade can't regress us.
+httpx>=0.27,<1.0
+
+# v3 roadmap — Phase 0 Foundation Science
+# Phase 0 ships using numpy/scipy/sklearn already declared above. The
+# heavier dependencies below are imported lazily by future phases (P5
+# DKT, P6 DP/Federated/XAI). Pin ranges so a future ``pip install -r``
+# in the Phase 5+ branch picks compatible versions, but keep them
+# commented so Phase 0 deploys stay slim.
+
+# jsonschema>=4.23,<5.0    # Phase 1B signal payload validation
+# fairlearn>=0.10,<1.0     # Phase 0C optional upgrade for fairness audit
+# torch>=2.4,<3.0          # Phase 5A DKT/SAKT
+# opacus>=1.5,<2.0         # Phase 6C Differential Privacy
+# flwr>=1.11,<2.0          # Phase 6C Federated Learning
+# shap>=0.46,<1.0          # Phase 6A XAI
+# dice-ml>=0.11,<1.0       # Phase 6A counterfactual explanations
+# lifelines>=0.30,<1.0     # Phase 5D Survival analysis (Cox PH)
+# mlflow>=2.16,<3.0        # Phase 0A MLOps tracking server
+# feast>=0.40,<1.0         # Phase 0A optional Feast feature store backend
+

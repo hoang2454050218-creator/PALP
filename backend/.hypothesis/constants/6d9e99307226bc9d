@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\llm\client.py
+# hypothesis_version: 6.151.9
+
+[1000, 'DEFAULT_PROVIDER', 'PALP_COACH', 'echo', 'echo-1', 'explain_concept', 'feedback_request', 'general', 'homework_help', 'mock', 'mock-1', 'navigation_help', 'summary_request']

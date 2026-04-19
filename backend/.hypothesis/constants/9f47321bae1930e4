@@ -1,0 +1,4 @@
+# file: /app/mlops/drift.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.001, 0.01, 0.1, 1.0, 'Drift report', 'categorical', 'critical', 'drift_score', 'empty_window', 'insufficient_sample', 'kind', 'ks_stat', 'major', 'minor', 'model_version_id', 'n_categories', 'n_cur', 'n_features', 'n_ref', 'no_categories', 'no_current_window', 'numeric', 'p_value', 'palp', 'scipy_missing', 'severity', 'skipped', 'values']

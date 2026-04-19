@@ -43,3 +43,17 @@ repos:
         language: system
         files: ^frontend/src/.*\.(ts|tsx)$
         pass_filenames: false
+
+      - id: ruler-validate
+        name: Ruler validate (.ruler/ structure)
+        entry: python scripts/validate_ruler.py
+        language: system
+        files: ^\.ruler/.*$
+        pass_filenames: false
+
+      - id: ruler-apply
+        name: Ruler apply (sync AI agent configs)
+        entry: npx -y @intellectronica/ruler apply --no-gitignore --no-backup
+        language: system
+        files: ^\.ruler/.*$
+        pass_filenames: false

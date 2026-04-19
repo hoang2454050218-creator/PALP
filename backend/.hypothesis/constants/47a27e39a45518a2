@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\security\pii_guard.py
+# hypothesis_version: 6.151.9
+
+['CARD', 'EMAIL', 'PER', 'PERSON', 'PHONE', 'STUDENT_ID', '\\b\\d{8,10}\\b', 'xx_ent_wiki_sm']

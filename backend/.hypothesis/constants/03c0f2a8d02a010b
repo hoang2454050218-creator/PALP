@@ -1,0 +1,4 @@
+# file: /app/signals/admin.py
+# hypothesis_version: 6.152.1
+
+['avg_focus_score', 'computed_at', 'created_at', 'day', 'focus_minutes', 'frustration_score', 'give_up_count', 'idle_minutes', 'raw_event_count', 'raw_session_id', 'session_quality', 'sessions_count', 'student', 'student__username', 'tab_switches', 'total_focus_minutes', 'total_give_up_count', 'updated_at', 'window_start']

@@ -1,0 +1,4 @@
+# file: /app/mlops/admin.py
+# hypothesis_version: 6.152.1
+
+['Artifact', 'Audit', 'Governance', 'Quantitative', 'agreement_pct', 'artifact_uri', 'baseline_version', 'candidate_version', 'created_at', 'description', 'drift_detected', 'entity', 'epsilon_dp', 'fairness_passed', 'fields', 'mean_abs_diff', 'metrics_json', 'model_card_path', 'model_type', 'model_version', 'n_predictions', 'name', 'online_store_enabled', 'owner', 'p95_abs_diff', 'params_json', 'promoted_at', 'promoted_by', 'registry', 'registry__model_type', 'registry__name', 'sample_size', 'semver', 'severity', 'source_table', 'status', 'training_data_ref', 'updated_at', 'window_end', 'window_start']

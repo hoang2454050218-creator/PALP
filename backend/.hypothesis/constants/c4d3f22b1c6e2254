@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\emergency\services.py
+# hypothesis_version: 6.151.9
+
+['Emergency escalated', 'FOLLOW_UP_HOURS', 'PALP_EMERGENCY', 'SLA_MINUTES', 'counselors_notified', 'emergency', 'event_id', 'id', 'lecturer_id', 'palp.emergency', 'severity', 'student_class_id', 'student_id', 'urgent']

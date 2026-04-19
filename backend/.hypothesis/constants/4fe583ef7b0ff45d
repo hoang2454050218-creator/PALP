@@ -1,0 +1,4 @@
+# file: /app/palp/settings/development.py
+# hypothesis_version: 6.152.1
+
+['*', 'DEBUG', 'INFO', 'class', 'console', 'django', 'handlers', 'level', 'loggers', 'palp', 'propagate', 'root', 'version']

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\llm\router.py
+# hypothesis_version: 6.151.9
+
+[50000, 'CLOUD_PROVIDER', 'DEFAULT_PROVIDER', 'LOCAL_PROVIDER', 'PALP_COACH', 'ai_coach_cloud', 'ai_coach_local', 'budget_exceeded', 'cloud', 'default', 'echo', 'local', 'no_cloud_consent', 'sensitive_intent']

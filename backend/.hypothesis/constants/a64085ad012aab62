@@ -1,0 +1,4 @@
+# file: /app/causal/models.py
+# hypothesis_version: 6.152.1
+
+[120, '-created_at', 'Binary (0/1)', 'Continuous', 'Doubly-Robust', 'LOCKED', 'Per-cohort', 'Time-to-event', 'amendments_log', 'binary', 'by', 'causal_layer', 'class', 'cohort', 'continuous', 'cuped_naive', 'diff', 'doubly_robust', 'draft', 'estimator', 'evaluations', 'experiment', 'ipw', 'locked_at', 'locked_by', 'naive', 'reason', 'student', 'time_slice', 'time_to_event', 'uplift_tree', 'username', 'when']

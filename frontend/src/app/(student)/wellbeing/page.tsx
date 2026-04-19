@@ -13,6 +13,12 @@ import { formatDate } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useApiCall } from "@/hooks/use-api-call";
 import type { WellbeingNudge } from "@/types";
+import { SpacedRepPanel } from "@/components/phase6/spaced-rep-panel";
+import type {
+  ReviewItem,
+  ReviewItemsResponse,
+  ReviewLogResponse,
+} from "@/components/phase6/types";
 
 const NUDGE_META: Record<
   WellbeingNudge["nudge_type"],
@@ -50,11 +56,48 @@ export default function WellbeingPage() {
     treat404AsEmpty: true,
   });
   const [respondingId, setRespondingId] = useState<number | null>(null);
+  const [dueItems, setDueItems] = useState<ReviewItem[]>([]);
+  const [upcomingItems, setUpcomingItems] = useState<ReviewItem[]>([]);
+  const [spacedRepLoading, setSpacedRepLoading] = useState(true);
+  const [spacedRepBusy, setSpacedRepBusy] = useState(false);
 
   const load = () => run(() => api.get<WellbeingNudge[]>("/wellbeing/my/"));
 
+  const loadSpacedRep = async () => {
+    setSpacedRepLoading(true);
+    try {
+      const [dueResp, upcomingResp] = await Promise.all([
+        api.get<ReviewItemsResponse>("/spacedrep/due/"),
+        api.get<ReviewItemsResponse>("/spacedrep/upcoming/"),
+      ]);
+      setDueItems(dueResp.items);
+      setUpcomingItems(upcomingResp.items);
+    } catch {
+      setDueItems([]);
+      setUpcomingItems([]);
+    } finally {
+      setSpacedRepLoading(false);
+    }
+  };
+
+  const rateItem = async (conceptId: number, rating: 1 | 2 | 3 | 4) => {
+    setSpacedRepBusy(true);
+    try {
+      await api.post<ReviewLogResponse>("/spacedrep/review/", {
+        concept_id: conceptId,
+        rating,
+      });
+      await loadSpacedRep();
+    } catch {
+      // ignore — leave state as is
+    } finally {
+      setSpacedRepBusy(false);
+    }
+  };
+
   useEffect(() => {
     load();
+    loadSpacedRep();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -248,6 +291,19 @@ export default function WellbeingPage() {
           )}
         </CardContent>
       </Card>
+
+      <section
+        aria-label="Bài ôn theo lịch FSRS"
+        className="mt-6"
+      >
+        <SpacedRepPanel
+          due={dueItems}
+          upcoming={upcomingItems}
+          loading={spacedRepLoading}
+          busy={spacedRepBusy}
+          onRate={rateItem}
+        />
+      </section>
     </div>
   );
 }

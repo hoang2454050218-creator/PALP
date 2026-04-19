@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\privacy_dp\models.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1.0, 120, 240, '-created_at', '-period_start', 'Gaussian', 'Laplace', 'budget', 'dp_queries', 'gaussian', 'laplace', 'palp_dp_query_log', 'period_start', 'queries', 'query_kind', 'scope']

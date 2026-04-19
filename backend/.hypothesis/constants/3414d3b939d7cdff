@@ -1,0 +1,4 @@
+# file: /app/goals/reflection.py
+# hypothesis_version: 6.152.1
+
+['effort_rating', 'free_text_word_count', 'learned_text', 'next_priority_text', 'note', 'palp', 'rating', 'reflection_id', 'struggle_text', 'student', 'submitted_at', 'week_start', 'weekly_goal_id', 'will_repeat']

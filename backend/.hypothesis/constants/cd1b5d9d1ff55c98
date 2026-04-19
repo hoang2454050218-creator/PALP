@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\emergency\detector.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.02, 0.55, 0.78, 0.95, 1.0, 'burnt out', 'bỏ học', 'critical', 'depression', 'drop out', 'end (it|my life)', 'high', 'hopeless', 'không chịu nổi nữa', 'không còn ý nghĩa', 'không muốn sống nữa', 'kill myself', 'kiệt sức', 'kết thúc cuộc đời', 'medium', 'muốn chết', 'self[- ]?harm', 'stress nặng', 'suicide', 'trầm cảm', 'tuyệt vọng', 'tôi không còn', 'tự (tử|sát|vẫn)', 'tự tổn thương']

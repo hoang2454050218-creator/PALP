@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\affect\engines\keystroke.py
+# hypothesis_version: 6.151.9
+
+[-1.0, -0.55, -0.4, 0.0, 0.1, 0.15, 0.25, 0.3, 0.35, 0.55, 0.65, 1.0, 60.0, 400.0, 600.0, 'backspace_ratio', 'burst_count', 'burst_density', 'disengaged', 'engaged', 'frustrated', 'insufficient_sample', 'interval_mean_ms', 'interval_std_ms', 'neutral', 'pause_count', 'pause_density', 'sample_size', 'stressed']

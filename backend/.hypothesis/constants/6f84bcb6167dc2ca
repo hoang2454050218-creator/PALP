@@ -1,0 +1,4 @@
+# file: /app/risk/models.py
+# hypothesis_version: 6.152.1
+
+['-computed_at', 'ALERT_RED', 'ALERT_YELLOW', 'course', 'curriculum.Course', 'green', 'palp_risk_score', 'red', 'risk_scores', 'student', 'yellow']

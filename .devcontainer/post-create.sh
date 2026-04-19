@@ -9,21 +9,27 @@ set -euo pipefail
 echo "PALP devcontainer post-create starting..."
 
 # 1. Install backend deps
-echo "[1/5] Installing backend Python deps..."
+echo "[1/6] Installing backend Python deps..."
 pip install --upgrade pip
 pip install -r backend/requirements.txt -r backend/requirements-dev.txt
 
 # 2. Install frontend deps
-echo "[2/5] Installing frontend npm deps..."
+echo "[2/6] Installing frontend npm deps..."
 (cd frontend && npm ci)
 
 # 3. Install Husky pre-commit hooks (after npm ci so .husky/ exists)
-echo "[3/5] Setting up Husky pre-commit hooks..."
+echo "[3/6] Setting up Husky pre-commit hooks..."
 (cd frontend && npx husky init || true)
 
-# 4. Create .env from template if missing
+# 4. Install Ruler globally for fast `just ruler-*` commands
+echo "[4/6] Installing Ruler (AI agent rule sync)..."
+npm install -g @intellectronica/ruler
+ruler --version || true
+ruler apply --no-gitignore --no-backup || true
+
+# 5. Create .env from template if missing
 if [[ ! -f .env ]]; then
-    echo "[4/5] Creating .env from template..."
+    echo "[5/6] Creating .env from template..."
     cat > .env <<'EOF'
 POSTGRES_DB=palp
 POSTGRES_USER=palp
@@ -45,11 +51,11 @@ BACKEND_INTERNAL_URL=http://backend:8000
 SEED_PASSWORD=Pa55w0rd!
 EOF
 else
-    echo "[4/5] .env already present, skipping."
+    echo "[5/6] .env already present, skipping."
 fi
 
-# 5. Bring up the stack and seed data
-echo "[5/5] Bringing up stack and seeding data..."
+# 6. Bring up the stack and seed data
+echo "[6/6] Bringing up stack and seeding data..."
 docker compose up -d
 sleep 10
 docker exec cnhnha-backend-1 python manage.py migrate --noinput

@@ -6,7 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, BookOpen, Route, ClipboardCheck,
   AlertTriangle, History, LogOut, GraduationCap,
-  Shield, Network, Settings, X, Heart,
+  Shield, Network, Settings, X, Heart, Compass, Users2, Bot, Wand2,
+  ScrollText,
 } from "lucide-react";
 import { cn, displayName } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -22,6 +23,9 @@ const ROLE_LABELS: Record<string, string> = {
 
 const studentNav = [
   { href: "/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+  { href: "/north-star", label: "Định hướng", icon: Compass },
+  { href: "/peer", label: "Mạng lưới", icon: Users2 },
+  { href: "/coach", label: "AI Coach", icon: Bot },
   { href: "/assessment", label: "Đánh giá đầu vào", icon: ClipboardCheck },
   { href: "/pathway", label: "Lộ trình học", icon: Route },
   { href: "/task", label: "Bài tập", icon: BookOpen },
@@ -34,6 +38,8 @@ const lecturerNav = [
   { href: "/overview", label: "Tổng quan lớp", icon: LayoutDashboard },
   { href: "/alerts", label: "Cảnh báo", icon: AlertTriangle },
   { href: "/knowledge-graph", label: "Đồ thị kiến thức", icon: Network },
+  { href: "/copilot", label: "Co-pilot", icon: Wand2 },
+  { href: "/model-cards", label: "Model Cards", icon: ScrollText },
   { href: "/history", label: "Lịch sử can thiệp", icon: History },
   { href: "/preferences", label: "Tùy chỉnh", icon: Settings },
 ];

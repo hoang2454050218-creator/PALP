@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\publication\models.py
+# hypothesis_version: 6.151.9
+
+[120, 240, '-created_at', '-updated_at', 'Bản nháp', 'datasheets_authored', 'draft', 'model_cards_authored', 'model_label', 'published', 'repro_kits', 'reviewed', 'status', 'Đã review', 'Đã xuất bản']

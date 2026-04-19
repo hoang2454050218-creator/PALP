@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\dkt\models.py
+# hypothesis_version: 6.151.9
+
+[0.5, '-computed_at', '-created_at', '-occurred_at', '0.1.0', 'Production', 'Staging', 'concept', 'curriculum.Concept', 'dkt_attempts', 'dkt_predictions', 'dkt_versions', 'family', 'mlops.ModelVersion', 'model_version', 'name', 'occurred_at', 'palp_dkt_attempt_log', 'palp_dkt_prediction', 'predictions', 'production', 'retired', 'sakt-numpy', 'semver', 'shadow', 'staging', 'status', 'student', 'training', 'uq_dkt_name_semver', 'Đang huấn luyện', 'Đang shadow', 'Đã lưu trữ']

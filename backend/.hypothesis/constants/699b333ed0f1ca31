@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\admin.py
+# hypothesis_version: 6.151.9
+
+['ai_coach_cloud', 'ai_coach_local', 'conversation', 'cooldown_until', 'created_at', 'emergency_triggered', 'ended_at', 'id', 'intent', 'latency_ms', 'llm_provider', 'refusal_triggered', 'role', 'started_at', 'status', 'student', 'student__email', 'student__username', 'tokens_in', 'tokens_out', 'turn', 'turn_count', 'turn_number', 'updated_at']

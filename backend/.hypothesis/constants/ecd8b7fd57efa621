@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\services.py
+# hypothesis_version: 6.151.9
+
+[0.4, 0.8, 1000, 3600, 86400, '(blocked-pre-llm)', '-started_at', 'Canary token leaked', 'DAN', 'LLM call failed', 'PALP_COACH', 'agentic_memory', 'blocked', 'canary_leak', 'consent_missing', 'content', 'cooldown_active', 'cooldown_until', 'critical', 'developer mode', 'emergency', 'high', 'injection_blocked', 'intent', 'jailbreak', 'kind', 'last_intent', 'llm_error', 'memory recall failed', 'memory write failed', 'palp.coach', 'pattern', 'post_refusal_match', 'provider', 'refusal_kind', 'refusal_match', 'request_id', 'turn_count', 'unknown', 'updated_at']

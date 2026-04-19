@@ -1,134 +1,68 @@
-# PALP - Personalized Adaptive Learning Platform
+# Tài liệu PALP
 
-Nền tảng học tập thích ứng cá nhân hóa dành cho sinh viên ĐH Kiến trúc Đà Nẵng.
+Điểm vào chính của dự án giờ nằm ở [`../README.md`](../README.md). File này đóng vai trò **documentation index** để điều hướng sang tài liệu chuyên sâu theo từng mảng.
 
-## Tổng quan
+## Bắt đầu từ đâu?
 
-PALP là hệ thống EdTech pilot tập trung vào môn **Sức Bền Vật Liệu**, phục vụ 60-90 sinh viên và 2-3 giảng viên trong 10 tuần pilot. Hệ thống cung cấp:
+- Muốn hiểu nhanh hệ thống, kiến trúc, cách chạy local, API surface và module map: đọc [`../README.md`](../README.md)
+- Muốn đi sâu vào kiến trúc và data model: bắt đầu với `ARCHITECTURE.md` và `DATA_MODEL.md`
+- Muốn chạy test, release, migration, hoặc xử lý sự cố: xem nhóm tài liệu vận hành bên dưới
 
-- **Assessment đầu vào** - xác định năng lực nền và tạo hồ sơ học tập
-- **Adaptive Pathway** - lộ trình học thích ứng dựa trên BKT (Bayesian Knowledge Tracing)
-- **Micro-task & Milestone** - chia nhỏ kiến thức thành bài tập 5-10 phút
-- **Early Warning Dashboard** - cảnh báo sớm cho giảng viên can thiệp kịp thời
-- **Wellbeing Nudge** - nhắc nghỉ khi học liên tục quá 50 phút
+## 1. Kiến trúc và thiết kế hệ thống
 
-## Tech Stack
+| Tài liệu | Nội dung |
+|---------|----------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Kiến trúc tổng thể, boundary giữa frontend/backend/infra |
+| [DATA_MODEL.md](DATA_MODEL.md) | Mô hình dữ liệu chính và quan hệ domain |
+| [API.md](API.md) | Tài liệu API ở mức tổng quan |
+| [API_CONTRACT.md](API_CONTRACT.md) | Contract, ràng buộc và nguyên tắc tránh breaking change |
+| [adr/README.md](adr/README.md) | Chỉ mục ADR và các quyết định kỹ thuật quan trọng |
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14, TypeScript, Tailwind CSS, shadcn/ui |
-| Backend | Django 5, Django REST Framework, Celery |
-| Database | PostgreSQL 16, Redis 7 |
-| Monitoring | Sentry, Health checks |
-| Container | Docker, docker-compose |
+## 2. Chất lượng, test và bàn giao
 
-## Quick Start
+| Tài liệu | Nội dung |
+|---------|----------|
+| [TESTING.md](TESTING.md) | Hướng dẫn chạy test local/CI, markers, coverage, E2E |
+| [QA_STANDARD.md](QA_STANDARD.md) | Chuẩn chất lượng, gating, release quality bar |
+| [TEST_TRACEABILITY.md](TEST_TRACEABILITY.md) | Mapping giữa yêu cầu và test coverage |
+| [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md) | Checklist DoD cho ticket/PR |
+| [UAT_SCRIPT.md](UAT_SCRIPT.md) | Kịch bản UAT |
+| [HANDOVER_REPORT.md](HANDOVER_REPORT.md) | Tài liệu handover |
 
-### Prerequisites
+## 3. Release, migration và vận hành
 
-- Docker & Docker Compose
-- Node.js 20+ (for local frontend dev)
-- Python 3.12+ (for local backend dev)
+| Tài liệu | Nội dung |
+|---------|----------|
+| [DEPLOYMENT.md](DEPLOYMENT.md) | Triển khai môi trường |
+| [RELEASE_RUNBOOK.md](RELEASE_RUNBOOK.md) | Quy trình release chi tiết |
+| [RELEASE_GATE_QUICKREF.md](RELEASE_GATE_QUICKREF.md) | Tóm tắt nhanh release gate |
+| [MIGRATION_RUNBOOK.md](MIGRATION_RUNBOOK.md) | Quy trình migration an toàn |
+| [PRIVACY_INCIDENT.md](PRIVACY_INCIDENT.md) | Xử lý sự cố liên quan privacy |
 
-### 1. Clone & Setup
+## 4. Product, planning và bối cảnh dự án
 
-```bash
-git clone <repo-url>
-cd palp
-cp .env.example .env
-```
+| Tài liệu | Nội dung |
+|---------|----------|
+| [PRD.md](PRD.md) | Product requirements |
+| [SPRINT_PLAN.md](SPRINT_PLAN.md) | Kế hoạch sprint |
+| [POST_PILOT_ROADMAP.md](POST_PILOT_ROADMAP.md) | Hướng phát triển sau pilot |
+| [NOTEBOOKLM_SYSTEM_OVERVIEW.md](NOTEBOOKLM_SYSTEM_OVERVIEW.md) | Tóm tắt hệ thống phục vụ trao đổi/triển khai |
 
-### 2. Start with Docker
+## 5. ADR đang có
 
-```bash
-docker-compose up -d
-```
+Thư mục [`adr/`](adr/) hiện bao gồm các quyết định sau:
 
-### 3. Initialize Database
+- JWT trong httpOnly cookie
+- BKT vs DKT
+- Celery vs Kafka
+- Fernet vs pgcrypto
+- Docker Compose pilot vs Kubernetes phase 2
+- Next.js App Router
+- Spectacular + oasdiff
+- PgBouncer transaction pooling
 
-```bash
-docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py shell < ../scripts/seed_data.py
-```
+## 6. Nguyên tắc dùng bộ tài liệu này
 
-### 4. Access
-
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000/api
-- API Docs: http://localhost:8000/api/docs/
-- Admin: http://localhost:8000/admin/
-
-### Default Accounts
-
-| Role | Username | Password |
-|------|----------|----------|
-| Admin | admin | admin123456 |
-| Lecturer | gv.nguyen | lecturer123 |
-| Student | sv001-sv030 | student123 |
-
-## Local Development
-
-### Backend
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## Project Structure
-
-```
-palp/
-├── backend/           # Django REST API
-│   ├── accounts/      # Auth, users, RBAC
-│   ├── assessment/    # Entry assessment engine
-│   ├── adaptive/      # BKT engine, pathway logic
-│   ├── curriculum/    # Courses, concepts, milestones, tasks
-│   ├── dashboard/     # Early warning, interventions
-│   ├── analytics/     # KPI, reporting
-│   ├── events/        # Event tracking
-│   └── wellbeing/     # Wellbeing nudges
-├── frontend/          # Next.js web application
-│   └── src/
-│       ├── app/       # Pages (student, lecturer, auth)
-│       ├── components/# UI components
-│       ├── hooks/     # React hooks
-│       ├── lib/       # Utilities, API client
-│       └── types/     # TypeScript types
-├── scripts/           # Seed data, ETL scripts
-├── docs/              # Documentation
-└── docker-compose.yml
-```
-
-## KPI Targets
-
-| Metric | Target |
-|--------|--------|
-| Active learning time/week | +20% vs baseline |
-| Micro-task completion | >= 70% |
-| Student satisfaction (CSAT) | >= 4.0/5 |
-| Lecturer dashboard usage | >= 2x/week |
-
-## Tài liệu quy trình & chất lượng
-
-| Tài liệu | Mô tả |
-|---------|--------|
-| [QA_STANDARD.md](QA_STANDARD.md) | 6 lớp chất lượng, test matrix, release & Go/No-Go |
-| [DEFINITION_OF_DONE.md](DEFINITION_OF_DONE.md) | DoD từng ticket (D1–D12), ma trận N/A |
-| [TESTING.md](TESTING.md) | Hướng dẫn chạy test local / CI |
-
-## License
-
-Internal project - ĐH Kiến trúc Đà Nẵng.
+- `README.md` ở root là nơi mô tả **trạng thái hệ thống hiện tại**
+- `docs/` là nơi chứa **tài liệu chuyên đề**
+- Khi behavior hệ thống thay đổi, hãy ưu tiên cập nhật root README trước, sau đó cập nhật tài liệu chuyên sâu liên quan

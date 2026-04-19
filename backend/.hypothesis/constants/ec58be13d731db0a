@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\emergency\admin.py
+# hypothesis_version: 6.151.9
+
+['acknowledged_at', 'acknowledged_by', 'consent_given', 'counselor', 'decided_at', 'detected_at', 'detector_score', 'event', 'id', 'name', 'phone', 'queued_at', 'relationship', 'resolved_at', 'severity', 'sla_target_at', 'state', 'status', 'student', 'triggering_turn']

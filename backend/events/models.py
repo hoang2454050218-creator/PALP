@@ -30,6 +30,50 @@ class EventLog(models.Model):
         ETL_STARTED = "etl_started", "ETL bắt đầu"
         ETL_COMPLETED = "etl_completed", "ETL hoàn thành"
         ETL_FAILED = "etl_failed", "ETL thất bại"
+        # ---------------------------------------------------------------
+        # v3 roadmap — Phase 1+ taxonomy expansion
+        # See docs/SIGNAL_TAXONOMY.md for schemas and emit rules.
+        # ---------------------------------------------------------------
+        # Sensing (Phase 1)
+        FOCUS_LOST = "focus_lost", "Mất tập trung"
+        FOCUS_GAINED = "focus_gained", "Lấy lại tập trung"
+        TAB_SWITCHED = "tab_switched", "Đổi tab"
+        IDLE_STARTED = "idle_started", "Bắt đầu nhàn rỗi"
+        IDLE_ENDED = "idle_ended", "Kết thúc nhàn rỗi"
+        SCROLL_DEPTH = "scroll_depth", "Độ cuộn trang"
+        HINT_REQUESTED = "hint_requested", "Yêu cầu gợi ý"
+        FRUSTRATION_SIGNAL = "frustration_signal", "Tín hiệu thất vọng"
+        GIVE_UP_SIGNAL = "give_up_signal", "Tín hiệu bỏ cuộc"
+        RESPONSE_TIME_OUTLIER = "response_time_outlier", "Thời gian phản hồi bất thường"
+        STRUGGLE_DETECTED = "struggle_detected", "Phát hiện vật lộn"
+        SCAFFOLD_SHOWN = "scaffold_shown", "Hiện scaffold"
+        SCAFFOLD_ACCEPTED = "scaffold_accepted", "Chấp nhận scaffold"
+        COGNITIVE_CALIBRATION_RECORDED = (
+            "cognitive_calibration_recorded",
+            "Ghi nhận tự đánh giá độ tự tin",
+        )
+        # Direction (Phase 2)
+        GOAL_SET = "goal_set", "Đặt mục tiêu"
+        GOAL_DRIFT = "goal_drift", "Lệch mục tiêu"
+        REFLECTION_SUBMITTED = "reflection_submitted", "Nộp reflection"
+        STRATEGY_PLAN_SET = "strategy_plan_set", "Đặt kế hoạch chiến lược"
+        # Peer (Phase 3)
+        PEER_BENCHMARK_VIEWED = "peer_benchmark_viewed", "Xem so sánh peer"
+        RECIPROCAL_TEACHING_STARTED = (
+            "reciprocal_teaching_started",
+            "Bắt đầu phiên dạy lẫn nhau",
+        )
+        RECIPROCAL_TEACHING_RATED = (
+            "reciprocal_teaching_rated",
+            "Đánh giá phiên dạy lẫn nhau",
+        )
+        # Coach (Phase 4)
+        COACH_TURN = "coach_turn", "Lượt hội thoại coach"
+        COACH_NUDGE_SENT = "coach_nudge_sent", "Coach gửi nudge"
+        # Emergency (Phase 4)
+        EMERGENCY_DETECTED = "emergency_detected", "Phát hiện khủng hoảng"
+        COUNSELOR_RESPONDED = "counselor_responded", "Counselor phản hồi"
+        EMERGENCY_RESOLVED = "emergency_resolved", "Khủng hoảng được xử lý"
 
     class ActorType(models.TextChoices):
         STUDENT = "student", "Sinh viên"
@@ -42,12 +86,39 @@ class EventLog(models.Model):
         EventName.MICRO_TASK_COMPLETED,
         EventName.CONTENT_INTERVENTION,
         EventName.RETRY_TRIGGERED,
+        EventName.SCAFFOLD_SHOWN,
+        EventName.SCAFFOLD_ACCEPTED,
+        EventName.COGNITIVE_CALIBRATION_RECORDED,
     }
 
     CONFIRMATION_REQUIRED_EVENTS = {
         EventName.ASSESSMENT_COMPLETED,
         EventName.MICRO_TASK_COMPLETED,
         EventName.GV_ACTION_TAKEN,
+        EventName.EMERGENCY_DETECTED,
+        EventName.COUNSELOR_RESPONDED,
+    }
+
+    # Phase 1B — events whose ingestion requires the
+    # ``behavioral_signals`` consent purpose. Enforced by the
+    # ``signals.permissions.ConsentBehavioralSignals`` gate and used by
+    # ``events.emitter`` to short-circuit unauthorised emissions.
+    BEHAVIORAL_SIGNAL_EVENTS = {
+        EventName.FOCUS_LOST,
+        EventName.FOCUS_GAINED,
+        EventName.TAB_SWITCHED,
+        EventName.IDLE_STARTED,
+        EventName.IDLE_ENDED,
+        EventName.SCROLL_DEPTH,
+        EventName.FRUSTRATION_SIGNAL,
+        EventName.GIVE_UP_SIGNAL,
+        EventName.RESPONSE_TIME_OUTLIER,
+        EventName.STRUGGLE_DETECTED,
+    }
+
+    # Phase 1E — events tied to ``cognitive_calibration`` consent.
+    METACOGNITIVE_EVENTS = {
+        EventName.COGNITIVE_CALIBRATION_RECORDED,
     }
 
     event_name = models.CharField(max_length=50, choices=EventName.choices, db_index=True)

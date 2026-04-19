@@ -1,0 +1,4 @@
+# file: /app/goals/services.py
+# hypothesis_version: 6.152.1
+
+[0.4, 0.85, '-last_updated', 'concept', 'concept_id', 'course', 'current_concept', 'current_milestone', 'difficulty', 'estimated_minutes', 'goal_id', 'goal_type', 'id', 'milestone_task', 'p_mastery', 'palp', 'semester_goal', 'status', 'target_concept_ids', 'target_concepts', 'target_minutes', 'variety_review', 'weak_concept', 'weekly']

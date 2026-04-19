@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\emergency\models.py
+# hypothesis_version: 6.151.9
+
+[0.0, 120, '-detected_at', '-queued_at', 'Anh chị em', 'Bạn', 'Cao', 'Cố vấn', 'Khác', 'Nguy cấp', 'Phụ huynh', 'Trong hàng đợi', 'Trung bình', 'accepted', 'acknowledged', 'coach.CoachTurn', 'counselor', 'critical', 'declined', 'emergency_contact', 'emergency_events', 'escalated', 'event', 'expired', 'friend', 'high', 'medium', 'open', 'other', 'palp_counselor_queue', 'palp_emergency_event', 'parent', 'queue_entries', 'queued', 'resolved', 'severity', 'sibling', 'state', 'status', 'student', 'viewed', 'Đang mở', 'Đã giải quyết', 'Đã hết hạn', 'Đã leo thang tiếp', 'Đã nhận', 'Đã từ chối', 'Đã xem']

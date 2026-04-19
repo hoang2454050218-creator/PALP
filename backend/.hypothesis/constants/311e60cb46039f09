@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\peer\models.py
+# hypothesis_version: 6.151.9
+
+[0.0, '-detected_at', '-started_at', 'A dạy X cho B', 'A hỏi rõ', 'B dạy Y cho A', 'B hỏi rõ', 'Bài tập theo dõi', 'Cao', 'Giới thiệu', 'Hoàn thành', 'Nghiêm trọng', 'Trung bình', 'a_asks', 'a_teaches_x', 'active', 'archived', 'b_asks', 'b_teaches_y', 'brief', 'completed', 'critical', 'curriculum.Concept', 'declined', 'follow_up', 'herd_clusters', 'high', 'is_active', 'is_resolved', 'match', 'matches', 'medium', 'mutual_rating', 'palp_peer_cohort', 'palp_peer_consent', 'palp_peer_match', 'peer_cohorts', 'peer_consent', 'peer_matches_as_a', 'peer_matches_as_b', 'pending', 'sessions', 'severity', 'status', 'student_a', 'student_b', 'student_class', 'Đang chờ đồng ý', 'Đang hoạt động', 'Đánh giá lẫn nhau', 'Đã lưu trữ', 'Đã từ chối']

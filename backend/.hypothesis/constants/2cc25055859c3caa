@@ -1,0 +1,4 @@
+# file: /app/adaptive/admin.py
+# hypothesis_version: 6.152.1
+
+['actual_correct', 'applied_at', 'attempt_count', 'attempt_number', 'calibration_error', 'concept', 'concept__course', 'confidence_pre', 'correct_count', 'course', 'created_at', 'current_concept', 'current_difficulty', 'intervention_type', 'is_active', 'is_correct', 'judgment_type', 'last_updated', 'lecturer', 'override_type', 'p_mastery', 'p_mastery_at_trigger', 'score', 'source_rule', 'student', 'student__username', 'task', 'task__title', 'updated_at']

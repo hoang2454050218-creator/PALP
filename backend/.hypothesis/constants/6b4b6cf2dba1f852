@@ -1,0 +1,4 @@
+# file: /app/goals/drift_detector.py
+# hypothesis_version: 6.152.1
+
+[0.0, 0.1, 0.4, 'DRIFT_THRESHOLD_PCT', 'PALP_GOALS', 'actual_minutes', 'drift_pct', 'drift_pct_last_check', 'focus_minutes', 'palp', 'status', 'target_minutes', 'total', 'weekly_goal_id']

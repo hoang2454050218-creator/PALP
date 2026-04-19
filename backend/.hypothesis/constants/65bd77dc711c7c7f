@@ -1,0 +1,4 @@
+# file: /app/mlops/apps.py
+# hypothesis_version: 6.152.1
+
+['MLOps Stack', 'mlops']

@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\peer\services\reciprocal_matcher.py
+# hypothesis_version: 6.151.9
+
+[0.0, 1e-09, 0.5, 1.0, '-created_at', 'ReciprocalPeerMatch', 'compatibility_score', 'concept_a_to_b', 'concept_a_to_b_id', 'concept_b_to_a', 'concept_b_to_a_id', 'concept_id', 'p_mastery', 'palp.peer.matcher', 'peer_teaching', 'status', 'updated_at']

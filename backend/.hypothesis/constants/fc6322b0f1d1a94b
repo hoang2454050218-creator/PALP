@@ -1,0 +1,4 @@
+# file: C:\Users\Admin\OneDrive\Desktop\Cá Nhân Hóa\backend\coach\models.py
+# hypothesis_version: 6.151.9
+
+['-created_at', '-started_at', 'Coach', 'Hệ thống', 'Sinh viên', 'assistant', 'audit', 'coach_consent', 'coach_conversations', 'conversation', 'emergency_triggered', 'ended', 'llm_provider', 'open', 'palp_coach_audit', 'palp_coach_consent', 'palp_coach_turn', 'refusal_triggered', 'status', 'student', 'system', 'system_closed', 'turn_number', 'turns', 'uq_coach_turn_seq', 'Đang mở', 'Đã kết thúc']

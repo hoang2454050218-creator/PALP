@@ -20,6 +20,7 @@ import type {
   DeletionRequest,
   DataExportResponse,
 } from "@/types";
+import { ResearchParticipationCard } from "@/components/phase7/research-participation-card";
 
 const TIER_LABELS: Record<string, string> = {
   pii: "Thông tin cá nhân (PII)",
@@ -281,6 +282,8 @@ export default function PrivacyCenterPage() {
           </Card>
         </div>
       </div>
+
+      <ResearchParticipationCard />
 
       <Card className="mt-6">
         <CardHeader>

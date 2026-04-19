@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "struggle_detected properties",
+  "type": "object",
+  "required": ["concept_id", "trigger_type"],
+  "properties": {
+    "concept_id": {"type": "integer"},
+    "trigger_type": {
+      "type": "string",
+      "enum": ["frustration_threshold", "failed_attempts", "composite"]
+    },
+    "evidence": {"type": "object"}
+  },
+  "additionalProperties": true
+}
